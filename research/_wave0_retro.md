@@ -47,28 +47,32 @@ Both reports pass substance. Every one of the 10 required sections is present in
 
 ## 2.5 VERDICT
 
-- [x] **VERDICT-S (subsection resistance — minor)** with a small VERDICT-P overlay.
-   - Why not VERDICT-P: there are no SHARED failures of checklist items between the two pilots. Every structural and content rule (R1–R9, S1–S7, P1, C1–C2) passes for both.
-   - Why there's a small P overlay: two of the proposed refinements (worked-example data policy, web-source citation format) would improve BOTH future agents' outputs, not just one. So the prompt has slack that can be tightened, not errors that must be fixed.
-   - Why S: the one real divergence (Pilot B catching the IL-bonds vs intermediate-Treasuries discrepancy) is subsection-specific, reflects a genuine ambiguity about the subsection scope rather than a prompt failure, and is remediated by fixing the registry entry — not the prompt.
+**REVISED after advisor review.** Original verdict was VERDICT-S; advisor correctly surfaced a SHARED substance issue across both pilots that the letter-of-the-checklist grep (R7) did not catch. Updating below.
 
-Verdict in one sentence: **prompt is working; tighten three small areas and fix one registry error; launch Wave 1.**
+- [x] **VERDICT-P (prompt failure — attribution discipline at point of use)** with a small VERDICT-S overlay (IL-bonds registry error in 2.2).
+   - **Shared slip, both pilots:** operational thresholds / bucket edges / band widths / derived matrices that are NOT directly in a Dalio/Bridgewater source appear in the body **without a NON-DALIO or DERIVED marker at the point of use**. Only acknowledged in § 10 limitations. Concrete examples (verified by re-read):
+      - **Pilot A § 6:** `credit_mix_regime` uses 0.66 / 0.33 tertile cuts — attributed to "Dalio's qualitative framing, p. 2," but those specific numbers are not in that quote. Dalio's p. 2 argues Total $ matters more than Total Q; he doesn't specify tertile thresholds.
+      - **Pilot A § 6:** `debt_money_regime` bucket edges 10 and 15 — the 15 anchors on Dalio p. 7, but the edges themselves are stipulated. § 10 #3 admits this; § 6 doesn't mark it NON-DALIO/DERIVED.
+      - **Pilot B § 5:** "±25% of mean" environment-risk band — uncited, unmarked.
+      - **Pilot B § 6:** "1.5× max/min RC" imbalance heuristic — uncited, unmarked.
+      - **Pilot B § 5:** +1 / 0 / −1 environmental bias matrix — § 10 #4 admits "fair paraphrase, not literally in Dalio's text"; § 5 presents it unmarked.
+   - **Why this is VERDICT-P, not S:** the pattern is IDENTICAL across two subsections of materially different character (narrative-macro vs numeric-portfolio). That's the definition of a shared prompt failure.
+   - **Why only a small S overlay:** the IL-bonds vs intermediate-Treasuries issue in 2.2 is a registry scope error that only affects that subsection; it's remediated by refinement R3 below.
+   - **Why the checklist missed it:** R7 grep counts markers (≥ 8) and confirms presence — it doesn't verify that every numeric threshold has either a Dalio citation or a NON-DALIO/DERIVED marker within a few lines. Both pilots had 11 markers and passed the grep while unsourced thresholds slipped through the body unmarked.
+
+Verdict in one sentence: **prompt has a real attribution-discipline hole at the point-of-use for derived thresholds; fix with a new hard rule + acceptance-criteria patch before Wave 1; do not re-spawn 1.1 / 2.2 (patch them during consolidation).**
 
 ## 3. Proposed prompt refinements for Wave 1
 
-Each is specific and testable.
+Each is specific and testable. **Refinements #3 and #5 are BLOCKING for Wave 1** (must land in prompt + checklist before spawn). #1, #2 are helpful and cheap. #4 is optional.
 
 1. **Refinement #1 — specify § 7 worked-example data policy.** Add to the REQUIRED OUTPUT SCHEMA description for § 7:
 
    > § 7's numbers may be either (a) illustrative and clearly labelled as such, or (b) drawn from a recent real data pull with the exact dataset identifier and as-of date cited. Either is acceptable; mixing (a) and (b) within one example is not.
 
-   Addresses the A-vs-B inconsistency noted above. Every subsequent agent picks one mode and commits.
-
 2. **Refinement #2 — explicit web-source citation style for § 2.** Add to the REQUIRED OUTPUT SCHEMA description for § 2:
 
    > For paginated sources, cite `source: <title>, <p. N>`. For unpaginated web sources, cite `source: <title>, <full URL>`. Do not invent page numbers for web sources.
-
-   Addresses Pilot B's citation style question explicitly.
 
 3. **Refinement #3 — fix the subsection registry entry for 2.2.** Edit `research/_prompt_template.md` (and spec § 5 for consistency) to replace:
 
@@ -78,16 +82,20 @@ Each is specific and testable.
 
    > **IN:** ... canonical weights (~30% stocks / 40% long bonds / 15% intermediate nominal Treasuries / 7.5% gold / 7.5% commodities style — the only publicly-disclosed Dalio recipe, via Robbins 2014; institutional Bridgewater may use inflation-linked in the same slot but those weights are not public).
 
-   Addresses the IL-bond error Pilot B caught. This is a scope fix, not a prompt fix.
-
 4. **Refinement #4 — optional — title format standardization.** Add to DELIVERABLE:
 
    > Document title (the H1 at the top of the file) must be exactly: `# {ID} {TITLE}` — for example, `# 1.1 Economic Machine Template` or `# 2.2 All-Weather (Beta) Portfolio`.
 
-   Small cosmetic consistency win. Non-blocking — not a correctness issue.
+5. **Refinement #5 (NEW, BLOCKING) — Hard Rule R10, point-of-use attribution for derived thresholds.** Add to HARD RULES in `research/_prompt_template.md`:
+
+   > R10. Any operational threshold, bucket edge, band width, heuristic ratio, or derived matrix that is NOT directly stated in a Dalio/Bridgewater source MUST carry a `> **NON-DALIO (industry standard)**` or `> **DERIVED (operational)**` marker at the point of use in the body — NOT only as a § 10 acknowledgment. "Dalio gives a range; I'm picking the midpoint" counts as DERIVED and needs the marker at the point of use. "Dalio anchors the centre; I'm stipulating bucket edges" counts as DERIVED.
+
+   And add a corresponding acceptance-criteria item **R7b** to `research/_acceptance_criteria.md`:
+
+   > **R7b. Point-of-use attribution for derived thresholds.** Spot-check every numeric threshold / bucket edge / band width / derived matrix in § 5 and § 6. Each must be within 3 lines of either a `> **Dalio**`, `> **NON-DALIO**`, or `> **DERIVED**` marker. A threshold only acknowledged in § 10 = FAIL.
 
 ## 4. Recommendation
 
-**Launch Wave 1 with refinements #1, #2, #3 applied.** Refinement #4 is optional. No re-pilot needed. The prompt is validated on two subsections of materially different character (narrative/macro vs numeric/portfolio), and both produced useful operational frameworks.
+**Apply refinements #3 and #5 (blocking), then #1 and #2 (cheap wins). Then launch Wave 1.** Refinement #4 is optional. Do NOT re-spawn 1.1 / 2.2 — those reports are substantively useful; patch their attribution slips in place during consolidation with inserted `> **DERIVED**` markers where needed.
 
 Wave 1 = subsections 1.2, 1.3, 1.4, 1.5 (four agents spawned in parallel). Expect roughly one agent's worth of wall-clock time (~15–30 minutes).

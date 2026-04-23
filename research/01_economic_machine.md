@@ -52,7 +52,7 @@ $$P_t = \frac{\text{Total \$}_t}{Q_t}$$
 
 At the economy level: $\text{GDP}_{\text{nom},t} = \text{GDP}_{\text{real},t} \cdot P_t / 100$, identifying `Total $` with `GDP_nom`, `Q` with `GDP_real`, and `P` with `GDP_defl`.
 
-> **Dalio** — source: ibid., p. 1: "All changes in economic activity and all changes in financial markets' prices are due to changes in the amounts of 1) money or 2) credit that are spent on them (total $), and the amounts of these items sold (total Q)."
+> **Dalio** — source: ibid., p. 2: "All changes in economic activity and all changes in financial markets' prices are due to changes in the amounts of 1) money or 2) credit that are spent on them (total $), and the amounts of these items sold (total Q)."
 
 ### 5.2 Money-vs-credit decomposition of spending
 
@@ -98,14 +98,18 @@ Dalio's 2012 snapshot implied $R^{D/M} \approx 15$ using debt of ~$50T and money
 
 ## § 6 Output Variables & Decision Rules
 
-The layer emits four regime tags. Thresholds are Dalio ranges where he gives them; the one derived threshold (the gap band of ±1 standard deviation) is marked non-Dalio.
+The layer emits four regime tags. Dalio anchors qualitative concepts and point estimates; the operational thresholds (flag bands, tertile cuts, bucket edges) are author-stipulated and marked DERIVED below.
+
+> **DERIVED (operational)** — the "1–3% p.a." flag band on `trend_growth_pct` is author-stipulated. Dalio names ~2% as the historical fit (p. 5, "a shade less than 2%"); he does not publish a numeric flag range. The ±1pp band brackets typical decade realizations (Chart 1 decade averages range 0.2%–4.1%).
 
 | Output | Formula | Regime tag | Cite |
 |---|---|---|---|
-| `trend_growth_pct` | $g^{\text{trend}}$ | Report raw; flag if outside 1–3% p.a. | Dalio, p. 5 ("a shade less than 2%") |
-| `gap_regime` | based on `gap%` | `ABOVE_TREND` if gap% > +σ; `BELOW_TREND` if < −σ; else `ON_TREND` | σ-band is **NON-DALIO** (see note below) |
-| `credit_mix_regime` | based on `s^C_t` (rolling 4Q) | `CREDIT_DRIVEN` if `s^C` > 0.66; `MONEY_DRIVEN` if < 0.33; else `MIXED` | Dalio's qualitative framing, p. 2 |
-| `debt_money_regime` | based on `R^{D/M}` | `LOW` if < 10; `ELEVATED` if 10–15; `HIGH` if > 15 | Dalio's 2012 snapshot, p. 7 (~15×) |
+| `trend_growth_pct` | $g^{\text{trend}}$ | Report raw; flag if outside 1–3% p.a. (DERIVED band) | Dalio, p. 5 ("a shade less than 2%") anchors centre; band is DERIVED above |
+| `gap_regime` | based on `gap%` | `ABOVE_TREND` if gap% > +σ; `BELOW_TREND` if < −σ; else `ON_TREND` | σ-band is **NON-DALIO** (see note below table) |
+| `credit_mix_regime` | based on `s^C_t` (rolling 4Q) | `CREDIT_DRIVEN` if `s^C` > 0.66; `MONEY_DRIVEN` if < 0.33; else `MIXED` | DERIVED cuts (see note below table) |
+| `debt_money_regime` | based on `R^{D/M}` | `LOW` if < 10; `ELEVATED` if 10–15; `HIGH` if > 15 | DERIVED edges (see note below table) |
+
+> **DERIVED (operational)** — the 0.66 / 0.33 tertile cuts on `s^C_t` (`credit_mix_regime`) and the bucket edges at 10 and 15 on `R^{D/M}` (`debt_money_regime`) are stipulated for operational use. Dalio supplies only qualitative framing on p. 2 ("Changes in the amount of buying (total $) typically have a much bigger impact ... than do changes in the total amount of selling (total Q)") and the 2012 point estimate "roughly 15 times" on p. 7 — he does NOT define numeric tertile thresholds or regime-classification band edges. The cuts and edges are author-chosen.
 
 > **NON-DALIO (industry standard)** — source: Hamilton, J.D. (2018), "Why You Should Never Use the Hodrick-Prescott Filter," *Review of Economics and Statistics* 100(5), NBER WP 23429 (free version), https://www.nber.org/papers/w23429. Used to close a gap because Dalio does not specify a numeric band around the productivity trend line: use one residual standard deviation σ of the regression in §5.3 as the "on-trend" band.
 
@@ -151,7 +155,7 @@ This matches Dalio's "a shade less than 2%" (p. 5).
 
 ```js
 // file: dalio_dashboard/machine.js
-// Fetch order: 1) GDP_nom, 2) GDP_real, 3) RGDP_pc, 4) M2, 5) TCMDO.
+// Fetch order (see `ids` array below): GDP_nom, GDP_real, GDP_defl, RGDP_pc, M2, TCMDO.
 
 const FRED = (id, key) =>
   `https://api.stlouisfed.org/fred/series/observations` +
@@ -300,8 +304,9 @@ Regime chips: `#00D08C` (`ON_TREND` / `LOW`), `#D4A373` (`MIXED` / `ELEVATED`), 
 ### Open questions and ambiguities
 
 1. **Dalio gives cycle *ranges*, not thresholds.** "5 to 8 years" (short) and "50 to 75 years" (long) are descriptive ranges from the 2012 paper, p. 5. He does not publish a numeric test to decide *which* cycle you are in; that machinery is subsection 1.2 / 1.3. Flagged per R5.
-2. **"A shade less than 2%"** (p. 5) is a *historical fit*, not a forward-looking threshold. The paper gives no rule for when to declare the trend has broken or shifted. Treat `trend_growth_pct` as descriptive.
+2. **"A shade less than 2%"** (p. 5) is a *historical fit*, not a forward-looking threshold. The paper gives no rule for when to declare the trend has broken or shifted. Treat `trend_growth_pct` as descriptive. The operational **1–3% p.a. flag band** around Dalio's ~2% anchor is DERIVED (stipulated to bracket typical decade realizations 0.2%–4.1% per Chart 1); Dalio himself does not publish a range.
 3. **"Roughly 15 times"** debt-to-money (p. 7) is a 2012 point-in-time observation using currency + reserves as the money denominator. Dalio does not define the choice of monetary aggregate or provide a threshold at which the ratio becomes dangerous; the `LOW / ELEVATED / HIGH` bucketing above uses his 15× anchor for the middle band but the bucket edges themselves are stipulated for operational use, not cited from Dalio.
+4. **`credit_mix_regime` 0.66 / 0.33 tertile cuts** on `s^C_t` are DERIVED, not Dalio. The 2012 paper (p. 2) supplies only the qualitative directional claim that Total $ changes drive the cycle more than Total Q; it contains no numeric tertile thresholds. The 0.66 / 0.33 cuts are the minimum-information split of [0,1] into three named buckets; any user can override without changing the framework.
 4. **Output-gap σ-band is not Dalio.** He plots the trend line visually; there is no numeric band in the 2012 paper. The ±1σ rule is borrowed from NON-DALIO practice (Hamilton 2018 on detrending) and labelled in §6.
 5. **Total Q at the economy level is an approximation.** Dalio's transactions identity is defined on a single market. Using real GDP as the aggregate Q treats composition changes as price changes in $P$. For any one market (e.g. housing, equities) the identity applies more cleanly than for aggregate output.
 6. **Dalio's "money" ≠ M2.** He uses "currency and reserves" as the money base. M2 is the practical public proxy; report both where it matters (worked example, step 6).
@@ -314,5 +319,5 @@ Regime chips: `#00D08C` (`ON_TREND` / `LOW`), `#D4A373` (`MIXED` / `ELEVATED`), 
 - **FRED API.** https://fred.stlouisfed.org/docs/api/fred/ — series `GDP`, `GDPC1`, `GDPDEF`, `A939RX0Q048SBEA`, `CNP16OV`, `M2SL`, `TCMDO`, `HOANBS`, `OPHNFB`.
 - **Maddison Project 2020** (long-run RGDP/capita): https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2020
 - **World Bank WDI** (non-US): `https://api.worldbank.org/v2/country/{ISO}/indicator/{code}`, codes `NY.GDP.MKTP.KD`, `NY.GDP.PCAP.KD`.
-- **BIS total credit dataset** `tc`: https://www.bis.org/statistics/full_data_sets.htm
+- **BIS total credit dataset** `WS_TC`: https://data.bis.org/topics/TOTAL_CREDIT (the older `bis.org/statistics/full_data_sets.htm` URL 302-redirects to `data.bis.org/bulkdownload` and the dataset identifier changed from `tc` to `WS_TC`).
 - **NON-DALIO methodological anchor.** Hamilton (2018), "Why You Should Never Use the Hodrick-Prescott Filter," NBER WP 23429: https://www.nber.org/papers/w23429 — basis for the σ-band detrending rule in §6.

@@ -129,11 +129,22 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 
 - [ ] **C2. § 10 Sources subsection lists every source cited in the report, with full citations + public URLs.** Cross-reference R8's URL list against § 10's bibliography; every URL in the body must also appear in § 10.
 
+- [ ] **C3. Red-team audit file exists and verdict is PASS or PASS-with-patches.**
+  The red-team audit is an INDEPENDENT adversarial check run by a fresh-context agent per `research/_redteam_prompt.md`. Its verdict gates wave acceptance: a report that has not been audited is not shipped.
+  ```bash
+  test -f research/_audit_<SEQ>_<slug>.md && echo "audit file exists" || echo "FAIL — no audit file"
+  # Extract verdict line:
+  grep -E "^## Verdict" -A 2 research/_audit_<SEQ>_<slug>.md | grep -oE "\*\*(PASS|PASS-with-patches|REJECT-re-spawn)\*\*"
+  # Expected: **PASS** or **PASS-with-patches**
+  # REJECT-re-spawn = FAIL; triggers re-spawn loop per _redteam_prompt.md (one retry max; escalate on persistent REJECT).
+  ```
+  C3 is a COVERAGE gate on top of the 20 original criteria; it does NOT substitute for them. All original items (S1–S7, R1–R9, R7b, P1, C1–C2) must still independently pass for the target report, AND the red-team audit must land PASS or PASS-with-patches.
+
 ---
 
 ## Tally
 
-Total items: **20** (S1–S7, R1–R9, R7b, P1, C1–C2).
-`grep -c "^- \[ \]" research/_acceptance_criteria.md` → expect exactly 20.
+Total items: **21** (S1–S7, R1–R9, R7b, P1, C1–C3).
+`grep -c "^- \[ \]" research/_acceptance_criteria.md` → expect exactly 21.
 
-**Pass bar:** all 20 items marked PASS. Even one FAIL triggers rejection and (depending on root cause) either a targeted fix, a prompt refinement, or a full re-spawn.
+**Pass bar:** all 21 items marked PASS. Even one FAIL triggers rejection and (depending on root cause) either a targeted fix, a prompt refinement, or a full re-spawn.

@@ -179,14 +179,40 @@ Filename pattern: `research/{SEQ}_{slug}.md`.
 
 ## 6. Research execution plan
 
+Wave structure (updated to include red-team stage, per user directive 2026-04-23):
+
 ```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  EACH WAVE = 3 STAGES                                                        │
+│                                                                              │
+│  Stage 1: RESEARCH                                                           │
+│  N parallel research agents → one report each at research/NN_slug.md        │
+│                                                                              │
+│  Stage 2: RED-TEAM                                                           │
+│  N parallel adversarial auditors → one audit each at research/_audit_NN_slug.md │
+│  Audit agents have FRESH context (did not write the target).                 │
+│  Per research/_redteam_prompt.md; verdict ∈ {PASS, PASS-with-patches, REJECT-re-spawn}. │
+│                                                                              │
+│  Stage 3: SYNTHESIS                                                          │
+│  Main session reads all audits, applies PASS-with-patches patches in-place, │
+│  writes wave retro, decides any next-wave prompt refinements.               │
+│  REJECT-re-spawn triggers one auto-retry; persistent REJECT escalates.      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
 Wave 0  — PILOT           Wave 1 — BATCH A      Wave 2 — BATCH B      Wave 3 — BATCH C
-[1.1]  ──► inspect ──►  [1.2, 1.3, 1.4, 1.5] ──► inspect ──►  [1.6, 1.7, 2.1, 2.2] ──► inspect ──►  [2.3, 2.4, 2.5] ──► done
+[1.1, 2.2]  ──► inspect ──►  [1.2, 1.3, 1.4, 1.5] ──► inspect ──►  [1.6, 1.7, 2.1] ──► inspect ──►  [2.3, 2.4, 2.5] ──► done
+(2.2 pre-done in Wave 0 dual-pilot; skipped from Wave 2.)
 ```
 
-Between waves: I produce a "wave report" with what I learned, what prompt adjustments I'm making, and I wait for your sign-off before launching the next batch.
+Between waves: main session produces a wave retrospective documenting what was learned, which refinements are applied to the prompt template / acceptance criteria, and what blocks the next wave. User sign-off gates wave-to-wave transitions.
 
-**Subagent type:** `general-purpose` (has WebSearch + WebFetch + file write). Spawn them in isolation mode with explicit write paths so reports land at `research/##_<slug>.md`.
+**Red-team gate.** Closeout criterion C3 in `research/_acceptance_criteria.md` requires the audit file to exist and declare PASS or PASS-with-patches. A report without a passed audit does NOT ship.
+
+**Subagent types:**
+- Stage 1 research: `general-purpose` (has WebSearch + WebFetch + file write). Spawn with explicit write paths so reports land at `research/NN_<slug>.md`.
+- Stage 2 red-team: `general-purpose`, fresh context, prompted via `research/_redteam_prompt.md`. Writes to `research/_audit_NN_<slug>.md` only; never edits the target.
+
+**Retroactive red-team.** Wave 0 pilots (1.1 Economic Machine, 2.2 All-Weather) predate the red-team stage. They receive retroactive audits in Wave 1's red-team batch per user decision 2026-04-23.
 
 ---
 

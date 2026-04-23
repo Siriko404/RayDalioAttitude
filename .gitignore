@@ -38,3 +38,8 @@ data_cache/
 
 # Research drafts / sandboxes
 .sandbox/
+
+# Agent scratch artifacts (pdftotext dumps, intermediate extracts)
+.tmp_*
+research/_tmp_*
+*.tmp.txt

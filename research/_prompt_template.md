@@ -117,6 +117,52 @@ HARD RULES
       the centre; I'm stipulating bucket edges" counts as DERIVED.
       § 10 acknowledgment alone is insufficient; the body prose at the
       threshold must bear the marker within 3 lines.
+  R11. URL PRE-FLIGHT (BLOCKING).
+      Before including ANY URL in the final report, you MUST WebFetch
+      that URL and confirm:
+        (a) it resolves to a 200 status (or 302 → 200 redirect chain),
+        (b) the page content substantively relates to what you cite
+            it for.
+      A paywall/login wall / 404 / wrong-document 302 chain = do NOT
+      cite. If the canonical source is dead, either (1) find a working
+      mirror via Wayback Machine (and cite the Wayback URL explicitly
+      with the snapshot date), or (2) drop the claim that depends on
+      it. Citing a URL you have not WebFetch'd in this session =
+      research failure.
+  R12. QUOTE FIDELITY FROM RETRIEVED TEXT (BLOCKING).
+      Every `> **Dalio**` verbatim quote MUST be copy-pasted from the
+      page text returned by your WebFetch / pdftotext / equivalent
+      retrieval — NEVER from memory. Do not trim or rephrase; use
+      "[…]" for elisions and show the elision explicitly.
+      When citing from a multi-paper compilation PDF (e.g. Dalio's
+      "Economic Principles" compilation), the page number MUST be the
+      PRINTED page visible in the footer, NOT the PDF-viewer counter.
+      If you cannot verify the printed page, cite by section heading
+      instead (e.g. `source: "Big Debt Crises", Ch 1 "The Archetypal
+      ..."`). Paraphrase disguised as verbatim inside a `> **Dalio**`
+      block = research failure.
+  R13. DATA-SERIES IDENTIFIER VERIFICATION.
+      For every dataset identifier cited (FRED series ID, BIS dataset
+      key, World Bank indicator code, BLS series ID, OECD code, etc.):
+      WebFetch the series description page and confirm the ID you
+      cite and the description you use refer to the same series.
+      Wrong-series mis-labels (e.g. citing `GFDEGDQ188S` for "debt
+      held by public" when it is total debt) = research failure.
+      In § 4 Input Variables Table, the description column MUST
+      paraphrase or quote the official series description, not a
+      generic label.
+  R14. WORKED-EXAMPLE ARITHMETIC SELF-CHECK.
+      Before finalizing § 7, re-execute each formula row-by-row and
+      confirm that:
+        (a) every stated total equals the sum of its components to
+            the precision printed (no rounding slop accepted unless
+            explicitly noted);
+        (b) no rank / ratio / share column contains a duplicate that
+            the formula disallows (e.g. Spearman rank ties must be
+            handled by the tie-break rule you stated);
+        (c) any chart data in § 8c agrees numerically with the § 7
+            table that generated it.
+      Chart data diverging from its own § 7 source = research failure.
 
 REQUIRED OUTPUT SCHEMA (exact section titles, exact order)
   ## § 1  Executive Summary                  (<=100 words)

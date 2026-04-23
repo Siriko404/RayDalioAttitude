@@ -64,6 +64,10 @@ SOURCE PRIORITY (use WebSearch and WebFetch freely)
 DELIVERABLE
   One Markdown file, 2000-3000 words, saved at:
   research/{SEQ}_{slug}.md
+  Document title (the H1 at the top of the file) must be exactly:
+      # {ID} {TITLE}
+  e.g. `# 1.1 Economic Machine Template` or
+       `# 2.2 All-Weather (Beta) Portfolio`.
 
 HARD RULES
   R1. Every one of the 10 required sections below must be present.
@@ -102,10 +106,24 @@ HARD RULES
       quote no more than ONE sentence at a time and no more than TWO
       sentences cumulative per book. Paraphrase the rest in your own
       words.
+  R10. POINT-OF-USE ATTRIBUTION FOR DERIVED THRESHOLDS.
+      Any operational threshold, bucket edge, band width, heuristic
+      ratio, or derived matrix that is NOT directly stated in a
+      Dalio/Bridgewater source MUST carry a `> **NON-DALIO (industry
+      standard)**` or `> **DERIVED (operational)**` marker at the
+      point of use in the body — NOT only as a § 10 acknowledgment.
+      "Dalio gives a range; I'm picking the midpoint" counts as
+      DERIVED and needs the marker at the point of use. "Dalio anchors
+      the centre; I'm stipulating bucket edges" counts as DERIVED.
+      § 10 acknowledgment alone is insufficient; the body prose at the
+      threshold must bear the marker within 3 lines.
 
 REQUIRED OUTPUT SCHEMA (exact section titles, exact order)
   ## § 1  Executive Summary                  (<=100 words)
   ## § 2  Dalio's Framework — Verbatim       (3-6 direct quotes with full citations)
+            For paginated sources, cite `source: <title>, p. N`. For
+            unpaginated web sources, cite `source: <title>, <full URL>`.
+            Do not invent page numbers for web sources.
   ## § 3  Decision Problem                    (what question does this answer?)
   ## § 4  Input Variables Table
             Columns: name | description | unit | data source | API endpoint |
@@ -113,6 +131,10 @@ REQUIRED OUTPUT SCHEMA (exact section titles, exact order)
   ## § 5  Computation / Transformations       (formulas in LaTeX or clear prose)
   ## § 6  Output Variables & Decision Rules   (thresholds -> regime/action)
   ## § 7  Worked Numeric Example              (illustrative small numbers, step by step)
+            Numbers may be (a) illustrative and clearly labelled as such,
+            or (b) drawn from a recent real data pull with exact dataset
+            identifier + as-of date cited. Either is acceptable; mixing
+            (a) and (b) within one example is NOT acceptable.
   ## § 8  Implementation Specs
             ### 8a. JS — function signature, fetch URLs, pseudo-code
             ### 8b. Excel — sheet layout, Power Query M or URL, key formulas
@@ -188,7 +210,7 @@ Filename pattern: `research/{SEQ}_{slug}.md`.
 - **OUT:** specific All-Weather allocations (2.2); alpha-specific (2.3); leverage sizing (2.4); stress testing (2.5).
 
 #### 2.2 All-Weather (Beta) Portfolio
-- **IN:** 4-box growth × inflation framework; risk-weighted (not capital-weighted) allocation; asset-class regime mapping; canonical weights (~30% stocks / 40% long bonds / 15% IL bonds / 7.5% gold / 7.5% commodities style).
+- **IN:** 4-box growth × inflation framework; risk-weighted (not capital-weighted) allocation; asset-class regime mapping; canonical weights (~30% stocks / 40% long bonds / 15% intermediate nominal Treasuries / 7.5% gold / 7.5% commodities style — the only publicly-disclosed Dalio recipe, via Robbins 2014; institutional Bridgewater may use inflation-linked in the same slot but those weights are not public).
 - **OUT:** leverage engineering (2.4); alpha overlay (2.3); macro regime detection (Module 1).
 
 #### 2.3 Alpha Generation & Portable Alpha

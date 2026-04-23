@@ -76,9 +76,31 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 
 - [ ] **R7. Every claim has a visual attribution marker.**
   ```bash
-  grep -cE '^> \*\*(Dalio|NON-DALIO)' research/<SEQ>_<slug>.md
+  grep -cE '^> \*\*(Dalio|NON-DALIO|DERIVED)' research/<SEQ>_<slug>.md
   # Expect >= 8 markers for a 2000-3000 word report.
   # If 0, attribution was silently skipped = FAIL.
+  ```
+  NOTE: This is a PRESENCE check (fast filter). It does NOT verify that
+  every threshold / bucket edge has an attribution marker nearby. That is
+  the job of R7b below, which is the authoritative coverage check.
+
+- [ ] **R7b. Point-of-use attribution for derived thresholds (COVERAGE check).**
+  Spot-check every numeric threshold / bucket edge / band width /
+  heuristic ratio / derived matrix in § 5 and § 6. Each must be within
+  3 lines of either a `> **Dalio**`, `> **NON-DALIO (industry standard)**`,
+  or `> **DERIVED (operational)**` marker. A threshold only acknowledged
+  in § 10 = FAIL. Common slip pattern: Dalio gives a central anchor
+  (e.g. "productivity grows ~2%"); agent stipulates bucket edges
+  (e.g. "<1.5 = low-growth, >2.5 = high-growth") and attributes to the
+  Dalio anchor — the edges themselves are DERIVED and need the marker
+  at the point of use.
+  ```bash
+  # Quick filter: list every occurrence of numeric thresholds in §§ 5–6
+  # and inspect for a nearby marker (within 3 preceding or following lines).
+  awk '/^## § 5/,/^## § 7/' research/<SEQ>_<slug>.md | \
+    grep -nE '[0-9]+(\.[0-9]+)?\s*(%|×|x|:|\|)' | head -40
+  # Then for each hit, grep -B 3 -A 3 around that line for the marker.
+  # No grep shortcut substitutes for reading the prose. Read it.
   ```
 
 - [ ] **R8. Every cited source has a public URL (no paywalls).**
@@ -111,7 +133,7 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 
 ## Tally
 
-Total items: **19** (S1–S7, R1–R9, P1, C1–C2).
-`grep -c "^- \[ \]" research/_acceptance_criteria.md` → expect exactly 19.
+Total items: **20** (S1–S7, R1–R9, R7b, P1, C1–C2).
+`grep -c "^- \[ \]" research/_acceptance_criteria.md` → expect exactly 20.
 
-**Pass bar:** all 19 items marked PASS. Even one FAIL triggers rejection and (depending on root cause) either a targeted fix, a prompt refinement, or a full re-spawn.
+**Pass bar:** all 20 items marked PASS. Even one FAIL triggers rejection and (depending on root cause) either a targeted fix, a prompt refinement, or a full re-spawn.

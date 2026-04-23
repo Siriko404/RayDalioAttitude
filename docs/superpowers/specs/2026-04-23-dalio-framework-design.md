@@ -160,7 +160,7 @@ Filename pattern: `research/{SEQ}_{slug}.md`.
 - **OUT:** specific All-Weather allocations (2.2); alpha-specific (2.3); leverage sizing (2.4); stress testing (2.5).
 
 **2.2 All-Weather (Beta) Portfolio**
-- **IN:** 4-box growth × inflation framework; risk-weighted (not capital-weighted) allocation; asset-class regime mapping; canonical weights (~30% stocks / 40% long bonds / 15% IL bonds / 7.5% gold / 7.5% commodities style).
+- **IN:** 4-box growth × inflation framework; risk-weighted (not capital-weighted) allocation; asset-class regime mapping; canonical weights (~30% stocks / 40% long bonds / 15% intermediate nominal Treasuries / 7.5% gold / 7.5% commodities style — the only publicly-disclosed Dalio recipe, via Robbins 2014; institutional Bridgewater may use inflation-linked in the same slot but those weights are not public).
 - **OUT:** leverage engineering (2.4); alpha overlay (2.3); macro regime detection (Module 1).
 
 **2.3 Alpha Generation & Portable Alpha**

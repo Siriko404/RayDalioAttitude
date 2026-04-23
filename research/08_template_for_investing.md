@@ -10,15 +10,15 @@ Primary: **Dalio, "Engineering Targeted Returns and Risks," Bridgewater, Aug 201
 
 > **Dalio** — "Engineering Targeted Returns and Risks" (Aug 2011), p. 2: "The three basic building blocks of all returns are: • The Risk-Free Return […] • Returns From Betas--The excess returns of asset classes over the risk-free return. […] • Returns From Alphas--The value added by managers, which is derived from managers deviating from the betas."
 
-> **Dalio** — p. 2: "Betas are limited in number […] they are typically relatively correlated with each other, and their excess returns are relatively low compared to their excess risks, with Sharpe ratios typically ranging from 0.2 to 0.3."
+> **Dalio** — p. 3: "Betas are limited in number […] they are typically relatively correlated with each other, and their excess returns are relatively low compared to their excess risks, with Sharpe ratios typically ranging from 0.2 to 0.3."
 
 > **Dalio** — p. 3: "Alphas […] Sources of alpha are numerous and relatively uncorrelated with each other."
 
-> **Dalio** — p. 7: "create a well-diversified portfolio of uncorrelated return streams calibrated to balance each other and to deliver a targeted return."
+> **Dalio** — p. 8: "create a well-diversified portfolio of uncorrelated return streams calibrated to balance each other and to deliver a targeted return."
 
 > **Dalio** — p. 8 (Chart 5): "Alpha Portfolio 1 | Sources Of Value Added: 6 | Average Correlation: 0.25 […] Implied IR: 0.6 || Alpha Portfolio 2 | Sources Of Value Added: 77 | Average Correlation: 0.04 […] Implied IR: 1.4."
 
-> **Dalio** — p. 5: "The Sharpe ratio improvement implies an increase of approximately 65% in the portfolio's expected excess return if risk levels are held steady."
+> **Dalio** — p. 6: "The Sharpe ratio improvement implies an increase of approximately 65% in the portfolio's expected excess return if risk levels are held steady."
 
 > **Dalio** — LinkedIn slug: "My mantra of investing is fifteen good uncorrelated return streams, risk balanced." https://www.linkedin.com/posts/raydalio_my-mantra-of-investing-is-fifteen-good-uncorrelated-activity-7415437374295310336-X_v_
 
@@ -59,7 +59,7 @@ $$\tilde r_{i,t} = \ln(P_{i,t}/P_{i,t-1}) - r^{f}_{t}/252$$
 
 `r^f_t` = DTB3 yield (decimal). For yields (e.g. `Y_10y`), return proxy is `\tilde r_{10y,t} \approx -D\cdot \Delta Y_{10y,t}`, `D = 8.5`.
 
-> **NON-DALIO (industry standard)** — PIMCO, "Bond Basics: Duration and Convexity," https://www.pimco.com/en-us/resources/education/understanding-bond-basics . Used because Dalio does not specify a duration; 8.5 is the approximate 10-yr on-the-run modified duration at coupon ≈ 4%.
+> **DERIVED (operational)** — `D = 8.5` is the approximate modified duration of the 10-yr on-the-run Treasury at coupon ≈ 4%. Dalio does not specify a numeric duration constant; 8.5 is stipulated as the standard coupon-band midpoint.
 
 ### 5.2 Rolling correlation and average
 
@@ -97,7 +97,7 @@ At `N_eff=15`, `σ_p/σ = 1/√15 = 0.258` (74% red.); at `N_eff=25`, `σ_p/σ =
 
 ### 6.2 Correlation-quality tag
 
-> **DERIVED (operational)** — Edges align with Dalio anchors: p. 8 Alpha P2 `ρ=0.04` lands UNCORRELATED; P1 `ρ=0.25` lands LIGHTLY-CORRELATED; the within-asset-class `ρ≈0.6` Dalio cites on p. 2 for betas lands HIGHLY-CORRELATED; the `ρ=0.98` of 50/50 stocks/bonds ("Our Thoughts…" 9/16/2015, p. 2) lands DOMINATED.
+> **DERIVED (operational)** — Edges align with Dalio anchors: p. 8 Alpha P2 `ρ=0.04` lands UNCORRELATED; P1 `ρ=0.25` lands LIGHTLY-CORRELATED; the "98% correlated" 50/50 stocks/bonds ("Our Thoughts About Risk Parity and All-Weather," 2015, p. 2) lands DOMINATED. The HIGHLY-CORRELATED 0.30-0.70 band is DERIVED (Dalio describes betas as "relatively correlated" p. 3 without publishing a number).
 
 | `ρ_bar` tag | Range | Floor `√ρ` |
 |---|---|---|
@@ -296,6 +296,4 @@ option = {
 **Commercial book (R9 fair-use only).**
 - Ray Dalio, *Principles: Life and Work*, Simon & Schuster, 2017. Publisher page: https://www.simonandschuster.com/books/Principles/Ray-Dalio/9781501124020 . Cited for the "fifteen to twenty good, uncorrelated return streams" phrasing and the Brian-Gold-chart anecdote (one R9-compliant sentence above).
 
-**Data.** FRED v1 API `https://api.stlouisfed.org/fred/series/observations?series_id={id}&api_key={key}&file_type=json`. Series: `SP500` https://fred.stlouisfed.org/series/SP500 ; `DGS10` https://fred.stlouisfed.org/series/DGS10/ ; `DTB3` https://fred.stlouisfed.org/series/DTB3 ; `BAMLH0A0HYM2` https://fred.stlouisfed.org/series/BAMLH0A0HYM2 ; `GOLDPMGBD228NLBM` https://fred.stlouisfed.org/series/GOLDPMGBD228NLBM ; `DCOILWTICO` https://fred.stlouisfed.org/series/DCOILWTICO ; `DTWEXBGS` https://fred.stlouisfed.org/series/DTWEXBGS . Stooq `https://stooq.com/q/d/l/?s={ticker}&i=d` for `eem.us`, `efa.us`, `agg.us`.
-
-**Industry-standard gap-closer.** PIMCO, "Bond Basics: Duration," https://www.pimco.com/en-us/resources/education/understanding-bond-basics — § 5.1 duration constant (`D = 8.5`), Dalio silent on duration.
+**Data.** Stooq daily-CSV endpoint `https://stooq.com/q/d/l/?s={ticker}&i=d` WebFetch-verified 200 this session; primary fetch path in § 8a/b. FRED v1 API `https://api.stlouisfed.org/fred/series/observations?series_id={id}&api_key={key}&file_type=json` is the canonical institutional endpoint; direct WebFetch on `fred.stlouisfed.org` (both `/series/{id}` landing pages and `fredgraph.csv`) returned 403 this session (bot-detection / Cloudflare), so § 4 series descriptions were backfilled via WebSearch previews of the same pages. Cited series: `SP500` https://fred.stlouisfed.org/series/SP500 ; `DGS10` https://fred.stlouisfed.org/series/DGS10/ ; `DTB3` https://fred.stlouisfed.org/series/DTB3 ; `BAMLH0A0HYM2` https://fred.stlouisfed.org/series/BAMLH0A0HYM2 ; `GOLDPMGBD228NLBM` https://fred.stlouisfed.org/series/GOLDPMGBD228NLBM ; `DCOILWTICO` https://fred.stlouisfed.org/series/DCOILWTICO ; `DTWEXBGS` https://fred.stlouisfed.org/series/DTWEXBGS . R11-disciplined implementations should fall back to Stooq when FRED rate-limits.

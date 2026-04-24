@@ -19,7 +19,7 @@ Stress-tests the locked All-Weather weights (30/40/15/7.5/7.5 from 2.2) through 
 > "Although we back-tested this strategy to 1925, it was not until the recent financial crisis that we had a crisis like the Great Depression to stress-test these concepts in real time […]. During this period, the All Weather asset mix performed as expected."
 
 > **Dalio** — source: BDC Part 1, printed p. 26:
-> "The capitalists-investor class experiences a tremendous loss of 'real' wealth during depressions because the value of their investment portfolios collapses (declines in equity prices are typically around 50 percent)".
+> "The capitalist-investor class experiences a tremendous loss of 'real' wealth during depressions because the value of their investment portfolios collapses (declines in equity prices are typically around 50 percent)".
 
 ## § 3 Decision Problem
 
@@ -67,7 +67,7 @@ Given 2.2's locked weights and Dalio's four archetypes, compute per-regime portf
 
 **Step 4 — MaxDD duration & recovery.** Use historical anchors:
 
-> **DERIVED (operational)** — peak-to-trough: 34 mo deflationary (1929 Sep – 1932 Jun Dow, Wikipedia); 24 mo inflationary (Weimar 1920–22 stylized); 21 mo stagflation (1973 Jan – 1974 Oct S&P, Wikipedia); 3 mo reflation. Peak-to-recovery: 301 mo deflationary (1929 peak regained Nov 1954); 60 mo inflationary (Dawes-plan 5-yr anchor); 96 mo stagflation (1973 real peak regained ~1982); 6 mo reflation.
+> **DERIVED (operational)** — peak-to-trough: 34 mo deflationary (1929 Sep – 1932 Jul Dow, Wikipedia); 24 mo inflationary (Weimar 1920–22 stylized); 21 mo stagflation (1973 Jan – 1974 Oct S&P, Wikipedia); 3 mo reflation. Peak-to-recovery: 302 mo deflationary (1929 Sep peak regained Nov 1954, Wikipedia); 60 mo inflationary (Dawes-plan 5-yr anchor); 91 mo stagflation (1973 Jan nominal peak regained ~Jul 1980, Wikipedia); 6 mo reflation.
 
 **Step 5 — Benchmark reconciliation.** Unleveraged Robbins 2008 replication uses Damodaran 2008: S&P −36.55%, 10y T-Bond +20.10%, gold ≈ +5% (author stipulation, § 7 Table 7.3 marker), DJ-UBS −37.42%. Benchmark:
 
@@ -125,9 +125,9 @@ Locked Robbins weights $w = (0.30, 0.40, 0.15, 0.075, 0.075)$ passed through the
 
 | Archetype | $R^{port}_e$ | MaxDD (mo) | Peak→recovery (mo) | Dominant driver |
 |---|---|---|---|---|
-| Deflationary | −8.13% | 34 | 301 | SPX (−15.00 ppt) |
+| Deflationary | −8.13% | 34 | 302 | SPX (−15.00 ppt) |
 | Inflationary | −26.00% | 24 | 60 | LongTsy (−20.00 ppt) |
-| Stagflation | −3.05% | 21 | 96 | SPX (−11.10 ppt) |
+| Stagflation | −3.05% | 21 | 91 | SPX (−11.10 ppt) |
 | Reflation | +11.83% | 3 | 6 | SPX (+7.50 ppt) |
 
 **Table 7.3 — 2008 reconciliation** (Damodaran 2008 column, WebFetch 2026-04-23):
@@ -159,7 +159,7 @@ const S = { // shock matrix, DERIVED from § 5 Step-1
   comm: { defl: -0.35, infl: +0.40, stag: +0.30, refl: +0.15 },
 };
 const MAXDD = { defl: 34, infl: 24, stag: 21, refl: 3 };    // months
-const RECOV = { defl: 301, infl: 60, stag: 96, refl: 6 };   // months
+const RECOV = { defl: 302, infl: 60, stag: 91, refl: 6 };   // months
 
 function stressTest(w = W) {
   const out = {};

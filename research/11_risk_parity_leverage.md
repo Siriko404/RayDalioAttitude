@@ -2,7 +2,7 @@
 
 ## § 1 Executive Summary
 
-Risk parity weights assets so each contributes equal risk, not equal capital; leverage then scales the balanced portfolio to a target volatility. Dalio's All-Weather uses "around 2 times" leverage to raise low-risk sleeves into equity-like return territory while preserving diversification. This subsection operationalizes the leverage stack on top of vol-parity weights: the `L = σ_target / σ_p` identity, funding-cost drag on Sharpe, rebalance cadence, and leverage caps. Public data from FRED (FEDFUNDS, DTB3, DGS10, VIXCLS, SP500) and Stooq drives implementation. A worked example and JS / Excel / ECharts specs follow.
+Risk parity weights assets so each contributes equal risk, not equal capital; leverage then scales the balanced portfolio to a target volatility. Dalio's All-Weather uses "around 2 times" leverage to raise low-risk sleeves into equity-like return territory while preserving diversification. This subsection operationalizes the leverage stack on top of vol-parity weights: the `L = σ_target / σ_p` identity, funding-cost drag on Sharpe, rebalance cadence, and leverage caps. Public data from FRED (FEDFUNDS, DTB3, DGS10, VIXCLS, SP500) and Yahoo Finance (^BCOM) drives implementation. A worked example and JS / Excel / ECharts specs follow.
 
 ## § 2 Dalio's Framework — Verbatim
 
@@ -29,7 +29,7 @@ Given a vol-parity / equal-risk-contribution portfolio with low unlevered σ: ho
 | `ret_spx` | S&P 500 daily level (equity sleeve) | index | FRED "S&P 500" | `series_id=SP500` | daily | 2000–7000 |
 | `ret_ust10` | 10-Yr Treasury Constant Maturity yield (→ price via duration) | % | FRED "Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity" | `series_id=DGS10` | daily | 0.5–6.0 |
 | `ret_gold` | Gold Fixing Price 3 P.M. London PM per troy oz | USD/oz | FRED "Gold Fixing Price" | `series_id=GOLDPMGBD228NLBM` | daily | 250–3000 |
-| `ret_bcom` | Bloomberg Commodity Index level | index | Stooq | `https://stooq.com/q/d/?s=%5Ebcom&i=d` | daily | 50–350 |
+| `ret_bcom` | Bloomberg Commodity Index level | index | Yahoo Finance (^BCOM) | `https://query1.finance.yahoo.com/v8/finance/chart/%5EBCOM?interval=1d&range=10y` | daily | 50–350 |
 | `sigma_i` | 63-day annualized stdev per sleeve | % | derived | `STDEV(r)*SQRT(252)` | daily | 3%–40% |
 | `r_f` | Effective federal funds rate (funding anchor) | % p.a. | FRED "Federal Funds Effective Rate" | `series_id=FEDFUNDS` / `DFF` | monthly / daily | 0%–6% |
 | `r_repo` | 3-Mo T-Bill Secondary Market Rate | % p.a. | FRED "3-Month Treasury Bill: Secondary Market Rate" | `series_id=DTB3` | daily | 0%–6% |
@@ -109,7 +109,7 @@ Realized 21-day annualized `σ_p_realized`. If `|σ_p_realized − σ_target|/σ
 
 - **GREEN:** `s ≤ 25 bp` above `r_f`.
 - **AMBER:** `s ∈ (25, 100] bp` — switch to cheapest-to-deliver funding.
-- **RED:** `s > 100 bp` — reduce L one step; funding drag exceeds 6.6 pp Sharpe at L=1.66×, σ_p=6% (§ 7).
+- **RED:** `s > 100 bp` — reduce L one step; funding drag exceeds 6.56 pp Sharpe at L=1.66×, σ_p=6% (§ 7).
 
 **Liquidity reserve.** Hold `5% × (L−1)` of NAV in cash / T-bills as margin buffer.
 
@@ -144,7 +144,11 @@ Each `w_i = (1/σ_i) / 35.139`.
 
 **Step 4 — leverage.** $L = 10.00\%/6.037\% = 1.656\times$; levered gross = **165.6%** of NAV.
 
-**Step 5 — expected returns.** Assume `SR_per_sleeve = 0.30` (Dalio "0.2 to 0.3" Sharpe range, Engineering Targeted Returns, p. 3) and `r_f = 4.0%`. $E[r_i] = 4.0\% + 0.30\sigma_i$: SPX 8.80%, UST10 5.80%, Gold 8.50%, BCOM 9.40%. Weighted `r_p = 0.1779·8.80 + 0.4743·5.80 + 0.1897·8.50 + 0.1581·9.40 = 7.415%`.
+**Step 5 — expected returns.** Assume `SR_per_sleeve = 0.30` (Dalio "0.2 to 0.3" Sharpe range, Engineering Targeted Returns, p. 3) and `r_f = 4.0%`.
+
+> **DERIVED (operational)** — 0.30 is the top of Dalio's 0.2–0.3 Sharpe range; author-stipulated for this worked example.
+
+$E[r_i] = 4.0\% + 0.30\sigma_i$: SPX 8.80%, UST10 5.80%, Gold 8.50%, BCOM 9.40%. Weighted `r_p = 0.1779·8.80 + 0.4743·5.80 + 0.1897·8.50 + 0.1581·9.40 = 7.415%`.
 
 **Step 6 — net return by funding scenario.** $r_{\text{net}} = L r_p - (L-1) r_{\text{fund}}$:
 
@@ -168,14 +172,14 @@ R14 checks: (a) `1.656·7.415 − 0.656·4.00 = 9.657%` ✓; (b) Sharpe @ r_f = 
 
 ```js
 const FRED = (id) => `https://api.stlouisfed.org/fred/series/observations?series_id=${id}&api_key=${process.env.FRED_KEY}&file_type=json`;
-const STOOQ = (sym) => `https://stooq.com/q/d/?s=${sym}&i=d`;
+const YHOO = (sym) => `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=10y`;
 
 const SLEEVES = ['SPX', 'UST10', 'Gold', 'BCOM'];
 const SOURCES = {
   SPX:   FRED('SP500'),
   UST10: FRED('DGS10'),            // yield → price return via duration ≈ 8.5
   Gold:  FRED('GOLDPMGBD228NLBM'),
-  BCOM:  STOOQ('%5Ebcom'),
+  BCOM:  YHOO('%5EBCOM'),
 };
 
 async function riskParityLeverage({ sigmaTarget = 0.10, lookbackDays = 63 }) {
@@ -273,7 +277,7 @@ const option = {
 - **2.1 Template for Investing** — "many uncorrelated streams" philosophy supplies the *why*; 2.4 supplies the vol-parity + leverage mechanics.
 - **2.2 All-Weather (Beta) Portfolio** — supplies the asset mix. 2.4 reads 2.2's 30/40/15/7.5/7.5 as a *capital-weighted benchmark* and inverse-vol as the *risk-weighted peer*.
 - **Module 1 (1.1–1.7)** — macro grammar feeds inclusion; 2.4 is regime-agnostic at execution.
-- **Market/funding data** — FRED (SP500, DGS10, GOLDPMGBD228NLBM, DFF, DTB3, VIXCLS), Stooq (BCOM), broker for financing spread.
+- **Market/funding data** — FRED (SP500, DGS10, GOLDPMGBD228NLBM, DFF, DTB3, VIXCLS), Yahoo Finance ^BCOM, broker for financing spread.
 
 **Downstream.**
 
@@ -289,9 +293,9 @@ const option = {
 2. **Vol lookback.** AFP 2012 uses 36-month monthly; 63-day daily is author-stipulated for live monitoring. Substitute 36-month if turnover is an issue.
 3. **Funding spread.** 25 / 50 / 100 bp brackets are illustrative; actual broker / futures-implied financing varies by cycle stage. Dalio does not quantify.
 4. **Covariance stability.** `L = σ_target / σ_p` uses historical σ_p. A correlation-breakdown shock (1998, 2008, 2022) raises realized σ_p overnight → forced deleveraging via § 6 RED. Owned by 2.5.
-5. **Rising-rate risk.** Dalio/Prince/Jensen (2015, p. 8) cite 1946–1981 All-Weather at 8.7% vs 60/40 at 7.6% across a full yield upcycle; weigh against the 2022 co-crash (outside sample).
-6. **Inverse-vol vs full ERC.** Inverse-vol = exact ERC only with equal correlations. True ERC requires Newton iteration on `w_i·(Σw)_i = σ_p²/N`. For 4–6 sleeves the gap is <2 pp per weight; for 10+ sleeves it matters. Qian 2005 and AFP 2012 both use inverse-vol.
-7. **MOVE index unavailable on FRED.** The original brief suggested MOVE; ICE/BAML does not publish MOVE free on FRED (`BAMLCC0A0CMTRIV` is Corporate Index total return, not MOVE). § 4 uses `VIXCLS` only; a public bond-vol regime signal is absent from this data path.
+5. **Rising-rate risk.** Dalio/Prince/Jensen (2015, p. 8): All-Weather 8.7% vs 60/40 7.6% across 1946–1981 yield upcycle; weigh against the 2022 co-crash.
+6. **Inverse-vol vs full ERC.** Inverse-vol = exact ERC only with equal correlations; true ERC needs Newton iteration on `w_i·(Σw)_i = σ_p²/N`. Gap is <2 pp for 4–6 sleeves; matters at 10+. Qian 2005 and AFP 2012 both use inverse-vol.
+7. **MOVE index unavailable on FRED.** ICE/BAML does not publish MOVE free; `BAMLCC0A0CMTRIV` is Corporate Index total return, not MOVE. § 4 uses `VIXCLS` only; a public bond-vol signal is absent.
 
 **Sources (all public, URLs pre-flight-checked).**
 
@@ -301,4 +305,4 @@ const option = {
 - Qian, E. (Sep 2005), "Risk Parity Portfolios", PanAgora: https://www.panagora.com/assets/PanAgora-Risk-Parity-Portfolios-Efficient-Portfolios-Through-True-Diversification.pdf
 - Asness, C., Frazzini, A., Pedersen, L. (2012), "Leverage Aversion and Risk Parity", *Financial Analysts Journal* 68(1): 47–59 (AQR mirror): https://www.aqr.com/-/media/AQR/Documents/Insights/Journal-Article/Leverage-Aversion-and-Risk-Parity.pdf
 - FRED series: FEDFUNDS (https://fred.stlouisfed.org/series/FEDFUNDS), DFF (https://fred.stlouisfed.org/series/DFF), DTB3 (https://fred.stlouisfed.org/series/DTB3), DGS10 (https://fred.stlouisfed.org/series/DGS10), SP500 (https://fred.stlouisfed.org/series/SP500), GOLDPMGBD228NLBM (https://fred.stlouisfed.org/series/GOLDPMGBD228NLBM), VIXCLS (https://fred.stlouisfed.org/series/VIXCLS)
-- Stooq (BCOM daily): https://stooq.com/q/d/?s=%5Ebcom&i=d
+- Yahoo Finance (BCOM daily): https://query1.finance.yahoo.com/v8/finance/chart/%5EBCOM?interval=1d&range=10y

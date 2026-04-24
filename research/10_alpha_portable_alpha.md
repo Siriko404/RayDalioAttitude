@@ -15,13 +15,13 @@ Dalio splits portfolio return into three mechanically-separable streams — cash
 > **Dalio** — source: "Engineering Targeted Returns and Risks", p. 3:
 > "Alphas […] are different. Sources of alpha are numerous and relatively uncorrelated with each other. However, their returns are unreliable, with risk-adjusted returns slightly negative on average […]."
 
-> **Dalio** — source: "Engineering Targeted Returns and Risks", printed p. 7:
+> **Dalio** — source: "Engineering Targeted Returns and Risks", printed p. 8:
 > "There are two ways an Optimal Alpha Portfolio can be created. The first […] is via alpha overlay; the second is to create a portfolio of different alphas, regardless of the asset classes in which they are generated. In both cases, alpha is independent from beta and is overlaid on the beta."
 
-> **Dalio** — source: "Engineering Targeted Returns and Risks", p. 8, para under Chart 5:
+> **Dalio** — source: "Engineering Targeted Returns and Risks", p. 9, para under Chart 5:
 > "We have found that, by following this general approach, information ratios can increase by factors of two to four times."
 
-> **Bridgewater** — source: "The All Weather Story", p. 3 (2012):
+> **Bridgewater** — source: "The All Weather Story", p. 4 (2012):
 > "return = cash + beta + alpha"
 
 ## § 3 Decision Problem
@@ -35,10 +35,10 @@ What is the maximum risk-adjusted return a PM can manufacture from one forecasti
 | RF (cash rate) | "Market Yield on U.S. Treasury Securities at 3-Month Constant Maturity, Quoted on an Investment Basis" | % p.a. | FRED (Board of Governors H.15) | `https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO` | daily | 0 – 6 |
 | Mkt-RF (equity beta benchmark) | Value-weighted CRSP U.S. equity return minus 1-month T-bill (Fama/French factor) | % / month | Ken French Data Library | `https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip` | monthly | −20 to +15 |
 | SMB, HML, Mom | Size, value, momentum factor returns (for alpha attribution / residualization) | % / month | Ken French Data Library | same zip archive family (`F-F_Research_Data_Factors_CSV.zip`, `F-F_Momentum_Factor_CSV.zip`) | monthly | −10 to +10 |
-| σ_Alpha (alpha volatility / tracking error) | Ex-ante standard deviation of the PM's return stream net of its beta benchmark | % p.a. | internally estimated from trade blotter | n/a — internal; no public API | weekly | 2 – 15 |
-| IC (information coefficient) | Cross-sectional Spearman ρ between PM's ex-ante forecast and realized forward return, per decision period | dimensionless ∈ [−1, 1] | internally estimated from forecast log | n/a — internal | monthly | 0.02 – 0.10 |
-| N (breadth) | Number of *independent* bets per year (asset-times-time blocks after correlation collapse) | count / year | internally computed; Fama/French residuals used to test independence | n/a — internal | annual | 10 – 500 |
-| ρ_avg (average pairwise bet correlation) | Mean pairwise Pearson ρ of the PM's N bet P&L streams | dimensionless ∈ [−1, 1] | internally computed from trade P&L series | n/a — internal | monthly | 0.00 – 0.40 |
+| σ_Alpha (alpha volatility / tracking error) | Ex-ante standard deviation of the PM's return stream net of its beta benchmark | % p.a. | internally estimated from trade blotter; no public API (§ 10 Q5) | n/a — manager-proprietary | weekly | 2 – 15 |
+| IC (information coefficient) | Cross-sectional Spearman ρ between PM's ex-ante forecast and realized forward return, per decision period | dimensionless ∈ [−1, 1] | internally estimated from forecast log; no public API (§ 10 Q5) | n/a — manager-proprietary | monthly | 0.02 – 0.10 |
+| N (breadth) | Number of *independent* bets per year (asset-times-time blocks after correlation collapse) | count / year | internally computed; Fama/French residuals test independence; no public API (§ 10 Q5) | n/a — manager-proprietary | annual | 10 – 500 |
+| ρ_avg (average pairwise bet correlation) | Mean pairwise Pearson ρ of the PM's N bet P&L streams | dimensionless ∈ [−1, 1] | internally computed from trade P&L series; no public API (§ 10 Q5) | n/a — manager-proprietary | monthly | 0.00 – 0.40 |
 
 > **DERIVED (operational)** — The last four rows (σ_Alpha, IC, N, ρ_avg) have no public API because alpha inputs are manager-proprietary by construction; Dalio labels alpha "the value added by managers, which is derived from managers deviating from the betas" (Engineering …, p. 3). Public hedge-fund index data (HFR, Credit Suisse LAB, Barclay) is subscription-gated as of April 2026 and is not used here.
 
@@ -50,7 +50,7 @@ $$r_{total} = r_{cash} + \beta \cdot (r_{benchmark} - r_{cash}) + \alpha$$
 
 where β is estimated by rolling 36-month OLS of r_total on (r_benchmark − r_cash), and α is the residual mean.
 
-> **Dalio** — "return = cash + beta + alpha" (All Weather Story, p. 3).
+> **Dalio** — "return = cash + beta + alpha" (All Weather Story, p. 4).
 
 **Step 2 — compute per-slice skill.** Grinold's fundamental law (a standard, dating to Grinold 1989) gives the per-slice information ratio:
 
@@ -60,21 +60,21 @@ where n_dec is the number of independent decisions *within* a slice (one strateg
 
 > **NON-DALIO (industry standard)** — source: Grinold, R. (1989) "The Fundamental Law of Active Management," *Journal of Portfolio Management* 15(3). Formula as summarized by Corporate Finance Institute, https://corporatefinanceinstitute.com/resources/career-map/sell-side/capital-markets/fundamental-law-of-active-management/ (verified April 2026). Used to close a gap because Dalio does not state the n_dec half of the law.
 
-**Step 3 — aggregate to portfolio IR under correlation.** With N slices of identical IR_slice and average pairwise correlation ρ_avg, the risk of the equally-weighted alpha stack scales as σ_port = σ_slice · √[(1 + (N−1)·ρ_avg) / N], giving:
+**Step 3 — aggregate to portfolio IR under correlation.** With N slices and average pairwise correlation ρ_avg:
 
 $$IR_{port} = IR_{slice} \cdot \frac{\sqrt{N}}{\sqrt{1 + (N-1) \cdot \rho_{avg}}}$$
 
-This is the correlation-adjusted fundamental law; it collapses to IR_slice·√N when ρ_avg = 0 and to IR_slice when ρ_avg = 1.
+Collapses to IR_slice·√N when ρ_avg = 0 and to IR_slice when ρ_avg = 1.
 
 > **DERIVED (operational)** — The correlation-adjustment wrapper is standard portfolio algebra; Dalio's Chart 5 on p. 8 of Engineering … uses exactly this relation when he shows "Implied IR" rising from 0.6 to 1.4 as N goes 6 → 77 and ρ goes 0.25 → 0.04 (arithmetic reproduced in § 7).
 
-**Step 4 — port the alpha.** Once the alpha book is constructed, total portfolio return is engineered as:
+**Step 4 — port the alpha.** Total portfolio return:
 
 $$r_{client} = r_{cash} + w_\beta \cdot (r_{benchmark\,chosen} - r_{cash}) + w_\alpha \cdot r_{alpha\,book}$$
 
-where w_β picks the beta (S&P 500, All-Weather, long-duration Treasuries) and w_α is scaled by the client's specified tracking error. Beta and alpha are decided *independently*.
+w_β picks the beta; w_α is scaled by the client's tracking error. Beta and alpha decided *independently*.
 
-> **Dalio** — "each client chooses its beta and benchmark, which we replicate and then overlay with our own Optimal Alpha Portfolio. The client specifies a targeted tracking error (risk) for the alpha" (Engineering …, p. 7).
+> **Dalio** — "each client chooses its beta and benchmark, which we replicate and then overlay with our own Optimal Alpha Portfolio. The client specifies a targeted tracking error (risk) for the alpha" (Engineering …, p. 8).
 
 ## § 6 Output Variables & Decision Rules
 
@@ -86,11 +86,13 @@ where w_β picks the beta (S&P 500, All-Weather, long-duration Treasuries) and w
 | Insufficient per-slice skill | IR_slice < 0.15 | Retire the strategy — cannot be rescued by breadth |
 | Post-publication decay detected | out-of-sample IR_slice < 0.65 · in-sample IR_slice, on a known academic anomaly | Discount the strategy's sizing by ≥35% or retire |
 
+> **DERIVED (operational)** — IR_slice < 0.15 as the retirement floor is stipulated; Dalio's Chart 5 uses IR_slice = 0.35 as the illustration but sets no explicit minimum. This edge is not in Dalio's text.
+>
 > **DERIVED (operational)** — The N_eff < 6 rule stipulates 6 as an edge; Dalio's Chart 5 Portfolio 1 uses N = 6 as the *low-diversification illustration* (Implied IR 0.6) and N = 77 as the *well-diversified case* (Implied IR 1.4). I am picking 6 as the minimum target — this edge is not in Dalio's text.
 >
 > **DERIVED (operational)** — ρ_avg > 0.20 flagged as clustered. Dalio's Chart 5 labels ρ = 0.25 as the "poor" portfolio and ρ = 0.04 as the "optimal" one; I am stipulating 0.20 as the boundary — this edge is not in Dalio's text.
 >
-> **DERIVED (operational)** — IR_slice ≥ 0.30 as eligibility. Dalio's Chart 5 footnote specifies "the average information ratio of each slice of both pies is 0.35" (Engineering …, p. 8) — I am using 0.30 as a looser but still-Dalio-consistent threshold.
+> **DERIVED (operational)** — IR_slice ≥ 0.30 as eligibility. Dalio's Chart 5 footnote specifies "the average information ratio of each slice of both pies is 0.35" (Engineering …, p. 8); 0.30 is a looser edge, not in Dalio's text.
 >
 > **NON-DALIO (industry standard)** — Post-publication decay threshold ≥35%: source is McLean & Pontiff (2016) "Does Academic Research Destroy Stock Return Predictability?" Abstract states: "the average post-publication decay […] is about 35%" (October 2012 working-paper version, HEC Montréal mirror, https://www.hec.ca/finance/Fichier/McLean.pdf). Used to close a gap because Dalio's 2011 note does not quantify alpha-decay magnitude for academic anomalies.
 
@@ -100,7 +102,7 @@ where w_β picks the beta (S&P 500, All-Weather, long-duration Treasuries) and w
 2. Deploy the alpha book at notional such that realized tracking error equals σ_Alpha. Expected incremental return = IR_port · σ_Alpha.
 3. Total expected return ≈ r_cash + (r_benchmark − r_cash) + IR_port · σ_Alpha.
 
-> **Dalio** — "when Bridgewater provides alpha overlay, each client chooses its beta and benchmark, which we replicate and then overlay with our own Optimal Alpha Portfolio" (Engineering …, p. 7).
+> **Dalio** — "when Bridgewater provides alpha overlay, each client chooses its beta and benchmark, which we replicate and then overlay with our own Optimal Alpha Portfolio" (Engineering …, p. 8).
 
 ## § 7 Worked Numeric Example
 
@@ -187,8 +189,9 @@ let
     Typed    = Table.TransformColumnTypes(Promoted,
                  {{"DATE", type date}, {"DGS3MO", type number}}),
     Clean    = Table.SelectRows(Typed, each [DGS3MO] <> null),
-    Monthly  = Table.Group(Clean,
-                 {Date.ToText([DATE],"yyyy-MM")},
+    WithYM   = Table.AddColumn(Clean, "YearMonth", each Date.ToText([DATE], "yyyy-MM"), type text),
+    Monthly  = Table.Group(WithYM,
+                 {"YearMonth"},
                  {{"RF_monthly_pct", each List.Average([DGS3MO])/12, type number}})
 in
     Monthly

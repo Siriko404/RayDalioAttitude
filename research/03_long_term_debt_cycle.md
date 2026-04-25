@@ -161,7 +161,7 @@ Illustrative — values TRANSCRIBED from HCGB-1 Ch 3 Ex 1 (present US anchors) a
 
 > **Dalio** — source: HCGB-1, Ch 3, Ex 3 table "A Toy Model: Interest Rates Spiral Higher": Year 10 "Debt / Income 898%, Debt Service / Income 353%, Interest / Income 68.4%"; Y0/Y5 transcribed from same table.
 
-**R14 self-check.** All § 7 rows are transcribed Dalio values. Rate path 3.4 + 0.5·t (t = 0…10) → 3.4, 3.9, 4.4, 4.9, 5.4, 5.9, 6.4, 6.9, 7.4, 7.9, 8.4 — matches Dalio's "memo: Interest Rates" row. § 8c chart anchors Y0/Y5/Y10 match this table exactly.
+**R14 self-check.** All § 7 rows are transcribed Dalio values. Rate path 3.4 + 0.5·t (t = 0…10) → 3.4, 3.9, 4.4, 4.9, 5.4, 5.9, 6.4, 6.9, 7.4, 7.9, 8.4 — matches Dalio's "memo: Interest Rates" row. § 8c legend cites Y0/Y5/Y10 anchors from this table; rendered line is the § 8a operational approximation.
 
 **Step 4 — MP evolution.** Y0 = MP3; by Y5 with $I_3 > 0$ policy forced to MP4; by Y10 interest = 68.4% of revenue → MP5 ("Big Deleveraging") probability high.
 

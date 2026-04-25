@@ -15,7 +15,9 @@
    - This file (`audit_prompt.md`)
    - The target research file (`research/{SEQ}_{slug}.md`) — any of the 12.
 4. Send this single message:
-   > **Run the audit per `audit_prompt.md` against the attached research file. Use Web Browsing for URL verification + PDF preview, and Python (Code Interpreter) for arithmetic recomputation. If outbound `requests.get()` fails (sandbox networking is often unavailable), fall back to in-browser PDF reading / screenshots — primary-source verification stays mandatory, only the mechanism flexes. After the audit is complete, save the markdown to a file named exactly `_audit_{SEQ}_{slug}.md` using `open(...).write(...)` in Python, and present that file as a downloadable attachment. Do NOT just paste the markdown into chat — produce a downloadable file. No conversational text outside the audit document.**
+   > **Run the audit per `audit_prompt.md` against the attached research file. Use Web Browsing for URL verification + PDF preview, and Python (Code Interpreter) for arithmetic recomputation. If outbound `requests.get()` fails (sandbox networking is often unavailable), fall back to in-browser PDF reading / screenshots — primary-source verification stays mandatory, only the mechanism flexes.**
+   >
+   > **DELIVERY RULE — READ CAREFULLY:** The audit must be delivered as a single downloadable `.md` file. Use Python to write the **complete** audit markdown — every table row, every finding, every URL audited with HTTP status, every quote-fidelity check, every arithmetic recomputation, the verdict, the summary, the full citation footer — into a file at `/mnt/data/_audit_{SEQ}_{slug}.md`. Then surface that file as a downloadable attachment. **Do NOT split content between the file and the chat reply. Do NOT write a short summary in the file with details in chat. The file is the single source of truth and must be 100% complete on its own.** The chat reply should contain only a one-line confirmation ("Audit file produced: _audit_X_slug.md") and the downloadable file pill — nothing else.
 5. Wait 2–5 minutes.
 6. Click the download link / file pill ChatGPT presents. Save it directly to `research/` in this repo (the filename should already match `research/_audit_{SEQ}_{slug}.md`).
 7. Commit via git.
@@ -369,14 +371,46 @@ The user uploads `audit_prompt.md` (this file) and a target research file (`rese
 8. **Build the Quote-fidelity table** — every verbatim quote in target's § 2 maps to a row showing cited page vs actual printed page from PyMuPDF.
 9. **Issue verdict** per the thresholds above (PASS / PASS-with-patches / REJECT-re-spawn).
 10. **Write the Summary.** Overall confidence; biggest residual risks; recommended next action.
-11. **Save the audit as a downloadable file.** Use Python:
+11. **Save the audit as a downloadable file containing EVERYTHING — the file is the single source of truth.** Use Python:
     ```python
-    audit_md = """<your full audit markdown here>"""
+    audit_md = """<your COMPLETE audit markdown — every section below must be in here in full>
+
+    # Red-Team Audit — {ID} {TITLE}
+
+    **Date:** YYYY-MM-DD
+    **Auditor:** ChatGPT (...) — fresh context, not the author
+    **Target:** research/{SEQ}_{slug}.md
+    **Tools used:** Web Browsing — yes/no · Code Interpreter — yes/no · Outbound networking — yes/no · Uploaded PDFs — list any
+    **References consulted:** ...
+
+    ## Findings
+    | full table — every finding, every column |
+
+    ## URLs audited
+    | full table — every URL the target cites, with HTTP status |
+
+    ## Arithmetic re-checks (§ 7)
+    ```text
+    every cell recomputed, target vs recomputed, MATCH / MISMATCH
+    ```
+
+    ## Quote fidelity table
+    | full table — every § 2 verbatim quote, cited page vs printed page |
+
+    ## Verdict
+    PASS | PASS-with-patches | REJECT-re-spawn
+
+    ## Summary
+    1–2 paragraphs.
+    """
+
     fname = f"_audit_{SEQ}_{slug}.md"  # e.g. _audit_10_alpha_portable_alpha.md
     with open(f"/mnt/data/{fname}", "w", encoding="utf-8") as f:
         f.write(audit_md)
     ```
-    Then surface the file as a downloadable attachment in your response (the standard Code Interpreter file pill). Do NOT just paste the markdown into chat — the user wants a clickable file. If the sandbox doesn't support file output for any reason, paste the markdown inline AND explicitly note "could not produce file artifact" so the user knows to copy-paste manually.
+    Then surface the file as a downloadable attachment (Code Interpreter file pill). The chat response itself contains ONLY a one-line confirmation + the file pill — every word of the audit lives in the file. Do NOT paste the audit markdown into chat in addition. Do NOT write a stub in the file with details inline. The file must stand alone and be 100% complete: a reader who only sees the file (without the chat reply) must have everything they need.
+
+    Only fallback: if the sandbox truly cannot produce a downloadable file, paste the COMPLETE audit markdown inline AND explicitly state "Could not produce file artifact — paste the entire markdown below into a new file at research/_audit_{SEQ}_{slug}.md manually." Never silently truncate.
 
 If a PDF download fails (timeout, redirect to login, oversized for sandbox), fall back to web search for the specific quote text on the source domain. Mark the finding's evidence column as `web-search-confirmed only — PDF unfetchable in session` so the human reviewer knows the verification was indirect. Do NOT silently skip.
 

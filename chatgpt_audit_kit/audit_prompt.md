@@ -15,14 +15,16 @@
    - This file (`audit_prompt.md`)
    - The target research file (`research/{SEQ}_{slug}.md`) — any of the 12.
 4. Send this single message:
-   > **Run the audit per `audit_prompt.md` against the attached research file. Use Python + requests + PyMuPDF (fitz) to fetch and parse the PDFs cited in the target's § 2 and § 10 — do not skip primary-source verification. Return the audit markdown only, no conversational text.**
+   > **Run the audit per `audit_prompt.md` against the attached research file. Use Web Browsing for URL verification + PDF preview, and Python (Code Interpreter) for arithmetic recomputation. If outbound `requests.get()` fails (sandbox networking is often unavailable), fall back to in-browser PDF reading / screenshots — primary-source verification stays mandatory, only the mechanism flexes. After the audit is complete, save the markdown to a file named exactly `_audit_{SEQ}_{slug}.md` using `open(...).write(...)` in Python, and present that file as a downloadable attachment. Do NOT just paste the markdown into chat — produce a downloadable file. No conversational text outside the audit document.**
 5. Wait 2–5 minutes.
-6. Save ChatGPT's output as `research/_audit_{SEQ}_{slug}.md` (use the SEQ + slug ChatGPT identified in its audit header).
+6. Click the download link / file pill ChatGPT presents. Save it directly to `research/` in this repo (the filename should already match `research/_audit_{SEQ}_{slug}.md`).
 7. Commit via git.
 
 That is the entire workflow. ChatGPT reads the target file's H1 (`# {ID} {TITLE}`), looks up the corresponding row in the **Subsection Registry** below, and fills its own SEQ / slug / scope IN / scope OUT slots. ChatGPT fetches PDFs from the URLs cited in the target file using Code Interpreter Python (`requests.get(url)` → `fitz.open(stream=…)`) — no manual PDF upload needed.
 
-**If ChatGPT skips URL fetches or refuses Code Interpreter / web access**, stop and re-prompt: "*Use Python and web browsing. Do not rely on training data for URL status, PDF page numbers, or arithmetic.*" The audit is invalid without live verification.
+**If ChatGPT skips URL fetches or refuses to use both Web Browsing AND Code Interpreter, stop and re-prompt: "*Use Python and web browsing. Do not rely on training data for URL status, PDF page numbers, or arithmetic.*"
+
+**On sandbox networking failures:** Code Interpreter's outbound network access is unreliable — `requests.get()` against arbitrary URLs often times out or returns DNS errors. This is NOT an audit-invalidating failure. ChatGPT should compensate via Web Browsing (which fetches HTML + renders PDF previews + can take page screenshots) and document the limitation transparently in the "Tools used" header. The audit is only invalid if ChatGPT does NEITHER (no Python AND no web access). Findings that genuinely require something the sandbox can't do (e.g. reproducing a multi-decade FRED regression β coefficient from raw data) should be flagged as `evidence: not independently recomputed — sandbox networking unavailable; trusts target's stated value` rather than silently passed.
 
 ### Verdict Policy (Both First-Time And Deferred-Sweep Audits)
 
@@ -367,7 +369,14 @@ The user uploads `audit_prompt.md` (this file) and a target research file (`rese
 8. **Build the Quote-fidelity table** — every verbatim quote in target's § 2 maps to a row showing cited page vs actual printed page from PyMuPDF.
 9. **Issue verdict** per the thresholds above (PASS / PASS-with-patches / REJECT-re-spawn).
 10. **Write the Summary.** Overall confidence; biggest residual risks; recommended next action.
-11. **Return the markdown audit document.** Do not include conversational text outside the document. The user will save your output verbatim as `research/_audit_{SEQ}_{slug}.md` using the SEQ + slug you identified in step 2.
+11. **Save the audit as a downloadable file.** Use Python:
+    ```python
+    audit_md = """<your full audit markdown here>"""
+    fname = f"_audit_{SEQ}_{slug}.md"  # e.g. _audit_10_alpha_portable_alpha.md
+    with open(f"/mnt/data/{fname}", "w", encoding="utf-8") as f:
+        f.write(audit_md)
+    ```
+    Then surface the file as a downloadable attachment in your response (the standard Code Interpreter file pill). Do NOT just paste the markdown into chat — the user wants a clickable file. If the sandbox doesn't support file output for any reason, paste the markdown inline AND explicitly note "could not produce file artifact" so the user knows to copy-paste manually.
 
 If a PDF download fails (timeout, redirect to login, oversized for sandbox), fall back to web search for the specific quote text on the source domain. Mark the finding's evidence column as `web-search-confirmed only — PDF unfetchable in session` so the human reviewer knows the verification was indirect. Do NOT silently skip.
 

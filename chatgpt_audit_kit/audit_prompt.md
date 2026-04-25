@@ -6,56 +6,70 @@
 
 ---
 
-## How To Use (For The Human)
+## How To Use (For The Human) — 2-File Upload, Done
 
-1. **Tooling required:** ChatGPT **Plus or Pro** with **Web Browsing** AND **Code Interpreter (Python)** both enabled. Without web browsing the audit collapses to training-data recall and is worthless.
-2. **Upload the relevant Dalio / Bridgewater PDFs to the chat** before pasting anything else. ChatGPT's web browsing reads PDFs through Bing previews that do NOT reliably surface printed-footer page numbers; Code Interpreter PyMuPDF only runs on uploaded files. Without PDF uploads, R12 (quote fidelity) checks fail not because of capability but because the PDF text is unreachable. Per-subsection PDF list:
-   - **2.3, 2.4** — `bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf` (~232 KB)
-   - **2.2, 2.3, 2.5** — `the-all-weather-story.pdf` (~113 KB)
-   - **2.4** — `Our Thoughts about Risk Parity and All Weather` (Bridgewater Sept 2015, ~1 MB CMG mirror)
-   - **2.4** — `Leverage-Aversion-and-Risk-Parity.pdf` (AQR / AFP 2012, ~700 KB)
-   - **2.4** — `PanAgora-Risk-Parity-Portfolios-Efficient-Portfolios-Through-True-Diversification.pdf` (Qian 2005, ~500 KB)
-   - **1.2–1.7, 2.5** — `Big Debt Crises Part 1 / Part 2` (Dalio, ~75 MB total — TOO BIG for Plus 25 MB cap; pre-extract relevant pages locally with `pdftotext` and paste page text inline as `BDC Part X printed p. N: <text>` blocks instead of uploading)
-   - **1.6** — `Changing World Order` chapters (`https://www.economicprinciples.org/DalioChangingWorldOrderCharts.pdf` etc.)
-   The user can upload any subset; tell ChatGPT which ones are available and which need URL fetch fallback.
-3. Open a **fresh chat** (clean context per audit). Reuse the same chat for batched audits only if you don't mind cross-talk between targets.
-4. **Paste this entire file** as the first user message.
-5. **Paste the target research file** (`research/{SEQ}_{slug}.md`) as the second user message, prefixed with: `--- TARGET FILE BEGINS ---` and suffixed with `--- TARGET FILE ENDS ---`.
-6. **Tell ChatGPT the slot values:** SEQ, ID, slug, TITLE, scope IN, scope OUT (look these up in the Subsection Registry below).
-7. ChatGPT runs the audit, returns a markdown audit report.
-8. Save its output as `research/_audit_{SEQ}_{slug}.md`. Commit via git.
+**Steps:**
+1. Open ChatGPT (Plus or Pro — Web Browsing + Code Interpreter / Python both ON).
+2. Start a fresh chat.
+3. Upload **2 files** as attachments:
+   - This file (`audit_prompt.md`)
+   - The target research file (`research/{SEQ}_{slug}.md`) — any of the 12.
+4. Send this single message:
+   > **Run the audit per `audit_prompt.md` against the attached research file. Use Python + requests + PyMuPDF (fitz) to fetch and parse the PDFs cited in the target's § 2 and § 10 — do not skip primary-source verification. Return the audit markdown only, no conversational text.**
+5. Wait 2–5 minutes.
+6. Save ChatGPT's output as `research/_audit_{SEQ}_{slug}.md` (use the SEQ + slug ChatGPT identified in its audit header).
+7. Commit via git.
 
-If ChatGPT refuses to use web browsing or skips URL fetches, **stop and re-prompt** — the audit is invalid without live URL verification.
+That is the entire workflow. ChatGPT reads the target file's H1 (`# {ID} {TITLE}`), looks up the corresponding row in the **Subsection Registry** below, and fills its own SEQ / slug / scope IN / scope OUT slots. ChatGPT fetches PDFs from the URLs cited in the target file using Code Interpreter Python (`requests.get(url)` → `fitz.open(stream=…)`) — no manual PDF upload needed.
+
+**If ChatGPT skips URL fetches or refuses Code Interpreter / web access**, stop and re-prompt: "*Use Python and web browsing. Do not rely on training data for URL status, PDF page numbers, or arithmetic.*" The audit is invalid without live verification.
 
 ### Verdict Policy (Both First-Time And Deferred-Sweep Audits)
 
-- **First-time audit on a never-audited file:** PASS / PASS-with-patches → file accepted. **REJECT-re-spawn → triggers a re-spawn** (the project default cadence: re-spawn agent rewrites the file with the audit's findings table as the correction list, no second audit in-wave). Re-spawn happens in the local Sonnet session, not in ChatGPT (rewrites stay local until ChatGPT-rewrite is calibrated separately).
+- **First-time audit on a never-audited file:** PASS / PASS-with-patches → file accepted. **REJECT-re-spawn → triggers a re-spawn** (project default cadence: a re-spawn agent rewrites the file with the audit's findings table as the correction list; no second audit in-wave). Re-spawn happens in the local Sonnet session, not in ChatGPT (rewrites stay local until a ChatGPT-rewrite Layer-2 prompt is calibrated separately).
 - **Deferred-sweep audit on a previously-audited file:** ChatGPT REJECT supersedes prior Sonnet PASS *only if* every ChatGPT finding has a populated Evidence column citing primary source. A REJECT with empty evidence = the audit is rejected, not the target.
+
+### What ChatGPT Does Automatically (No User Input Needed)
+
+When ChatGPT receives the 2-file upload + the run-audit message:
+
+1. Reads the target file's H1 line. Format: `# {ID} {TITLE}` (e.g. `# 2.3 Alpha Generation & Portable Alpha`).
+2. Looks up that ID in the **Subsection Registry** table below to get SEQ, slug, scope IN, scope OUT.
+3. Identifies all URLs cited in target §§ 2 and 10. Fetches each via web browsing OR `requests.get()` in Python.
+4. Identifies all PDF citations. For each, downloads the PDF via Python and runs `fitz` (PyMuPDF — install with `pip install pymupdf` if not present) to extract text. Verifies each verbatim quote against the printed footer page number.
+5. Identifies all numeric formulas and worked-example cells in §§ 5–7. Recomputes via Python. Compares to target's stated values.
+6. Runs all 8 audit checks (A–H below).
+7. Writes the audit markdown per the Output Schema. Saves the SEQ + slug at the top so the user knows what filename to use.
+
+If a PDF download fails (timeout, oversized, redirect, captcha), ChatGPT falls back to:
+- Web search for the specific quote text to confirm it exists somewhere on the source's domain.
+- Marks the finding as `evidence: web-search-confirmed only — PDF unfetchable in session` instead of `evidence: PyMuPDF p.N`.
+
+For the Big Debt Crises PDF (~75 MB), ChatGPT may need to download in chunks or skip; if it cannot extract, it should mark BDC-page citations as `unverified — primary PDF too large for session sandbox` rather than fabricate verification.
 
 ### Calibration Test (Run This First, Before Trusting ChatGPT On Real Audits)
 
-Before handing real audits to ChatGPT, run a calibration test on the **pre-patch** version of subsection 2.3 (a known-buggy file with logged findings):
+Run a calibration test on the **pre-patch** version of subsection 2.3 (a known-buggy file with logged findings) before trusting ChatGPT on real audits.
+
+**STEP 1 — Generate the calibration target file:**
 
 ```bash
-git show 5ee3b1e:research/10_alpha_portable_alpha.md > /tmp/calibration_target.md
+git show 5ee3b1e:research/10_alpha_portable_alpha.md > calibration_target.md
 ```
 
-**STEP 1 — Download the two source PDFs locally** (ChatGPT's web browsing reads PDFs via Bing previews which do NOT reliably surface printed-footer page numbers; Code Interpreter PyMuPDF only runs on *uploaded* files, not web-fetched ones; without these uploads the calibration will fail for the wrong reason and you'll wrongly conclude ChatGPT doesn't work):
+**STEP 2 — Open ChatGPT (Plus or Pro, Web Browsing + Code Interpreter both ON). Start a fresh chat.**
 
-- `https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf` (~232 KB, fits Plus 25 MB cap)
-- `https://www.bridgewater.com/_document/the-all-weather-story?id=00000171-8623-d7de-affd-feaf4ee20000` (~113 KB)
+**STEP 3 — Upload 2 files** as attachments to the chat:
+- This `audit_prompt.md`
+- `calibration_target.md` from Step 1
 
-**STEP 2 — Open a fresh ChatGPT chat. Upload BOTH PDFs to the chat as attachments.** Confirm Code Interpreter is enabled.
+**STEP 4 — Send this single message:**
 
-**STEP 3 — Paste this entire `audit_prompt.md` file as the first message.**
+> *Run the audit per `audit_prompt.md` against the attached `calibration_target.md`. Use Python + requests + PyMuPDF (fitz) to fetch and parse Bridgewater PDFs cited in the target's § 2 and § 10. Return the audit markdown only.*
 
-**STEP 4 — Paste `/tmp/calibration_target.md` between BEGINS/ENDS markers.** Tell ChatGPT the slots:
-- SEQ=10, ID=2.3, slug=alpha_portable_alpha
-- TITLE=Alpha Generation & Portable Alpha
-- scope IN = alpha generation fundamentals, portable alpha structure, Fundamental Law of Active Management, alpha vs beta separation
-- scope OUT = specific quant strategy implementation; All-Weather beta (2.2); risk parity leverage (2.4); stress testing (2.5)
+ChatGPT will identify the target as 2.3 from the H1 (`# 2.3 Alpha Generation & Portable Alpha`), look up scope from the Subsection Registry below, fetch the Engineering Targeted Returns PDF (~232 KB) and All Weather Story PDF (~113 KB) via Python, run PyMuPDF, and audit.
 
-**Score ChatGPT against the findings already logged in `research/_audit_10_alpha_portable_alpha.md`:**
+**STEP 5 — Score ChatGPT's output against the findings already logged in `research/_audit_10_alpha_portable_alpha.md`:**
 
 The pre-patch file contains 3 *unique* CRITICAL root errors plus 3 unique MAJOR issues:
 
@@ -326,20 +340,32 @@ If you found 0 errors after thorough checks: state explicitly what you checked (
 
 ---
 
-## What To Do When The User Pastes The Target File
+## What To Do When The User Uploads The 2 Files
 
-The user will tell you the slot values (SEQ, ID, slug, TITLE, scope IN, scope OUT) and paste the target file content between `--- TARGET FILE BEGINS ---` and `--- TARGET FILE ENDS ---` markers.
+The user uploads `audit_prompt.md` (this file) and a target research file (`research/{SEQ}_{slug}.md`), then sends a "run the audit" message.
 
-1. Confirm tool availability (web browsing on, Code Interpreter on). If either is off, **stop and ask the user to enable them**.
-2. Read the target file fully.
-3. Run all 8 checks (A–H) in order. Use web browsing for A, D, G. Use Code Interpreter for B (PDF parsing) and § 7 arithmetic in H.
-4. Build the Findings table.
-5. Build the URLs-audited table — every URL the target cites must appear here with HTTP status.
-6. Build the Arithmetic-rechecks block.
-7. Build the Quote-fidelity table.
-8. Issue verdict per the thresholds above.
-9. Write the Summary.
-10. Return the markdown audit document. Do not include conversational text outside the document.
+1. **Confirm tool availability.** Web Browsing on AND Code Interpreter / Python on. If either is off, **stop and ask the user to enable them**.
+2. **Read the target file fully.** Identify its H1 line — format is `# {ID} {TITLE}` (e.g. `# 2.3 Alpha Generation & Portable Alpha`). Match the ID against the Subsection Registry table below to resolve SEQ, slug, scope IN, scope OUT. Record these slot values at the top of your audit output.
+3. **Fetch primary sources via Python** (Code Interpreter):
+   ```python
+   import requests, fitz, io
+   r = requests.get(url, timeout=60)
+   r.raise_for_status()
+   doc = fitz.open(stream=r.content, filetype="pdf")
+   for page in doc:
+       text = page.get_text()  # printed-page text; footer page number is usually in this text
+   ```
+   Do this for every PDF cited in §§ 2 and 10 of the target. Note printed-footer page numbers from each page's text (the `N` near "© 2011 Bridgewater Associates, LP" or similar footer line).
+4. **Run all 8 checks (A–H)** in order. Use web browsing for HTML URLs (A, G). Use Python for PDFs (B), data-series description verification (D), and § 7 arithmetic recomputation (H).
+5. **Build the Findings table.** One row per finding. Severity ∈ {CRITICAL, MAJOR, MINOR}. Evidence column MUST cite primary source (extracted PDF text snippet, fetched URL HTTP status, Python output) — not "I think this is wrong."
+6. **Build the URLs-audited table** — every URL the target cites must appear here with HTTP status from your live fetch. Empty status = audit invalid.
+7. **Build the Arithmetic-rechecks block.** Paste verbatim Python output for each cell you recomputed.
+8. **Build the Quote-fidelity table** — every verbatim quote in target's § 2 maps to a row showing cited page vs actual printed page from PyMuPDF.
+9. **Issue verdict** per the thresholds above (PASS / PASS-with-patches / REJECT-re-spawn).
+10. **Write the Summary.** Overall confidence; biggest residual risks; recommended next action.
+11. **Return the markdown audit document.** Do not include conversational text outside the document. The user will save your output verbatim as `research/_audit_{SEQ}_{slug}.md` using the SEQ + slug you identified in step 2.
+
+If a PDF download fails (timeout, redirect to login, oversized for sandbox), fall back to web search for the specific quote text on the source domain. Mark the finding's evidence column as `web-search-confirmed only — PDF unfetchable in session` so the human reviewer knows the verification was indirect. Do NOT silently skip.
 
 ---
 

@@ -37,7 +37,7 @@
 ## File 02 — 1.2 Short-Term Debt Cycle (`_audit_02_short_term_debt_cycle.md`)
 
 **Audit verdict:** REJECT-re-spawn (2 CRITICAL, 5 MAJOR, 1 MINOR).
-**Layer 2 commit:** TBD (this file's commit).
+**Layer 2 commit:** `e2f3acd` (2026-04-24).
 **Final structural state after patches:** S2=2998w (≤3000 ✓), S5 §1=71w (≤100 ✓), R4=6.350 (≥5.67 ✓), S3 ✓, S6 columns ✓, S7 sub-sections ✓, R7 markers=21 ✓, P1 palette ✓.
 
 | Finding | Severity | Verdict | Evidence | Patch summary |

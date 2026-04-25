@@ -69,6 +69,10 @@ git show 5ee3b1e:research/10_alpha_portable_alpha.md > calibration_target.md
 
 ChatGPT will identify the target as 2.3 from the H1 (`# 2.3 Alpha Generation & Portable Alpha`), look up scope from the Subsection Registry below, fetch the Engineering Targeted Returns PDF (~232 KB) and All Weather Story PDF (~113 KB) via Python, run PyMuPDF, and audit.
 
+**Recovery if calibration fails on quote-fidelity findings (CRITICAL-B, CRITICAL-C):**
+
+ChatGPT's Code Interpreter sandbox does NOT reliably have outbound network access. `requests.get()` against Bridgewater CDN often fails with timeout or DNS error. If ChatGPT's output reports `PDF unfetchable in session` for the Engineering Targeted Returns or All Weather Story PDFs, the cause is sandbox networking, not capability. **Recover by re-running the calibration with both PDFs uploaded as additional attachments** (Engineering Targeted Returns ~232 KB, All Weather Story ~113 KB; both fit Plus 25 MB cap). PyMuPDF will then run on the uploaded files locally. This is a documented fallback for when Code Interpreter networking blocks PDF fetch — not a workflow change.
+
 **STEP 5 — Score ChatGPT's output against the findings already logged in `research/_audit_10_alpha_portable_alpha.md`:**
 
 The pre-patch file contains 3 *unique* CRITICAL root errors plus 3 unique MAJOR issues:
@@ -345,7 +349,7 @@ If you found 0 errors after thorough checks: state explicitly what you checked (
 The user uploads `audit_prompt.md` (this file) and a target research file (`research/{SEQ}_{slug}.md`), then sends a "run the audit" message.
 
 1. **Confirm tool availability.** Web Browsing on AND Code Interpreter / Python on. If either is off, **stop and ask the user to enable them**.
-2. **Read the target file fully.** Identify its H1 line — format is `# {ID} {TITLE}` (e.g. `# 2.3 Alpha Generation & Portable Alpha`). Match the ID against the Subsection Registry table below to resolve SEQ, slug, scope IN, scope OUT. Record these slot values at the top of your audit output.
+2. **Read the target file fully.** Identify its H1 line — format is `# {ID} {TITLE}` (e.g. `# 2.3 Alpha Generation & Portable Alpha`). **Match by ID alone** (the `2.3` / `1.6` part — that's the canonical key). The TITLE string can vary slightly across copies (smart quotes vs straight, en-dash vs em-dash, trailing whitespace) — do NOT exact-string-match the title. Find the registry row whose ID matches and use that row's SEQ, slug, scope IN, scope OUT. Record these slot values at the top of your audit output.
 3. **Fetch primary sources via Python** (Code Interpreter):
    ```python
    import requests, fitz, io

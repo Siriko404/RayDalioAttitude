@@ -2,7 +2,7 @@
 
 ## § 1 Executive Summary
 
-Dalio's long-term ("Big") debt cycle is a ~80 ±25 year supercycle where successive short cycles ratchet debt up until policy is forced into monetization, devaluation, or restructuring. This subsection operationalises the **stage-of-cycle diagnostic**: a five-stage archetype (Sound Money → Debt Bubble → Top → Deleveraging → Recedes) tagged by four Dalio indicators — debt/income, debt-service/income, rate-minus-growth, debt/savings — plus a reserve-currency overlay. NOT: 5–8 yr cycle (→ 1.2), deleveraging levers (→ 1.4), empire scoring (→ 1.6).
+Dalio's "Big" debt cycle: ~80 ±25-yr supercycle where short cycles ratchet debt until policy forces monetization, devaluation, or restructuring. This subsection operationalises the **stage-of-cycle diagnostic**: five-stage archetype (Sound → Bubble → Top → Deleveraging → Recedes) tagged by four Dalio indicators (debt/income, debt-service/income, r−g, debt/savings) plus a reserve-currency overlay. NOT: 5–8 yr cycle (→ 1.2), levers (→ 1.4), empire scoring (→ 1.6).
 
 ## § 2 Dalio's Framework — Verbatim
 
@@ -32,19 +32,19 @@ Dalio, *How Countries Go Broke: Part 1* ("HCGB-1") — https://economicprinciple
 |---|---|---|---|---|---|---|
 | `D_tot_GDP` | Federal Debt: Total Public Debt / GDP (incl. intragov.) | % GDP | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=GFDEGDQ188S` | Q | 30–130% |
 | `D_pub_GDP` | Federal Debt Held by the Public / GDP (excl. intragov.) | % GDP | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=FYGFGDQ188S` | Q | 24–100% |
-| `D_priv_GDP` | BIS Total Credit to Non-Financial Sector / GDP | % GDP | BIS (SDMX v2) | `https://stats.bis.org/api/v2/data/BIS,WS_TC,1.0/Q.US.C.A.M.770.A` | Q | 120–300% |
+| `D_priv_GDP` | BIS Total Credit to Non-Financial Sector / GDP | % GDP | BIS (SDMX v2) | `https://stats.bis.org/api/v2/data/BIS,WS_TC,2.0/Q.US.C.A.M.770.A` | Q | 120–300% |
 | `DS_int_GDP` | Federal Outlays: Interest / GDP | % GDP | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=FYOIGDA188S` | A | 1–5% |
-| `DSR_priv` | Private non-financial debt service ratio (BIS DSR) | % inc | BIS (SDMX v2) | `https://stats.bis.org/api/v2/data/BIS,WS_DSR,1.0/Q.US.P` | Q | 12–18% |
+| `DSR_priv` | Private non-financial debt service ratio (BIS DSR) | % inc | BIS portal | `https://data.bis.org/topics/DSR/data` (CSV/XLSX export; SDMX `WS_DSR` API unstable as of 2026-04) | Q | 12–18% |
 | `r_nom` | 10-Year Treasury Constant Maturity Rate | % p.a. | FRED (H.15) | `https://api.stlouisfed.org/fred/series/observations?series_id=GS10` | M | 1–16% |
-| `g_nom` | Nominal GDP (BEA) — 4Q trailing growth | % p.a. | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=GDP` | Q | -4–20% |
-| `Pi_dfl` | GDP Deflator (BEA) — 4Q trailing | % p.a. | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=GDPDEF` | Q | -2–10% |
+| `GDP_level` | Nominal GDP — raw level (BEA) | USD bn, SAAR | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=GDP` | Q | 1000–30000 |
+| `GDPDEF_index` | GDP Implicit Price Deflator — raw index (BEA) | Idx 2017=100 | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=GDPDEF` | Q | 20–130 |
 | `HdlDef_GDP` | Federal Surplus or Deficit [-] / GDP — HEADLINE (incl. interest) | % GDP | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=FYFSGDA188S` | A | -10–4% |
 | `PrimDef_GDP` | Primary deficit / GDP = `|HdlDef_GDP| − DS_int_GDP` (DERIVED) | % GDP | FRED (derived) | FYFSGDA188S + FYOIGDA188S | A | -2–6% |
 | `Rev_GDP` | Federal revenue / GDP (Dalio anchor ~17% US today) | % GDP | FRED | `https://api.stlouisfed.org/fred/series/observations?series_id=FYFRGDA188S` | A | 14–20% |
 | `Res_GDP` | Total reserves (inc. gold, current US$) ÷ nom. GDP | % GDP | WB WDI | `https://api.worldbank.org/v2/country/USA/indicator/FI.RES.TOTL.CD?format=json` | A | 0.5–4% |
-| `FX_res_USD` | USD share of global allocated FX reserves (COFER) | % | IMF COFER | `https://data.imf.org/en/datasets/IMF.STA:COFER` (CSV/XLSX only) | Q | 55–72% |
+| `FX_res_USD` | USD share of global FX reserves (COFER; legacy "allocated" through 2025Q2; from 2025Q3 IMF eliminates unallocated via imputation per TN Nov 2025) | % | IMF COFER | `https://data.imf.org/en/datasets/IMF.STA:COFER` (CSV/XLSX) | Q | 55–72% |
 
-FRED needs free `api_key`. BIS API v2 is open (SDMX RESTful). COFER has no JSON feed.
+FRED cells show `series_id` only — full template per R3: `…/observations?series_id=X&api_key={FRED_API_KEY}&file_type=json` (free key). BIS API v2 open SDMX. COFER has no JSON feed.
 
 ## § 5 Computation / Transformations
 
@@ -55,6 +55,8 @@ FRED needs free `api_key`. BIS API v2 is open (SDMX RESTful). COFER has no JSON 
 Dalio denominates in federal **revenue** throughout Ch 3 — canonical for the § 6 classifier.
 
 $$I_1 = \frac{\text{Debt}_t}{\text{Revenue}_t}, \quad I_2 = \frac{\text{Interest}_t + \text{Principal due}_t}{\text{Revenue}_t}, \quad I_3 = r_{nom,t} - g_{nom,t}, \quad I_4 = \frac{\text{Debt}_t}{\text{Reserves} + \text{Savings}_t}$$
+
+> **DERIVED (operational)** — `g_{nom} = yoy(GDP_level, 4)`; `Pi_dfl = yoy(GDPDEF_index, 4)`. FRED `GDP`/`GDPDEF` are raw level/index, not growth rates.
 
 > **Dalio** — source: HCGB-1, Ch 3, Example 1: "about 580%"; "borrowing ~20% of its income each year to cover interest expenses."
 
@@ -104,7 +106,7 @@ Primary output: `(stage, mp_phase)`. **Denominator: % of Revenue throughout this
 
 ### Stage-classifier thresholds
 
-> **DERIVED (operational)** — edges anchor on Dalio point data (1944 US = 7x debt/gold SOUND; US today = 580% debt/rev late; Japan = 1376% stress) but edges BETWEEN stages are stipulated. 550% lower edge of DELEVER sits below 580% so US lands inside; 900% upper edge sits above Dalio's 10-yr 730% projection and below 1376% Japan. All other edges DERIVED.
+> **DERIVED (operational)** — Dalio anchors are points only (1944=7x; today=580%; JPN=1376%); inter-stage edges below are stipulated. 550/900 bracket the US (580%) and JPN (1376%) cases.
 
 | Stage | `D / Revenue` | `Int / Revenue` | `I3 = r − g` | Typical MP |
 |---|---|---|---|---|
@@ -113,6 +115,8 @@ Primary output: `(stage, mp_phase)`. **Denominator: % of Revenue throughout this
 | 3. Top | 400–550% | 10–15% | turning + | late MP2 / early MP3 |
 | 4. Deleveraging | 550–900% | 15–40% | − (CB-forced) | MP3 / MP4 / MP5 |
 | 5. Recedes | falling thru 400% | falling thru 10% | → 0 | MP6 |
+
+> **DERIVED (operational)** — edges 200/400/550/900 and 5/10/15/40 are stipulated; covers table rows above.
 
 ### Reserve-currency overlay
 
@@ -126,6 +130,8 @@ Signal: COFER USD share trend DOWN combined with `stage ∈ {TOP, DELEVER}` = el
 
 ### Action rules
 
+> **DERIVED (operational)** — four prescriptions author-stipulated; HCGB-1 implies inflation-protection in DELEVER+I3>0 / equity-gold in repression but doesn't name "ILB" or "long nominals". Final routing in 1.7 / 2.2.
+
 - `SOUND`/`BUBBLE` → pass-through to 1.2; 1.4 dormant.
 - `TOP` → cut long-duration nominal bond; watch 1.4.
 - `DELEVER` + `I3 > 0` → inflation-lever path; 1.7 active; hold gold / ILB.
@@ -137,15 +143,19 @@ Signal: COFER USD share trend DOWN combined with `stage ∈ {TOP, DELEVER}` = el
 
 Illustrative — values TRANSCRIBED from HCGB-1 Ch 3 Ex 1 (present US anchors) and Ex 3 ("Interest Rates Spiral Upward") published table. Not an independent simulation.
 
-**Step 1 — tag indicators for US (Ex 1).** $I_1^{rev}$ = 580% · $I_2^{rev}$ ≈ 20% (Dalio: "borrowing ~20% of its income each year to cover interest expenses") · $I_3$ = 3.4% − 3.8% = −0.4% (Ex 2 CBO baseline) · $I_4$ = 37x debt/gold (Ch 1, up from 7x in 1944).
+**Step 1 — tag indicators for US (Ex 1).** $I_1^{rev}$ = 580% · $I_2^{rev}$ ≈ 20% · $I_3$ = 3.4% − 3.8% = −0.4% · $I_4$ = 37x debt/gold (Ch 1, up from 7x in 1944).
+
+> **Dalio** — Ex 1 anchors 580% / ~20%; Ex 2 CBO baseline 3.4 vs 3.8; Ch 1 gold ratios 7x→37x (1944→today).
 
 **Step 2 — assign stage.** 580% → DELEVER (550–900%); 20% → DELEVER (15–40%); $I_3$ slightly negative = repression. Stage = `DELEVERAGING`.
 
 **Step 3 — 10-yr projection (Ex 3).** Inputs: start 580%, g = 3.8%, primary deficit = 15% of revenue, r starts 3.4% rising 50 bps/yr, 35% rolls/yr.
 
+> **Dalio** — HCGB-1 Ch 3 Ex 3 toy model parameters: Income Growth 3.8%, Spending excl. Interest 115% Inc, Starting Debt 29.3, Starting Interest 3.4%, Share Maturing 35%/yr.
+
 | Year | r (%) | D/Inc | DS/Inc | Int/Inc |
 |---:|---:|---:|---:|---:|
-| 0 | 3.4 | 580% | — | 21.8% |
+| 0 | 3.4 | 580% | — | — |
 | 5 | 5.9 | 689% | 260% | 37.5% |
 | 10 | 8.4 | 898% | 353% | 68.4% |
 
@@ -181,7 +191,7 @@ async function longTermDebtCycle({ apiKey, horizonYrs = 10 }) {
     i1 < 400 && i2 < 10                 ? 'BUBBLE'       :
     i1 < 550 && i2 < 15 && i3 < 1       ? 'TOP'          :
     (i1 < 900 || i2 >= 15)              ? 'DELEVERAGING' : 'RECEDES';
-  const project = (d0, pdRev, g, r0, rCreep, yrs) => {       // Dalio Ex 3 recurrence
+  const project = (d0, pdRev, g, r0, rCreep, yrs) => {       // operational approx. — exact Y0/Y5/Y10 anchors per § 7
     let d = d0, r = r0, path = [{ yr: 0, debt: d, r }];
     for (let t = 0; t < yrs; t++) {
       d += pdRev + d * (r - g) / 100; r += rCreep;
@@ -198,7 +208,7 @@ async function longTermDebtCycle({ apiKey, horizonYrs = 10 }) {
 
 Consumer: `dalio_dashboard.html` renders stage chip + 10-yr trajectory overlay.
 
-### 8b. Excel — sheet layout, Power Query M, key formulas
+### 8b. Excel — sheet layout, Power Query M or URL, key formulas
 
 Workbook `dalio_model.xlsx`, sheet `3_LongCycle`. One Power Query per FRED series:
 
@@ -263,14 +273,14 @@ Stage chips: `#00D08C` SOUND · `#7FFFD4` BUBBLE · `#D4A373` TOP · `#E5484D` D
 
 ### Open questions and ambiguities
 
-1. **Cycle duration is a range.** "~80 years (give or take 25)" (HCGB-1 Ch 1). No year-count test alone signals late-stage; stage must come from the four indicators.
-2. **No Dalio-published stage edges.** Point anchors only (1944 = 7x; US today = 37x; Japan = 1376%). Every edge in § 6 marked DERIVED is operational stipulation.
-3. **MP phases: dates but no numeric transitions.** MP1=1944–71, MP2=1971–2008, MP3=2008–20 (HCGB-1 Ch 1); MP4–MP6 have no published trigger.
-4. **"Deleveraging reduces debt/income by 50% ±20%"** — historical average across 35 cases, not a forward target.
-5. **"r − g = 2% → debt/income +50% / 20 yrs"** — assumes zero primary deficit; lower bound. Use § 5.3 for projections.
-6. **COFER USD-share thresholds are NOT Dalio.** "10 pp over 10 years" trigger is DERIVED.
-7. **Denominators — three live in this model.** % GDP (FRED feeds), % revenue (stage classifier), % money/gold (anchor only). `Rev_GDP` ≈ 0.17 for US today (Dalio) but varies 14–20%; pipe `FYFRGDA188S`.
-8. **Primary vs headline deficit.** `FYFSGDA188S` is headline. Primary = `|FYFSGDA188S| − FYOIGDA188S` — a derivation. § 7's 15%-of-revenue is Dalio's CBO-baseline decade average, not spot.
+1. **Cycle duration is a range** — "~80 ±25 years" (HCGB-1 Ch 1); year-count alone never signals late-stage.
+2. **No Dalio stage edges.** Point anchors only (1944=7x; today=37x; JPN=1376%). All § 6 edges DERIVED.
+3. **MP phases: dates, no numeric transitions.** MP1=1944–71, MP2=1971–2008, MP3=2008–20; MP4–MP6 no trigger.
+4. **"50% ±20% reduction"** — historical mean across 35 cases, not forward target.
+5. **"r − g = 2% → +50%/20yr"** — assumes zero primary deficit; lower bound. Use § 5.3.
+6. **COFER threshold "10 pp / 10 yr" is DERIVED**, not Dalio.
+7. **Three denominators:** % GDP (FRED feeds), % revenue (classifier), % money/gold (anchor). `Rev_GDP`≈0.17 today but 14–20% historically; pipe `FYFRGDA188S`.
+8. **Primary vs headline.** `FYFSGDA188S` is headline; primary = `|FYFSGDA188S|−FYOIGDA188S`. § 7's 15% is CBO decade average.
 
 ### Sources (all public)
 
@@ -279,6 +289,6 @@ Stage chips: `#00D08C` SOUND · `#7FFFD4` BUBBLE · `#D4A373` TOP · `#E5484D` D
 - **Primary.** Dalio, "Where We Are in the Big Cycle …" LinkedIn Feb 2022. https://www.linkedin.com/pulse/where-we-big-cycle-money-credit-debt-economic-activity-ray-dalio
 - **Primary.** Dalio, *Principles for Navigating Big Debt Crises*, 2018 (free PDF via email). https://www.principles.com/big-debt-crises
 - **Data.** FRED API https://fred.stlouisfed.org/docs/api/fred/ — series `GFDEGDQ188S`, `FYGFGDQ188S`, `FYOIGDA188S`, `FYFSGDA188S`, `FYFRGDA188S`, `GS10`, `GDP`, `GDPDEF`.
-- **Data.** BIS SDMX v2 — https://data.bis.org/topics/TOTAL_CREDIT · docs https://stats.bis.org/api-doc/v2/ · base `https://stats.bis.org/api/v2/`.
+- **Data.** BIS — total credit `https://data.bis.org/topics/TOTAL_CREDIT/BIS,WS_TC,2.0/Q.US.C.A.M.770.A`; DSR portal `https://data.bis.org/topics/DSR`; SDMX v2 docs `https://stats.bis.org/api-doc/v2/`.
 - **Data.** IMF COFER https://data.imf.org/en/datasets/IMF.STA:COFER (CSV/XLSX).
-- **Data.** World Bank WDI https://api.worldbank.org/v2/country/{ISO}/indicator/FI.RES.TOTL.CD · page https://data.worldbank.org/indicator/FI.RES.TOTL.CD
+- **Data.** World Bank WDI — concrete USA: `https://api.worldbank.org/v2/country/USA/indicator/FI.RES.TOTL.CD?format=json`; template: `…/country/{ISO}/indicator/FI.RES.TOTL.CD` (R3 placeholder); page `https://data.worldbank.org/indicator/FI.RES.TOTL.CD`.

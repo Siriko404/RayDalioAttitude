@@ -9,48 +9,72 @@
 ## How To Use (For The Human)
 
 1. **Tooling required:** ChatGPT **Plus or Pro** with **Web Browsing** AND **Code Interpreter (Python)** both enabled. Without web browsing the audit collapses to training-data recall and is worthless.
-2. Open a **fresh chat** (clean context per audit).
-3. **Paste this entire file** as the first user message.
-4. **Paste the target research file** (`research/{SEQ}_{slug}.md`) as the second user message, prefixed with: `--- TARGET FILE BEGINS ---` and suffixed with `--- TARGET FILE ENDS ---`.
-5. **Tell ChatGPT the slot values:** SEQ, ID, slug, TITLE, scope IN, scope OUT (look these up in the Subsection Registry below).
-6. ChatGPT runs the audit, returns a markdown audit report.
-7. Save its output as `research/_audit_{SEQ}_{slug}.md`. Commit via git.
+2. **Upload the relevant Dalio / Bridgewater PDFs to the chat** before pasting anything else. ChatGPT's web browsing reads PDFs through Bing previews that do NOT reliably surface printed-footer page numbers; Code Interpreter PyMuPDF only runs on uploaded files. Without PDF uploads, R12 (quote fidelity) checks fail not because of capability but because the PDF text is unreachable. Per-subsection PDF list:
+   - **2.3, 2.4** — `bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf` (~232 KB)
+   - **2.2, 2.3, 2.5** — `the-all-weather-story.pdf` (~113 KB)
+   - **2.4** — `Our Thoughts about Risk Parity and All Weather` (Bridgewater Sept 2015, ~1 MB CMG mirror)
+   - **2.4** — `Leverage-Aversion-and-Risk-Parity.pdf` (AQR / AFP 2012, ~700 KB)
+   - **2.4** — `PanAgora-Risk-Parity-Portfolios-Efficient-Portfolios-Through-True-Diversification.pdf` (Qian 2005, ~500 KB)
+   - **1.2–1.7, 2.5** — `Big Debt Crises Part 1 / Part 2` (Dalio, ~75 MB total — TOO BIG for Plus 25 MB cap; pre-extract relevant pages locally with `pdftotext` and paste page text inline as `BDC Part X printed p. N: <text>` blocks instead of uploading)
+   - **1.6** — `Changing World Order` chapters (`https://www.economicprinciples.org/DalioChangingWorldOrderCharts.pdf` etc.)
+   The user can upload any subset; tell ChatGPT which ones are available and which need URL fetch fallback.
+3. Open a **fresh chat** (clean context per audit). Reuse the same chat for batched audits only if you don't mind cross-talk between targets.
+4. **Paste this entire file** as the first user message.
+5. **Paste the target research file** (`research/{SEQ}_{slug}.md`) as the second user message, prefixed with: `--- TARGET FILE BEGINS ---` and suffixed with `--- TARGET FILE ENDS ---`.
+6. **Tell ChatGPT the slot values:** SEQ, ID, slug, TITLE, scope IN, scope OUT (look these up in the Subsection Registry below).
+7. ChatGPT runs the audit, returns a markdown audit report.
+8. Save its output as `research/_audit_{SEQ}_{slug}.md`. Commit via git.
 
 If ChatGPT refuses to use web browsing or skips URL fetches, **stop and re-prompt** — the audit is invalid without live URL verification.
 
+### Verdict Policy (Both First-Time And Deferred-Sweep Audits)
+
+- **First-time audit on a never-audited file:** PASS / PASS-with-patches → file accepted. **REJECT-re-spawn → triggers a re-spawn** (the project default cadence: re-spawn agent rewrites the file with the audit's findings table as the correction list, no second audit in-wave). Re-spawn happens in the local Sonnet session, not in ChatGPT (rewrites stay local until ChatGPT-rewrite is calibrated separately).
+- **Deferred-sweep audit on a previously-audited file:** ChatGPT REJECT supersedes prior Sonnet PASS *only if* every ChatGPT finding has a populated Evidence column citing primary source. A REJECT with empty evidence = the audit is rejected, not the target.
+
 ### Calibration Test (Run This First, Before Trusting ChatGPT On Real Audits)
 
-Before handing real audits to ChatGPT, run a calibration test on the **pre-patch** version of subsection 2.3 (a known-buggy file with 7 logged findings):
+Before handing real audits to ChatGPT, run a calibration test on the **pre-patch** version of subsection 2.3 (a known-buggy file with logged findings):
 
 ```bash
 git show 5ee3b1e:research/10_alpha_portable_alpha.md > /tmp/calibration_target.md
 ```
 
-Hand `/tmp/calibration_target.md` to ChatGPT using this prompt with slots:
+**STEP 1 — Download the two source PDFs locally** (ChatGPT's web browsing reads PDFs via Bing previews which do NOT reliably surface printed-footer page numbers; Code Interpreter PyMuPDF only runs on *uploaded* files, not web-fetched ones; without these uploads the calibration will fail for the wrong reason and you'll wrongly conclude ChatGPT doesn't work):
+
+- `https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf` (~232 KB, fits Plus 25 MB cap)
+- `https://www.bridgewater.com/_document/the-all-weather-story?id=00000171-8623-d7de-affd-feaf4ee20000` (~113 KB)
+
+**STEP 2 — Open a fresh ChatGPT chat. Upload BOTH PDFs to the chat as attachments.** Confirm Code Interpreter is enabled.
+
+**STEP 3 — Paste this entire `audit_prompt.md` file as the first message.**
+
+**STEP 4 — Paste `/tmp/calibration_target.md` between BEGINS/ENDS markers.** Tell ChatGPT the slots:
 - SEQ=10, ID=2.3, slug=alpha_portable_alpha
 - TITLE=Alpha Generation & Portable Alpha
 - scope IN = alpha generation fundamentals, portable alpha structure, Fundamental Law of Active Management, alpha vs beta separation
 - scope OUT = specific quant strategy implementation; All-Weather beta (2.2); risk parity leverage (2.4); stress testing (2.5)
 
-**Score ChatGPT against the 7 findings already in `research/_audit_10_alpha_portable_alpha.md`:**
-- 4 CRITICAL page-number errors:
-  - § 2 line 18: "Engineering Targeted Returns p. 7" should be **p. 8** (the "two ways an Optimal Alpha Portfolio" passage)
-  - § 2 lines 21–22: "p. 8, para under Chart 5" should be **p. 9** (the "factors of two to four times" sentence)
-  - § 2 lines 24–25: "All Weather Story p. 3" should be **p. 4** (the "return = cash + beta + alpha" formula)
-  - § 5/§ 6 inline: same p. 7 → p. 8 error in two more places
-- 3 MAJOR issues:
-  - § 6 line 86: IR_slice < 0.15 retirement floor has no DERIVED marker within 3 lines
-  - § 8b: Power Query M `Table.Group` key uses an invalid expression instead of a column-name string
-  - § 4: four proprietary-input rows (σ_Alpha, IC, N, ρ_avg) cite "n/a — internal" without explicit § 10 cross-reference
+**Score ChatGPT against the findings already logged in `research/_audit_10_alpha_portable_alpha.md`:**
+
+The pre-patch file contains 3 *unique* CRITICAL root errors plus 3 unique MAJOR issues:
+
+- **CRITICAL-A — Engineering Targeted Returns "p. 7 → p. 8" off-by-one** (appears in § 2 line 18 AND § 5 inline AND § 6 inline — same root error in 3 sites; ChatGPT may legitimately report this as a single finding spanning 3 lines, or as 3 separate findings — both forms count)
+- **CRITICAL-B — Engineering Targeted Returns "p. 8 → p. 9" for the "factors of two to four times" sentence** (§ 2 lines 21–22)
+- **CRITICAL-C — All Weather Story "p. 3 → p. 4" for the "return = cash + beta + alpha" formula** (§ 2 lines 24–25)
+- **MAJOR-D — § 6 line 86: IR_slice < 0.15 retirement floor has no DERIVED marker within 3 lines** (R7b coverage gap)
+- **MAJOR-E — § 8b Power Query M `Table.Group` key uses an invalid expression instead of a column-name string** (will throw runtime error on execution)
+- **MAJOR-F — § 4 proprietary-input rows (σ_Alpha, IC, N, ρ_avg) cite "n/a — internal" without explicit § 10 cross-reference** (R3 has no public-API exemption)
 
 **Pass criteria for calibration:**
-- ChatGPT finds **at least 3 of the 4 CRITICAL** page-number errors AND
-- ChatGPT finds **at least 2 of the 3 MAJOR** issues
-- ChatGPT cites **primary-source evidence** (extracted PDF text, fetched URL status, recomputed Python output) per finding — not "I think this is wrong"
+- ChatGPT identifies **CRITICAL-A** (whether as 1 unified finding or 3 separate findings — both count as a clean catch) AND **at least 1 of CRITICAL-B and CRITICAL-C**.
+- ChatGPT identifies **at least 2 of MAJOR-D, MAJOR-E, MAJOR-F**.
+- ChatGPT cites **primary-source evidence** per finding (extracted PDF text with printed page footer, fetched URL HTTP status, recomputed Python output) — not "I think this is wrong" or "based on my reading."
 
 **Fail criteria (pick a different tool or harden this prompt):**
-- ChatGPT finds 0–2 CRITICALs (PDF-fidelity capability missing)
-- ChatGPT cites no per-finding evidence (audit is recall-from-training, not verification)
+- ChatGPT identifies neither CRITICAL-B nor CRITICAL-C (PDF-fidelity capability missing — likely cause: PDFs not uploaded, or ChatGPT didn't actually run PyMuPDF on them).
+- ChatGPT cites no per-finding evidence (audit is recall-from-training, not verification).
+- ChatGPT issues PASS verdict on the pre-patch file (false-clean — fundamental capability gap).
 
 ### Conflict Of Verdict Rule (For The Deferred Re-Audit Sweep)
 

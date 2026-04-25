@@ -138,7 +138,7 @@ Illustrative (§ 7 option (a)): stylized inputs chosen to land in `TRANSITIONAL`
 
 **Step 4 — yield curve.** `spread = 0.45 ∈ [0, 1.0)` → `FLAT`.
 
-**Step 5 — recession prob.** NY Fed probit at `spread = 0.45` ≈ 18% (from `allmonth.xls`); 18 < 30 → not `ELEVATED`.
+**Step 5 — recession prob.** NY Fed probit (Estrella–Mishkin) at `spread = 0.45` ≈ 18% — illustrative; 18 < 30 → not `ELEVATED`.
 
 **Step 6 — Sahm.** `0.4 < 0.5` → `NOT_TRIGGERED` (close).
 

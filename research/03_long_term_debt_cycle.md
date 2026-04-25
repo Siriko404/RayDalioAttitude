@@ -44,7 +44,7 @@ Dalio, *How Countries Go Broke: Part 1* ("HCGB-1") — https://economicprinciple
 | `Res_GDP` | Total reserves (inc. gold, current US$) ÷ nom. GDP | % GDP | WB WDI | `https://api.worldbank.org/v2/country/USA/indicator/FI.RES.TOTL.CD?format=json` | A | 0.5–4% |
 | `FX_res_USD` | USD share of global FX reserves (COFER; legacy "allocated" through 2025Q2; from 2025Q3 IMF eliminates unallocated via imputation per TN Nov 2025) | % | IMF COFER | `https://data.imf.org/en/datasets/IMF.STA:COFER` (CSV/XLSX) | Q | 55–72% |
 
-FRED cells show `series_id` only — full template per R3: `…/observations?series_id=X&api_key={FRED_API_KEY}&file_type=json` (free key). BIS API v2 open SDMX. COFER has no JSON feed.
+FRED cells show `series_id` only — full template per R3: `…/observations?series_id=X&api_key={FRED_API_KEY}&file_type=json` (free key). BIS API v2 open SDMX. COFER: no JSON feed.
 
 ## § 5 Computation / Transformations
 
@@ -92,7 +92,7 @@ Dalio's Ex 1/Ex 3 inputs use PRIMARY deficit (excludes interest). FRED `FYFSGDA1
 
 $$PrimDef\_GDP_t \approx |HdlDef\_GDP_t| - DS\_int\_GDP_t; \quad PrimDef\_Rev_t = PrimDef\_GDP_t / Rev\_GDP_t$$
 
-> **DERIVED (operational)** — standard OMB/CBO convention. Sanity-check: US headline ~7% GDP − interest ~3% GDP → primary ~4% GDP ÷ 0.17 → ~24% revenue. Dalio's 15% is CBO-projected decade average.
+> **DERIVED (operational)** — standard OMB/CBO convention. Sanity-check: ~7%−~3% = ~4% GDP ÷ 0.17 ≈ ~24% rev; Dalio's 15% is CBO decade average.
 
 ### 5.6 MP phase overlay (Dalio taxonomy)
 
@@ -244,7 +244,7 @@ option = {
      itemStyle:{color:'#00D08C'}, data:govSeries},
     {name:'Priv debt/Rev', type:'bar', stack:'d', xAxisIndex:0, yAxisIndex:0,
      itemStyle:{color:'#7FFFD4'}, data:privSeries},
-    {name:'Projection (Dalio Ex 3: 580/689/898)', type:'line',
+    {name:'Projection (op. approx; Ex 3 anchors 580/689/898 per § 7)', type:'line',
      xAxisIndex:0, yAxisIndex:0, showSymbol:false,
      lineStyle:{color:'#D4A373', type:'dashed', width:1}, data:projSeries},
     {name:'r − g', type:'line', xAxisIndex:1, yAxisIndex:1, showSymbol:false,
@@ -288,7 +288,7 @@ Stage chips: `#00D08C` SOUND · `#7FFFD4` BUBBLE · `#D4A373` TOP · `#E5484D` D
 - **Primary.** Dalio, "How the Economic Machine Works," Bridgewater 2012. https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf
 - **Primary.** Dalio, "Where We Are in the Big Cycle …" LinkedIn Feb 2022. https://www.linkedin.com/pulse/where-we-big-cycle-money-credit-debt-economic-activity-ray-dalio
 - **Primary.** Dalio, *Principles for Navigating Big Debt Crises*, 2018 (free PDF via email). https://www.principles.com/big-debt-crises
-- **Data.** FRED API https://fred.stlouisfed.org/docs/api/fred/ — series `GFDEGDQ188S`, `FYGFGDQ188S`, `FYOIGDA188S`, `FYFSGDA188S`, `FYFRGDA188S`, `GS10`, `GDP`, `GDPDEF`.
+- **Data.** FRED API https://fred.stlouisfed.org/docs/api/fred/ — 8 series listed in § 4.
 - **Data.** BIS — total credit `https://data.bis.org/topics/TOTAL_CREDIT/BIS,WS_TC,2.0/Q.US.C.A.M.770.A`; DSR portal `https://data.bis.org/topics/DSR`; SDMX v2 docs `https://stats.bis.org/api-doc/v2/`.
-- **Data.** IMF COFER https://data.imf.org/en/datasets/IMF.STA:COFER (CSV/XLSX).
+- **Data.** IMF COFER https://data.imf.org/en/datasets/IMF.STA:COFER (CSV/XLSX; from 2025Q3 unallocated eliminated per TN Nov 2025 — branch at boundary).
 - **Data.** World Bank WDI — concrete USA: `https://api.worldbank.org/v2/country/USA/indicator/FI.RES.TOTL.CD?format=json`; template: `…/country/{ISO}/indicator/FI.RES.TOTL.CD` (R3 placeholder); page `https://data.worldbank.org/indicator/FI.RES.TOTL.CD`.

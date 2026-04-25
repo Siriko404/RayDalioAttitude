@@ -2,7 +2,7 @@
 
 ## § 1 Executive Summary
 
-Dalio's "Big" debt cycle: ~80 ±25-yr supercycle where short cycles ratchet debt until policy forces monetization, devaluation, or restructuring. This subsection operationalises the **stage-of-cycle diagnostic**: five-stage archetype (Sound → Bubble → Top → Deleveraging → Recedes) tagged by four Dalio indicators (debt/income, debt-service/income, r−g, debt/savings) plus a reserve-currency overlay. NOT: 5–8 yr cycle (→ 1.2), levers (→ 1.4), empire scoring (→ 1.6).
+Dalio's "Big" debt cycle: ~80 ±25-yr arc; short cycles ratchet debt until policy forces monetization, devaluation, or restructuring. **Stage diagnostic**: five-stage archetype (Sound → Bubble → Top → Deleveraging → Recedes), four Dalio indicators (debt/income, debt-service/income, r−g, debt/savings), reserve-currency overlay. NOT: 5–8 yr cycle (→ 1.2), levers (→ 1.4), empire scoring (→ 1.6).
 
 ## § 2 Dalio's Framework — Verbatim
 

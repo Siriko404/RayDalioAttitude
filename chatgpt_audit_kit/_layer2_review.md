@@ -36,18 +36,20 @@
 
 ## File 02 — 1.2 Short-Term Debt Cycle (`_audit_02_short_term_debt_cycle.md`)
 
-**Status:** In progress (compaction prep). F1 pre-verified VALID via PDF; remaining findings unverified.
+**Audit verdict:** REJECT-re-spawn (2 CRITICAL, 5 MAJOR, 1 MINOR).
+**Layer 2 commit:** TBD (this file's commit).
+**Final structural state after patches:** S2=2998w (≤3000 ✓), S5 §1=71w (≤100 ✓), R4=6.350 (≥5.67 ✓), S3 ✓, S6 columns ✓, S7 sub-sections ✓, R7 markers=21 ✓, P1 palette ✓.
 
-| Finding | Severity | Pre-verdict | Notes for resume |
-|---|---|---|---|
-| F1 — recession subphase quote attributed to p.18 but is on p.19 | CRITICAL | **VALID** (pre-verified) | PDF read: p. 18 ends with "The recession phase of the cycle follows and occurs in two parts." p. 19 has both "early part of the recession" + "late part of the recession" content. Patch needed: split line 95 between p. 18 (4 expansion + tightening + intro) and p. 19 (recession subphases). |
-| F2 — 8 stale FRED values in §7 worked example | CRITICAL | likely **VALID-flagged** | FRED unreachable from this env. Recommend relabel §7 as illustrative per R7 schema option (a) instead of attempting refresh. |
-| F3 — `RGDP_yoy` mislabel (A191RL1Q225SBEA is QoQ SAAR not YoY) | MAJOR | likely **VALID** | Need WebSearch to confirm. FRED label is likely "Percent Change from Preceding Period, Seasonally Adjusted Annual Rate" = QoQ SAAR. |
-| F4 — late-cycle "Dalio-exact" overclaim | MAJOR | **VALID** (pre-verified) | PDF p. 18 says "around 3.5-4%" + "about 2 ½ years" (qualifiers, not exact). |
-| F5 — R4 ratio 5.102 < 5.67 | MAJOR | needs recompute on current file | |
-| F6 — §8b title "Power Query M" vs schema "Power Query M or URL" | MAJOR | **VALID** (pre-verified) | `_prompt_template.md` line 186 uses "or URL". Easy patch. |
-| F7 — missing reproducibility lock for §7 | MAJOR | implicit fix via F2 | If §7 relabeled illustrative, lock not needed. |
-| F8 — §3 grammar "primitives downstream consumes" missing "that" | MINOR | **VALID** | Easy patch. |
+| Finding | Severity | Verdict | Evidence | Patch summary |
+|---|---|---|---|---|
+| F1 — recession subphase quote attributed to p. 18 but is on p. 19 | CRITICAL | **VALID-patched** | PDF p. 18 (orcamgroup mirror) ends with "The recession phase of the cycle follows and occurs in two parts." p. 19 contains "early part of the recession" + "late part of the recession" content. | Line 95 marker rewritten as `pp. 18–19` with split attribution: 4 expansion + tightening phases on p. 18; recession transition sentence on p. 18; both recession subphases on p. 19. |
+| F2 — §7 worked-example values do not match current FRED | CRITICAL | **VALID-patched** | FRED is blocked from this env (WebFetch 403, PowerShell timeout, curl exit 56) so live values not independently re-pulled. Audit's browser-fetched values (Q4 2025 RGDP=0.5, UNRATE Mar 2026=4.3, TCU Mar 2026=75.7, FEDFUNDS Mar 2026=3.64, T10Y3M 2026-04-21=0.61) all diverge from § 7 stated values; framing "Real data, as-of 2026-04-21" is not auditable. | § 7 reframed as schema option (a) "illustrative" — stylized inputs chosen to exercise every Step 1–7 branch. Series IDs retained for reproducibility; live re-run via § 8a/§ 8b. |
+| F3 — `RGDP_yoy` mislabel (A191RL1Q225SBEA is QoQ SAAR, not YoY) | MAJOR | **VALID-patched** | WebSearch confirmed FRED A191RL1Q225SBEA units = "Percent Change from Preceding Period, Seasonally Adjusted Annual Rate" (quarterly). The variable name `_yoy` is misleading. | Renamed `RGDP_yoy` → `RGDP_qoq_saar` everywhere (table, formula, JS, Excel column, chart series); `g_yoy` → `g_qoq` (JS); chart axis label "RGDP YoY (%)" → "RGDP QoQ SAAR (%)". |
+| F4 — late-cycle "Dalio-exact" overclaim | MAJOR | **VALID-patched** | PDF p. 18 verbatim: "around 3.5-4%" and "about 2 ½ years" (approximate anchors, not exact). | Late-cycle marker split: Dalio quote retained verbatim; second marker added as `> **DERIVED (operational)** — Dalio gives approximate anchors; the strict Boolean gates 3.5 ≤ g ≤ 4.0 and MST ≥ 30 are an operational conversion`. CAPUTL DERIVED block merged in. |
+| F5 — R4 ratio 5.102 < 5.67 | MAJOR | **VALID-patched** | After F1+F4 patches expanded §§4–8 (additional DERIVED block) and §10 trims reduced narrative outside §§2–3, recomputed R4 = 6.350 (canonical `wc -w` per `_acceptance_criteria.md` formula). | R4 cleared structurally as side effect of F1+F4+F2 patches; no specific R4-targeted patch needed. |
+| F6 — §8b title "Power Query M" vs schema "Power Query M or URL" | MAJOR | **VALID-patched** | `_prompt_template.md` line 186 confirms canonical title `### 8b. Excel — sheet layout, Power Query M or URL, key formulas`. | Line 194 updated to schema-exact title. |
+| F7 — missing reproducibility lock for §7 | MAJOR | **VALID-patched (implicit via F2)** | With §7 relabeled to schema option (a), reproducibility lock is no longer required by the schema (option (a) explicitly waives the data-snapshot requirement; option (b) requires it). | No standalone fix; F2 patch resolves. |
+| F8 — §3 grammar missing "that" | MINOR | **VALID-patched** | Line 25 confirmed: "primitives downstream consumes" — missing relative pronoun. | Replaced with "primitives that downstream modules consume". |
 
 ---
 

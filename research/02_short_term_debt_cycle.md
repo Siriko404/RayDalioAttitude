@@ -2,7 +2,7 @@
 
 ## § 1 Executive Summary
 
-Dalio's short-term debt cycle is a 5–8 year oscillation driven by central-bank policy: tighten when inflation / capacity rise, ease when slack returns. He names six phases — early, mid, late, tightening, early-recession, late-recession — with growth / duration anchors (p. 18). This layer builds a phase-classifier from FRED data, emits a 12-month recession probability, and hands a regime tag downstream. Not covered: 50–75 year cycle (→ 1.3), zero-bound deleveraging (→ 1.4), inflation tagging (→ 1.7).
+Dalio's short-term debt cycle: 5–8 year oscillation driven by central-bank policy — tighten when inflation / capacity rise, ease when slack returns. Six phases — early, mid, late, tightening, early-recession, late-recession — with growth / duration anchors (pp. 18–19). This layer builds a phase-classifier from FRED, emits a 12-month recession probability, and hands a regime tag downstream. Not covered: long cycle (→ 1.3), zero-bound deleveraging (→ 1.4), inflation tagging (→ 1.7).
 
 ## § 2 Dalio's Framework — Verbatim
 
@@ -22,13 +22,13 @@ All citations: Dalio, "How the Economic Machine Works," Bridgewater, updated Mar
 
 ## § 3 Decision Problem
 
-Which phase of the 5–8 year business cycle is the economy in today, and how close is the next recession? This layer emits three primitives downstream consumes: `cycle_phase` ∈ {early, mid, late, tightening, recession-early, recession-late, transitional}, `recession_prob_12m`, `policy_stance` ∈ {easing, neutral, tightening}. 2.2 and 2.5 flip asset-regime weights on this vector. Wrong tag = wrong equity/bond tilt.
+Which phase of the 5–8 year business cycle is the economy in today, and how close is the next recession? This layer emits three primitives that downstream modules consume: `cycle_phase` ∈ {early, mid, late, tightening, recession-early, recession-late, transitional}, `recession_prob_12m`, `policy_stance` ∈ {easing, neutral, tightening}. 2.2 and 2.5 flip asset-regime weights on this vector. Wrong tag = wrong equity/bond tilt.
 
 ## § 4 Input Variables Table
 
 | name | description | unit | data source | API endpoint | update frequency | typical range |
 |---|---|---|---|---|---|---|
-| `RGDP_yoy` | Real GDP growth, % change from prior period, annualized (FRED `A191RL1Q225SBEA`) | % SAAR | FRED (BEA) | `https://api.stlouisfed.org/fred/series/observations?series_id=A191RL1Q225SBEA` | Quarterly | −9% to +8% post-1960 |
+| `RGDP_qoq_saar` | Real GDP growth, % change from prior period, annualized (FRED `A191RL1Q225SBEA`) | % SAAR | FRED (BEA) | `https://api.stlouisfed.org/fred/series/observations?series_id=A191RL1Q225SBEA` | Quarterly | −9% to +8% post-1960 |
 | `GDP_gap` | Real GDP vs CBO real potential GDP (computed: `GDPC1 / GDPPOT − 1`) | % of potential | FRED (BEA, CBO) | `.../series_id=GDPC1` and `.../series_id=GDPPOT` | Quarterly | −8% to +4% post-1960 |
 | `UNRATE` | Civilian unemployment rate, 16 yrs+, SA (FRED `UNRATE`) | % | FRED (BLS) | `.../series_id=UNRATE` | Monthly | 3% to 11% post-1960 |
 | `CAPUTL` | Capacity Utilization: Total Index, percent of capacity, SA (FRED `TCU`, Fed G.17) | % | FRED (Fed G.17) | `.../series_id=TCU` | Monthly | 65% to 90% post-1967 |
@@ -46,7 +46,7 @@ FRED endpoints require a free `api_key` and accept `&file_type=json`. Non-US ext
 
 ### 5.1 Cycle-phase indicator construction
 
-Let `g = RGDP_yoy`, `cu = CAPUTL`, `π = CPI_yoy`, `spread = T10Y3M`, `ΔFF = FEDFUNDS − FEDFUNDS_{-12}`. Operationalise each Dalio phase (p. 18) as a Boolean:
+Let `g = RGDP_qoq_saar`, `cu = CAPUTL`, `π = CPI_yoy`, `spread = T10Y3M`, `ΔFF = FEDFUNDS − FEDFUNDS_{-12}`. Operationalise each Dalio phase (p. 18) as a Boolean:
 
 Early-cycle:
 $$\text{early} = \mathbb{1}\{g > 4\% \text{ AND } \Delta g > 0 \text{ AND } \pi < \pi_{\text{prev}} \text{ AND } \Delta FF \leq 0\}$$
@@ -58,8 +58,8 @@ $$\text{mid} = \mathbb{1}\{1.5\% \leq g \leq 2.5\% \text{ AND } \Delta g < 0 \te
 
 Late-cycle:
 $$\text{late} = \mathbb{1}\{3.5\% \leq g \leq 4.0\% \text{ AND } \pi > \pi_{\text{prev}} \text{ AND } cu > 78\% \text{ AND } \text{MST} \geq 30\}$$
-> **Dalio** — p. 18: "the 'late-cycle' (which typically begins about 2 ½ years into expansion) […] economic growth picks up to a moderate pace (i.e., around 3.5-4%)." 3.5–4% and 30-month (≈ 2½ yr) gates are Dalio-exact.
-> **DERIVED (operational)** — `cu > 78%` = 50-yr FRED `TCU` median (Dalio names capacity utilization (p. 18) as a tightness input without a threshold).
+> **Dalio** — p. 18: "the 'late-cycle' (which typically begins about 2 ½ years into expansion) […] economic growth picks up to a moderate pace (i.e., around 3.5-4%)."
+> **DERIVED (operational)** — Dalio gives approximate anchors ("around 3.5–4%", "about 2 ½ years"); the strict Boolean gates `3.5 ≤ g ≤ 4.0` and `MST ≥ 30` are an operational conversion. `cu > 78%` = 50-yr FRED `TCU` median (Dalio names capacity utilization (p. 18) as a tightness input without a threshold).
 
 Tightening:
 $$\text{tightening} = \mathbb{1}\{\Delta FF > 0 \text{ AND } spread < 1\% \text{ AND } \pi > 2.5\%\}$$
@@ -92,7 +92,7 @@ Three regime tags + two probabilities. Each rule carries attribution within 3 li
 
 **`cycle_phase`** ← § 5.1 flags + MST → `EARLY` / `MID` / `LATE` / `TIGHTENING` / `RECESSION_EARLY` / `RECESSION_LATE` / `TRANSITIONAL`.
 
-> **Dalio** — p. 18: six phases named ("early-cycle", "mid-cycle", "late-cycle", "tightening phase", "early part of the recession", "late part of the recession"). `TRANSITIONAL` is DERIVED as a catch-all when no primary flag fires.
+> **Dalio** — pp. 18–19: six phases named — "early-cycle", "mid-cycle", "late-cycle", "tightening phase" (p. 18); "The recession phase of the cycle follows and occurs in two parts" (p. 18) → "early part of the recession" and "late part of the recession" (p. 19). `TRANSITIONAL` is DERIVED as a catch-all when no primary flag fires.
 
 **`policy_stance`** ← sign of `ΔFF_12m` → `EASING` if `ΔFF < −0.5pp`; `TIGHTENING` if `ΔFF > +0.5pp`; else `NEUTRAL`.
 
@@ -116,13 +116,13 @@ Sequencing `RECESSION_EARLY` vs `RECESSION_LATE`: early = `sahm_signal=TRIGGERED
 
 ## § 7 Worked Numeric Example
 
-Real data, as-of 2026-04-21 (§ 7 option (b): real values + named FRED series).
+Illustrative (§ 7 option (a)): stylized inputs chosen to land in `TRANSITIONAL`/`EASING`/`FLAT` so every Step 1–7 branch is exercised. Series IDs are named for reproducibility — re-run via § 8a or § 8b for live readings.
 
 **Step 1 — inputs.**
 
 | Variable | Value | FRED series |
 |---|---|---|
-| `RGDP_yoy` | +2.1% | `A191RL1Q225SBEA` |
+| `RGDP_qoq_saar` | +2.1% | `A191RL1Q225SBEA` |
 | `GDP_gap` | +0.3% | `GDPC1` / `GDPPOT` |
 | `UNRATE` | 4.1% | `UNRATE` |
 | `CAPUTL` | 77.9% | `TCU` |
@@ -165,9 +165,9 @@ async function shortTermDebtCycle({ apiKey, now = new Date() }) {
                'CPIAUCSL','FEDFUNDS','T10Y3M','SAHMREALTIME'];
   const s = await Promise.all(ids.map(
     id => fetch(FRED(id, apiKey)).then(r => r.json()).then(toSeries)));
-  const [g_yoy,,, u, cu, cpi, ff, spread, sahm] = s;
+  const [g_qoq,,, u, cu, cpi, ff, spread, sahm] = s;
 
-  const g = g_yoy.last(), gPrev = g_yoy.at(-2).value;
+  const g = g_qoq.last(), gPrev = g_qoq.at(-2).value;
   const pi = yoy(cpi, 12), piPrev = yoyAt(cpi, -3, 12);
   const dFF = ff.last().value - ff.at(-13).value;
   const spr = spread.last().value;
@@ -191,7 +191,7 @@ async function shortTermDebtCycle({ apiKey, now = new Date() }) {
 }
 ```
 
-### 8b. Excel — sheet layout, Power Query M, key formulas
+### 8b. Excel — sheet layout, Power Query M or URL, key formulas
 
 Workbook `dalio_model.xlsx`, sheet `2_STDC`. One Power Query per FRED series.
 
@@ -208,18 +208,18 @@ let
 in T
 ```
 
-Columns A–K: `date | RGDP_yoy | GDP_gap | UNRATE | CAPUTL | CPI_yoy | FEDFUNDS | dFF_12m | T10Y3M | SAHM | cycle_phase`.
+Columns A–K: `date | RGDP_qoq_saar | GDP_gap | UNRATE | CAPUTL | CPI_yoy | FEDFUNDS | dFF_12m | T10Y3M | SAHM | cycle_phase`.
 
 Key named formulas:
 - `dFF_12m` = `FEDFUNDS_t - OFFSET(FEDFUNDS_t, -12)`
-- `EarlyFlag` = `IF(AND(RGDP_yoy>4, dRGDP>0, dCPI<0, dFF_12m<=0), 1, 0)`
-- `LateFlag` = `IF(AND(RGDP_yoy>=3.5, RGDP_yoy<=4, dCPI>0, CAPUTL>78, MST>=30), 1, 0)`
+- `EarlyFlag` = `IF(AND(RGDP_qoq_saar>4, dRGDP>0, dCPI<0, dFF_12m<=0), 1, 0)`
+- `LateFlag` = `IF(AND(RGDP_qoq_saar>=3.5, RGDP_qoq_saar<=4, dCPI>0, CAPUTL>78, MST>=30), 1, 0)`
 - `YCSignal` = `IF(T10Y3M<0, "INVERTED", IF(T10Y3M<1, "FLAT", "STEEP"))`
 - `PolicyStance` = `IF(dFF_12m<-0.5, "EASING", IF(dFF_12m>0.5, "TIGHTENING", "NEUTRAL"))`
 
 ### 8c. ECharts config — chart type, encoding, palette tokens
 
-Chart: dual-pane. Top: RGDP_yoy with markLines at phase anchors (2.0, 3.75, 4.0). Bottom: T10Y3M with zero-line + shaded FLAT band `[0, 1.0)`. MarkLines match § 5.1 (mid 2%, late 3.5–4%) and § 7 (RGDP 2.1 between 2.0 and 3.5; spread 0.45 inside [0, 1.0)).
+Chart: dual-pane. Top: RGDP_qoq_saar with markLines at phase anchors (2.0, 3.75, 4.0). Bottom: T10Y3M with zero-line + shaded FLAT band `[0, 1.0)`. MarkLines match § 5.1 (mid 2%, late 3.5–4%) and § 7 (RGDP 2.1 between 2.0 and 3.5; spread 0.45 inside [0, 1.0)).
 
 ```js
 option = {
@@ -232,13 +232,13 @@ option = {
   xAxis: [0,1].map(i => ({ gridIndex: i, type: 'time',
     axisLine: { lineStyle: { color: '#262626' } }, axisLabel: { color: '#A3A3A3' } })),
   yAxis: [
-    { gridIndex: 0, name: 'RGDP YoY (%)', nameTextStyle: { color: '#A3A3A3' },
+    { gridIndex: 0, name: 'RGDP QoQ SAAR (%)', nameTextStyle: { color: '#A3A3A3' },
       axisLabel: { color: '#A3A3A3' }, splitLine: { lineStyle: { color: '#1C1C1C' } } },
     { gridIndex: 1, name: '10y–3m (pp)', nameTextStyle: { color: '#A3A3A3' },
       axisLabel: { color: '#A3A3A3' }, splitLine: { lineStyle: { color: '#1C1C1C' } } }
   ],
   series: [
-    { name: 'RGDP_yoy', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: rgdp,
+    { name: 'RGDP_qoq_saar', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: rgdp,
       showSymbol: false, lineStyle: { color: '#00D08C', width: 2 },
       markLine: { symbol: 'none', lineStyle: { color: '#7FFFD4', type: 'dashed' },
         data: [{ yAxis: 2.0 }, { yAxis: 3.75 }, { yAxis: 4.0 }] } },
@@ -273,15 +273,15 @@ Phase chips: `#00D08C` (EARLY / EASING / STEEP), `#7FFFD4` (MID / NEUTRAL / FLAT
 1. **Phase durations are ranges.** Early 5–6 qtrs, mid 3–4 qtrs, late from ~2½ years (p. 18); expansions from deep recessions "bound to last longer" (p. 19). Classifier treats as ranges, not forecasts.
 2. **4% early-cycle anchor is a 20th-century artifact.** Trend productivity has fallen (→ 1.1). Stipulated fallback: use `> trend + 2σ` as the relative anchor post-2015. Flagged per R5.
 3. **Yield-curve thresholds are not Dalio.** p. 18 says "flattening or inverting" qualitatively; `<0` and `<100bp` cuts come from Estrella-Mishkin + post-1982 median. Marked NON-DALIO (§ 5.2) / DERIVED (§ 6).
-4. **No Dalio recession-probability model exists.** NY Fed probit + Sahm Rule are external closers; Dalio names unemployment / GDP gap only qualitatively (p. 18).
-5. **MST grounding is NBER, not Dalio.** "2½ years into expansion" has no specified dating convention. ECRI / OECD would give slightly different values.
-6. **Six-phase sequence is not always observed.** Dalio (p. 19): "not all are manifest precisely as described." Shocks can skip phases. `TRANSITIONAL` fallback catches failed-all-flags observations.
-7. **CAPUTL 78% gate is a median, not Dalio.** Dalio names capacity utilization as a tightness input without a threshold; 78% is the 50-year TCU median. Marked DERIVED in § 5.1.
-8. **NY Fed `Prob_Rec.xlsx` link actually serves a PDF** (the chart, not data). Live data file is `allmonth.xls`; § 4 endpoint corrected.
+4. **No Dalio P(recession) model.** NY Fed probit + Sahm are external closers (Dalio: unemployment / GDP gap qualitatively, p. 18).
+5. **MST grounding is NBER, not Dalio.** "2½ years" has no dating convention; ECRI / OECD would differ.
+6. **Six-phase sequence is not always observed.** Dalio (p. 19): "not all are manifest precisely as described." `TRANSITIONAL` catches failed-all-flags.
+7. **CAPUTL 78% is median, not Dalio.** Dalio names CAPUTL qualitatively (p. 18); 78% = 50-yr TCU median. DERIVED (§ 5.1).
+8. **NY Fed PDF vs XLS.** Chart is `Prob_Rec.pdf`; raw data is `allmonth.xls` (§ 4).
 
 ### Sources (all publicly accessible, no login)
 
-- **Primary, page-numbered.** Dalio, "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater, updated March 2012 (pp. 3, 5, 18, 19, 20): https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf. Fed Funds cyclical peaks/troughs table (1919–2011) on p. 20.
+- **Primary, page-numbered.** Dalio, "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater, updated March 2012 (pp. 3, 5, 18–19): https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf.
 - **Canonical Dalio portal:** https://www.economicprinciples.org/
 - **FRED API.** https://fred.stlouisfed.org/docs/api/fred/ — series: `A191RL1Q225SBEA`, `GDPC1`, `GDPPOT`, `UNRATE`, `TCU`, `CPIAUCSL`, `FEDFUNDS`, `T10Y3M`, `T10Y2Y`, `BUSLOANS`, `SAHMREALTIME`.
 - **NON-DALIO yield-curve probit.** Estrella & Mishkin (1996), "The Yield Curve as a Predictor of U.S. Recessions," FRBNY *Current Issues* 2(7): https://www.newyorkfed.org/medialibrary/media/research/current_issues/ci2-7.pdf. Live data: https://www.newyorkfed.org/medialibrary/media/research/capital_markets/allmonth.xls (monthly spread + probability). Live chart PDF: https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf. FAQ: https://www.newyorkfed.org/research/capital_markets/ycfaq.

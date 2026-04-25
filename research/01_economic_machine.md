@@ -2,7 +2,7 @@
 
 ## § 1 Executive Summary
 
-Dalio's template decomposes observed output growth into three independent series: a log-linear productivity trend (~2% p.a.), a long-wave credit cycle (50–75 yrs), and a short business-credit cycle (5–8 yrs). The identity Price = Total $ / Total Q and Total $ = Money + Credit is the plumbing. This subsection operationalises the *structural diagnostic*: decompose nominal GDP into money-financed vs credit-financed spending, project the productivity trend, and tag the output gap regime. It does NOT time cycles (→ 1.2 / 1.3), does NOT model deleveragings (→ 1.4), and does NOT classify inflation (→ 1.7).
+Dalio's template decomposes output growth into three series: a log-linear productivity trend (~2% p.a.), a long-wave credit cycle (50–75 yrs), and a short business-credit cycle (5–8 yrs). The identity Price = Total $ / Total Q and Total $ = Money + Credit is the plumbing. This subsection operationalises the *structural diagnostic*: decompose nominal GDP into money- vs credit-financed spending, project the productivity trend, and tag the output-gap regime. Cycle timing (→ 1.2 / 1.3), deleveragings (→ 1.4), and inflation tagging (→ 1.7) are out of scope.
 
 ## § 2 Dalio's Framework — Verbatim
 
@@ -16,29 +16,29 @@ All citations: Ray Dalio, "How the Economic Machine Works — A Template for Und
 
 > **Dalio** — p. 5: "real per capita GDP has increased at an average rate of a shade less than 2% over the last 100 years and didn't vary a lot from that."
 
-> **Dalio** — p. 5: "major swings around the trend are due to expansions and contractions in credit — i.e., credit cycles, most importantly 1) a long-term (typically 50 to 75 years) debt cycle … and 2) a shorter-term (typically 5 to 8 years) debt cycle."
+> **Dalio** — p. 5: "[...] major swings around the trend are due to expansions and contractions in credit – i.e., credit cycles, most importantly 1) a long-term (typically 50 to 75 years) debt cycle [...] and 2) a shorter-term (typically 5 to 8 years) debt cycle [...]"
 
-> **Dalio** — p. 7: "The total amount of debt in the U.S. is about $50 trillion and the total amount of money (i.e., currency and reserves) in existence is about $3 trillion … the amount of promises to deliver money (i.e., debt) is roughly 15 times the amount of money there is to deliver."
+> **Dalio** — p. 7: "The total amount of debt in the U.S. is about $50 trillion and the total amount of money (i.e., currency and reserves) in existence is about $3 trillion. [...] the amount of promises to deliver money (i.e., debt) is roughly 15 times the amount of money there is to deliver."
 
 ## § 3 Decision Problem
 
-The Economic Machine layer answers: **given today's nominal activity, how much is trend productivity and how much is being borrowed from the future via credit?** It emits four primitives all downstream subsections consume: (1) productivity trend line, (2) output gap vs trend, (3) money-vs-credit mix of marginal spending, (4) debt/money ratio. Wrong numbers here poison every downstream regime tag.
+**Given today's nominal activity, how much is trend productivity and how much is borrowed from the future via credit?** Emits four primitives consumed downstream: (1) productivity trend, (2) output gap, (3) money-vs-credit mix, (4) debt/money ratio.
 
 ## § 4 Input Variables Table
 
 | name | description | unit | data source | API endpoint | update frequency | typical range |
 |---|---|---|---|---|---|---|
 | `GDP_nom` | Nominal GDP (Total $) | USD bn, SAAR | FRED (BEA NIPA) | `https://api.stlouisfed.org/fred/series/observations?series_id=GDP` | Quarterly | $5k–$30k bn post-1980 |
-| `GDP_real` | Real GDP (chained 2017 $, Total Q proxy) | USD bn, SAAR | FRED (BEA) | `.../series_id=GDPC1` | Quarterly | $7k–$24k bn post-1980 |
-| `GDP_defl` | GDP deflator (P) | Index, 2017=100 | FRED (BEA) | `.../series_id=GDPDEF` | Quarterly | 20–130 post-1950 |
-| `RGDP_pc` | Real GDP per capita (productivity proxy) | USD, 2017$ | FRED (BEA) | `.../series_id=A939RX0Q048SBEA` | Quarterly | $15k–$75k post-1950 |
-| `POP` | Civilian noninstitutional population 16+ | Thousands | FRED (BLS) | `.../series_id=CNP16OV` | Monthly | 200k–270k post-2000 |
-| `M2` | M2 money stock (money proxy) | USD bn | FRED (Fed H.6) | `.../series_id=M2SL` | Monthly | $4k–$22k bn post-2000 |
-| `TCMDO` | All sectors; debt securities and loans; liability | USD bn | FRED (Fed Z.1) | `.../series_id=TCMDO` | Quarterly | $25k–$100k bn post-2000 |
-| `HPAY` | Hours worked, nonfarm business (Q proxy at sector level) | Index, 2017=100 | FRED (BLS) | `.../series_id=HOANBS` | Quarterly | 85–115 post-1990 |
-| `OPH` | Output per hour, nonfarm business (productivity level) | Index, 2017=100 | FRED (BLS) | `.../series_id=OPHNFB` | Quarterly | 60–115 post-1990 |
+| `GDP_real` | Real GDP (chained 2017 $, Total Q proxy) | USD bn, SAAR | FRED (BEA) | `series_id=GDPC1` | Quarterly | $7k–$24k bn post-1980 |
+| `GDP_defl` | GDP deflator (P) | Index, 2017=100 | FRED (BEA) | `series_id=GDPDEF` | Quarterly | 20–130 post-1950 |
+| `RGDP_pc` | Real GDP per capita (productivity proxy) | USD, 2017$ | FRED (BEA) | `series_id=A939RX0Q048SBEA` | Quarterly | $15k–$75k post-1950 |
+| `POP` | Civilian noninstitutional population 16+ | Thousands | FRED (BLS) | `series_id=CNP16OV` | Monthly | 200k–270k post-2000 |
+| `M2` | M2 money stock (money proxy) | USD bn | FRED (Fed H.6) | `series_id=M2SL` | Monthly | $4k–$22k bn post-2000 |
+| `TCMDO` | All sectors; debt securities and loans; liability | USD mn (raw FRED unit; divide by 1000 to compare with M2 in USD bn) | FRED (Fed Z.1) | `series_id=TCMDO` | Quarterly | 25,000,000–110,000,000 (mn) ≈ $25T–$110T post-2000 |
+| `HPAY` | Hours worked, nonfarm business (Q proxy at sector level) | Index, 2017=100 | FRED (BLS) | `series_id=HOANBS` | Quarterly | 85–115 post-1990 |
+| `OPH` | Output per hour, nonfarm business (productivity level) | Index, 2017=100 | FRED (BLS) | `series_id=OPHNFB` | Quarterly | 60–115 post-1990 |
 
-All endpoints require a free FRED `api_key` query parameter. For non-US geographies, substitute World Bank WDI series `NY.GDP.MKTP.KD` (real GDP) and `NY.GDP.PCAP.KD` (real GDP per capita) with endpoint `https://api.worldbank.org/v2/country/{ISO}/indicator/{code}?format=json`. BIS total-credit data (cross-country credit gap work) is at `https://www.bis.org/statistics/full_data_sets.htm` (dataset `tc`), quarterly.
+**FRED endpoint template.** Rows 32–39 list only the `series_id=X` parameter. Full executable URL = `https://api.stlouisfed.org/fred/series/observations?series_id=X&api_key={FRED_API_KEY}&file_type=json` (free api_key required from FRED). For non-US geographies, substitute World Bank WDI series `NY.GDP.MKTP.KD` (real GDP) and `NY.GDP.PCAP.KD` (real GDP per capita) with template `https://api.worldbank.org/v2/country/{ISO}/indicator/{code}?format=json` (concrete US example: `https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.KD?format=json`). BIS total-credit data (cross-country credit gap work) is at `https://data.bis.org/topics/TOTAL_CREDIT` under dataflow `BIS,WS_TC,2.0` (e.g. `https://data.bis.org/topics/TOTAL_CREDIT/BIS,WS_TC,2.0/Q.US.C.A.M.770.A` for US total credit), quarterly.
 
 ## § 5 Computation / Transformations
 
@@ -54,17 +54,9 @@ At the economy level: $\text{GDP}_{\text{nom},t} = \text{GDP}_{\text{real},t} \c
 
 > **Dalio** — source: ibid., p. 2: "All changes in economic activity and all changes in financial markets' prices are due to changes in the amounts of 1) money or 2) credit that are spent on them (total $), and the amounts of these items sold (total Q)."
 
-### 5.2 Money-vs-credit decomposition of spending
+### 5.2 Money-vs-credit decomposition
 
-Let incremental spending financed by credit over quarter *t* equal the change in total debt:
-
-$$\Delta C_t = TCMDO_t - TCMDO_{t-1}$$
-
-Let incremental spending financed by money equal the change in broad money:
-
-$$\Delta M_t = M2_t - M2_{t-1}$$
-
-Credit share of marginal spending:
+Credit-financed marginal spending = $\Delta C_t = TCMDO_t - TCMDO_{t-1}$. Money-financed = $\Delta M_t = M2_t - M2_{t-1}$.
 
 $$s^C_t = \frac{\Delta C_t}{\Delta C_t + \Delta M_t}$$
 
@@ -72,15 +64,15 @@ $$s^C_t = \frac{\Delta C_t}{\Delta C_t + \Delta M_t}$$
 
 ### 5.3 Productivity trend (the "2% line")
 
-Dalio's chart (p. 5) fits a straight line to log real GDP per capita over ~100 years, reading the slope as the productivity growth rate.
+Dalio's Chart 1 (p. 5) fits a line to log real GDP per capita over ~100 years.
 
 > **Dalio** — source: ibid., p. 5: productivity trend fit is "a shade less than 2%" over the last 100 years.
 
-Operationally, fit by OLS:
+OLS fit on quarterly data:
 
-$$\ln(RGDP\_pc_t) = \alpha + \beta \cdot t + \varepsilon_t$$
+$$\ln(RGDP\_pc_t) = \alpha + \beta \cdot t + \varepsilon_t, \quad g^{\text{trend}} = \exp(4\beta) - 1$$
 
-Annualised trend growth: $g^{\text{trend}} = \exp(4\beta) - 1$ (quarterly t, annualised). Anchor the regression on the longest available continuous series (FRED `A939RX0Q048SBEA` back to 1947; extend pre-1947 with Maddison Project data at `https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2020` if a longer window is desired).
+Anchor on FRED `A939RX0Q048SBEA` (1947→); extend pre-1947 via Maddison Project 2020 if a longer window is needed.
 
 ### 5.4 Output gap against trend
 
@@ -90,30 +82,32 @@ Expressed in percent: $\text{gap\%}_t = 100 \cdot \text{gap}_t$. Positive gap = 
 
 ### 5.5 Debt-to-money ratio (structural leverage of the medium of exchange)
 
-$$R^{D/M}_t = \frac{TCMDO_t}{M2_t}$$
+$$R^{D/M}_t = \frac{TCMDO_t / 1000}{M2_t}$$
 
-Dalio's 2012 snapshot implied $R^{D/M} \approx 15$ using debt of ~$50T and money (currency + reserves) of ~$3T (p. 7). M2 is used here as the publicly-available money aggregate; the structural reading is unchanged — the ratio quantifies the stock of unsettled promises relative to the settlement medium.
+**Unit caveat (DERIVED).** FRED `TCMDO` is in USD millions; `M2SL` is in USD billions. The `/1000` aligns units. Without it the ratio is 1000× too large.
 
-> **Dalio** — source: ibid., p. 7: "most people buy things with credit and don't pay much attention to what they are promising to deliver and where they are going to get it from, so there is much less money than obligations to deliver it."
+Dalio's 2012 snapshot: $R^{D/M} \approx 15$ using debt ~$50T and money (currency + reserves) ~$3T (p. 7). M2 is used here as the public proxy; the ratio still measures unsettled promises vs settlement medium.
+
+> **Dalio** — source: ibid., p. 7: "[The main point is that] most people buy things with credit and don't pay much attention to what they are promising to deliver and where they are going to get it from, so there is much less money than obligations to deliver it."
 
 ## § 6 Output Variables & Decision Rules
 
-The layer emits four regime tags. Dalio anchors qualitative concepts and point estimates; the operational thresholds (flag bands, tertile cuts, bucket edges) are author-stipulated and marked DERIVED below.
+Dalio anchors qualitative concepts and point estimates; operational thresholds (flag bands, tertile cuts, bucket edges) are author-stipulated and marked DERIVED below the table.
 
-> **DERIVED (operational)** — the "1–3% p.a." flag band on `trend_growth_pct` is author-stipulated. Dalio names ~2% as the historical fit (p. 5, "a shade less than 2%"); he does not publish a numeric flag range. The ±1pp band brackets typical decade realizations (Chart 1 decade averages range 0.2%–4.1%).
+> **DERIVED (operational)** — flag band 1–3% p.a. on `trend_growth_pct` brackets typical decade realizations (Chart 1 averages range 0.2%–4.1%). Dalio's ~2% (p. 5) anchors the centre; the range itself is author-stipulated.
 
 | Output | Formula | Regime tag | Cite |
 |---|---|---|---|
-| `trend_growth_pct` | $g^{\text{trend}}$ | Report raw; flag if outside 1–3% p.a. (DERIVED band) | Dalio, p. 5 ("a shade less than 2%") anchors centre; band is DERIVED above |
-| `gap_regime` | based on `gap%` | `ABOVE_TREND` if gap% > +σ; `BELOW_TREND` if < −σ; else `ON_TREND` | σ-band is **NON-DALIO** (see note below table) |
-| `credit_mix_regime` | based on `s^C_t` (rolling 4Q) | `CREDIT_DRIVEN` if `s^C` > 0.66; `MONEY_DRIVEN` if < 0.33; else `MIXED` | DERIVED cuts (see note below table) |
-| `debt_money_regime` | based on `R^{D/M}` | `LOW` if < 10; `ELEVATED` if 10–15; `HIGH` if > 15 | DERIVED edges (see note below table) |
+| `trend_growth_pct` | $g^{\text{trend}}$ | Flag if outside 1–3% p.a. | Dalio p. 5 anchors ~2%; band is DERIVED above |
+| `gap_regime` | from `gap%` | ABOVE_TREND if gap% > +σ; BELOW_TREND if < −σ; else ON_TREND | σ-band is DERIVED (see note below) |
+| `credit_mix_regime` | from `s^C_t` (rolling 4Q) | CREDIT_DRIVEN if `s^C` > 0.66; MONEY_DRIVEN if < 0.33; else MIXED | DERIVED cuts (see note below) |
+| `debt_money_regime` | from `R^{D/M}` | LOW if < 10; ELEVATED if 10–15; HIGH if > 15 | DERIVED edges (see note below) |
 
-> **DERIVED (operational)** — the 0.66 / 0.33 tertile cuts on `s^C_t` (`credit_mix_regime`) and the bucket edges at 10 and 15 on `R^{D/M}` (`debt_money_regime`) are stipulated for operational use. Dalio supplies only qualitative framing on p. 2 ("Changes in the amount of buying (total $) typically have a much bigger impact ... than do changes in the total amount of selling (total Q)") and the 2012 point estimate "roughly 15 times" on p. 7 — he does NOT define numeric tertile thresholds or regime-classification band edges. The cuts and edges are author-chosen.
+> **DERIVED (operational)** — the 0.66 / 0.33 tertile cuts (`credit_mix_regime`) and the 10 / 15 bucket edges (`debt_money_regime`) are author-stipulated. Dalio supplies only the qualitative claim (p. 2) that Total $ drives the cycle more than Total Q, and the 2012 point estimate "roughly 15 times" (p. 7); he publishes no numeric thresholds.
 
-> **NON-DALIO (industry standard)** — source: Hamilton, J.D. (2018), "Why You Should Never Use the Hodrick-Prescott Filter," *Review of Economics and Statistics* 100(5), NBER WP 23429 (free version), https://www.nber.org/papers/w23429. Used to close a gap because Dalio does not specify a numeric band around the productivity trend line: use one residual standard deviation σ of the regression in §5.3 as the "on-trend" band.
+> **DERIVED (operational)** — `gap_regime` uses ±1σ of the §5.3 OLS residual as the "on-trend" band. Choice of ±1σ is author-stipulated; Hamilton (2018, NBER WP 23429, https://www.nber.org/papers/w23429) supports regression-based detrending but does not prescribe a classification band.
 
-Downstream consumers: 1.2 ingests `gap_regime` + `credit_mix_regime`; 1.3 ingests `debt_money_regime` + `trend_growth_pct`; 1.4 ingests the full vector when the `debt_money_regime` turns `HIGH`; 2.1–2.5 read `trend_growth_pct` as the beta return floor.
+Downstream: 1.2 reads `gap_regime` + `credit_mix_regime`; 1.3 reads `debt_money_regime` + `trend_growth_pct`; 1.4 activates when `debt_money_regime = HIGH`; 2.1–2.5 read `trend_growth_pct` as beta return floor.
 
 ## § 7 Worked Numeric Example
 
@@ -154,8 +148,11 @@ This matches Dalio's "a shade less than 2%" (p. 5).
 ### 8a. JS — function signature, fetch URLs, pseudo-code
 
 ```js
-// file: dalio_dashboard/machine.js
-// Fetch order (see `ids` array below): GDP_nom, GDP_real, GDP_defl, RGDP_pc, M2, TCMDO.
+// file: dalio_dashboard/machine.js — fetch order: GDP_nom, GDP_real, GDP_defl, RGDP_pc, M2, TCMDO.
+// Helpers (consumer-implemented, not built-ins):
+//   toNumericSeries(fredJson) → [{date, value, tIdx}, …]; drops value==='.' sentinels.
+//   olsLogTrend(series)       → {alpha, beta, sigma} from ln(value)=α+β·tIdx.
+//   diff(series, lag)         → last value minus value `lag` periods earlier.
 
 const FRED = (id, key) =>
   `https://api.stlouisfed.org/fred/series/observations` +
@@ -188,11 +185,13 @@ async function economicMachine({ apiKey, sigmaBand = null }) {
                   : sC < 0.33 ? 'MONEY_DRIVEN'
                   :             'MIXED';
 
-  // § 5.5 debt/money
-  const ratio = tcmdo.last() / m2.last();
-  const debtMoney = ratio < 10 ? 'LOW'
-                  : ratio <= 15 ? 'ELEVATED'
-                  :               'HIGH';
+  // § 5.5 debt/money — TCMDO is in USD millions (FRED Z.1), M2SL is in USD billions (Fed H.6). Convert TCMDO to billions before dividing.
+  const tcmdoLastBn = tcmdo[tcmdo.length - 1].value / 1000;
+  const m2Last      = m2[m2.length - 1].value;
+  const ratio       = tcmdoLastBn / m2Last;
+  const debtMoney   = ratio < 10 ? 'LOW'
+                    : ratio <= 15 ? 'ELEVATED'
+                    :               'HIGH';
 
   return {
     trendGrowthPct, gap: gap * 100, gapRegime,
@@ -225,7 +224,7 @@ Columns A–L: `date | GDP_nom | GDP_real | GDP_defl | RGDP_pc | ln(RGDP_pc) | t
 - `TrendSlope` = `SLOPE(F:F, G:G)`, `TrendIntercept` = `INTERCEPT(F:F, G:G)`
 - `TrendAnnPct` = `(EXP(4*TrendSlope)-1)*100`
 - `TrendSigma` = `STEYX(F:F, G:G)`
-- `DebtMoneyRatio` = `INDEX(K:K, COUNTA(K:K)) / INDEX(J:J, COUNTA(J:J))`
+- `DebtMoneyRatio` = `(INDEX(K:K, COUNTA(K:K))/1000) / INDEX(J:J, COUNTA(J:J))` (column K is raw TCMDO in USD mn; M2 in column J is in USD bn — divide by 1000 to align units)
 - `GapRegime` = `IF(gap>TrendSigma,"ABOVE_TREND", IF(gap<-TrendSigma,"BELOW_TREND","ON_TREND"))`
 
 ### 8c. ECharts config — chart type, encoding, palette tokens
@@ -284,40 +283,37 @@ Regime chips: `#00D08C` (`ON_TREND` / `LOW`), `#D4A373` (`MIXED` / `ELEVATED`), 
 
 ## § 9 Integration Points
 
-**Upstream (data feeds):**
-- FRED API (BEA + Fed Z.1 + BLS).
-- World Bank WDI for non-US extension.
-- BIS credit-to-GDP dataset for cross-country `R^{D/M}` analogue.
+**Upstream:** FRED API (BEA + Fed Z.1 + BLS); World Bank WDI (non-US); BIS `WS_TC,2.0` (cross-country `R^{D/M}` analogue).
 
-**Downstream (consumers):**
-- **1.2 Short-Term Debt Cycle** reads `gap_regime`, `credit_mix_regime`, and `trend_growth_pct` as the background against which yield-curve / policy cycle signals are read.
-- **1.3 Long-Term Debt Cycle** reads `debt_money_regime` and the decade-scale rolling `s^C` to detect whether debt is rising faster than money + income.
-- **1.4 Deleveragings** is *activated* only when `debt_money_regime = HIGH` and `gap_regime` flips negative — 1.1's output is a precondition, not a mechanism.
-- **1.7 Inflation & Currency Debasement** reads `credit_mix_regime` and decomposition of Total $ as the denominator for its own money-vs-credit inflation distinction.
-- **2.1 Template for Investing** reads `trend_growth_pct` as the secular beta return anchor.
-- **2.2 All-Weather** uses the productivity trend as the "growth" axis baseline before regime-weighting.
+**Downstream:**
+- **1.2** reads `gap_regime`, `credit_mix_regime`, `trend_growth_pct` as background to yield-curve / policy signals.
+- **1.3** reads `debt_money_regime` + decade-scale rolling `s^C` (debt vs money + income).
+- **1.4** activates when `debt_money_regime = HIGH` and `gap_regime` < 0.
+- **1.7** reads `credit_mix_regime` + Total $ decomposition for money-vs-credit inflation distinction.
+- **2.1** reads `trend_growth_pct` as secular beta-return anchor.
+- **2.2** uses productivity trend as "growth" axis baseline.
 
-**Not covered here:** *why* credit expands / contracts (→ 1.2, 1.3); policy response to excessive `R^{D/M}` (→ 1.4); CPI / breakeven inflation tagging (→ 1.7).
+Out of scope: cycle mechanism (→ 1.2, 1.3); policy response to high `R^{D/M}` (→ 1.4); CPI / breakeven tagging (→ 1.7).
 
 ## § 10 Open Questions, Limitations, Sources
 
 ### Open questions and ambiguities
 
-1. **Dalio gives cycle *ranges*, not thresholds.** "5 to 8 years" (short) and "50 to 75 years" (long) are descriptive ranges from the 2012 paper, p. 5. He does not publish a numeric test to decide *which* cycle you are in; that machinery is subsection 1.2 / 1.3. Flagged per R5.
-2. **"A shade less than 2%"** (p. 5) is a *historical fit*, not a forward-looking threshold. The paper gives no rule for when to declare the trend has broken or shifted. Treat `trend_growth_pct` as descriptive. The operational **1–3% p.a. flag band** around Dalio's ~2% anchor is DERIVED (stipulated to bracket typical decade realizations 0.2%–4.1% per Chart 1); Dalio himself does not publish a range.
-3. **"Roughly 15 times"** debt-to-money (p. 7) is a 2012 point-in-time observation using currency + reserves as the money denominator. Dalio does not define the choice of monetary aggregate or provide a threshold at which the ratio becomes dangerous; the `LOW / ELEVATED / HIGH` bucketing above uses his 15× anchor for the middle band but the bucket edges themselves are stipulated for operational use, not cited from Dalio.
-4. **`credit_mix_regime` 0.66 / 0.33 tertile cuts** on `s^C_t` are DERIVED, not Dalio. The 2012 paper (p. 2) supplies only the qualitative directional claim that Total $ changes drive the cycle more than Total Q; it contains no numeric tertile thresholds. The 0.66 / 0.33 cuts are the minimum-information split of [0,1] into three named buckets; any user can override without changing the framework.
-4. **Output-gap σ-band is not Dalio.** He plots the trend line visually; there is no numeric band in the 2012 paper. The ±1σ rule is borrowed from NON-DALIO practice (Hamilton 2018 on detrending) and labelled in §6.
-5. **Total Q at the economy level is an approximation.** Dalio's transactions identity is defined on a single market. Using real GDP as the aggregate Q treats composition changes as price changes in $P$. For any one market (e.g. housing, equities) the identity applies more cleanly than for aggregate output.
-6. **Dalio's "money" ≠ M2.** He uses "currency and reserves" as the money base. M2 is the practical public proxy; report both where it matters (worked example, step 6).
+1. **Cycle ranges, not thresholds.** "5–8 years" (short) and "50–75 years" (long) are descriptive ranges from p. 5; Dalio publishes no numeric test for *which* cycle you are in (→ 1.2 / 1.3).
+2. **"A shade less than 2%"** (p. 5) is a historical fit, not a forward-looking threshold. The 1–3% p.a. flag band around Dalio's ~2% anchor is DERIVED (brackets typical decade realizations 0.2%–4.1% per Chart 1).
+3. **"Roughly 15 times"** debt-to-money (p. 7) is a 2012 snapshot using currency + reserves as money. Dalio does not specify the aggregate or a danger threshold; the `LOW / ELEVATED / HIGH` bucket edges are author-stipulated.
+4. **`credit_mix_regime` tertile cuts (0.66 / 0.33)** are DERIVED. Dalio supplies only the qualitative claim (p. 2) that Total $ changes drive the cycle more than Total Q; the cuts are a minimum-information split of [0,1].
+5. **Output-gap σ-band is not Dalio.** The ±1σ classification is DERIVED (operational); Hamilton 2018 supports regression-based detrending but does not itself prescribe a classification band (see §6).
+6. **Total Q at the economy level is an approximation.** Real GDP as aggregate Q treats composition changes as price changes in P; the identity applies more cleanly to single markets.
+7. **Dalio's "money" ≠ M2.** He uses currency + reserves; M2 is the practical public proxy. Worked example (step 6) reports both.
 
 ### Sources (all publicly accessible, no login)
 
 - **Primary, page-numbered.** Dalio, "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater, 2008/2012. Public mirror used for §2 page citations (pp. 1, 2, 4, 5, 7): https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf
 - **Canonical landing page** (gated signup): https://www.economicprinciples.org/
-- **Compiled 2017 PDF with productivity appendix** ("Productivity and Structural Reform," Bridgewater, 2017, pp. 24–33 of the compiled file): https://www.economicprinciples.org/downloads/ray_dalio__how_the_economic_machine_works__leveragings_and_deleveragings.pdf
+- **Compiled 2017 PDF (productivity appendix, pp. 24–33):** https://www.economicprinciples.org/downloads/ray_dalio__how_the_economic_machine_works__leveragings_and_deleveragings.pdf
 - **FRED API.** https://fred.stlouisfed.org/docs/api/fred/ — series `GDP`, `GDPC1`, `GDPDEF`, `A939RX0Q048SBEA`, `CNP16OV`, `M2SL`, `TCMDO`, `HOANBS`, `OPHNFB`.
-- **Maddison Project 2020** (long-run RGDP/capita): https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2020
-- **World Bank WDI** (non-US): `https://api.worldbank.org/v2/country/{ISO}/indicator/{code}`, codes `NY.GDP.MKTP.KD`, `NY.GDP.PCAP.KD`.
-- **BIS total credit dataset** `WS_TC`: https://data.bis.org/topics/TOTAL_CREDIT (the older `bis.org/statistics/full_data_sets.htm` URL 302-redirects to `data.bis.org/bulkdownload` and the dataset identifier changed from `tc` to `WS_TC`).
-- **NON-DALIO methodological anchor.** Hamilton (2018), "Why You Should Never Use the Hodrick-Prescott Filter," NBER WP 23429: https://www.nber.org/papers/w23429 — basis for the σ-band detrending rule in §6.
+- **Maddison Project 2020:** https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2020
+- **World Bank WDI:** `https://api.worldbank.org/v2/country/{ISO}/indicator/{code}` — `NY.GDP.MKTP.KD`, `NY.GDP.PCAP.KD`.
+- **BIS total credit `BIS,WS_TC,2.0`:** https://data.bis.org/topics/TOTAL_CREDIT (US example: `.../BIS,WS_TC,2.0/Q.US.C.A.M.770.A`).
+- **Hamilton (2018), NBER WP 23429:** https://www.nber.org/papers/w23429 — supports regression-based detrending used in §5.3 (the ±1σ classification band is DERIVED, not Hamilton's).

@@ -73,6 +73,8 @@ $$\boxed{\;\frac{\sigma_p}{\sigma} = \sqrt{\frac{1 + (N-1)\rho}{N}}\;}$$
 
 Limits: `N→∞ ⇒ σ_p/σ → √ρ` (floor — cannot diversify below residual common factor); `ρ=0 ⇒ σ_p/σ = 1/√N` (classical √N rule); `ρ=1 ⇒ σ_p/σ = 1` (no diversification).
 
+> **DERIVED (operational)** — equal-weight (`w_i = 1/N`) and equal-vol (`σ_i = σ`) are simplifying assumptions adopted for regime diagnosis here. Real portfolios use `σ_p² = w'Σw`; the proxy is adequate to tag the Holy-Grail regime via § 6 but NOT to size leverage. Leverage sizing handed off to 2.4 (Risk Parity & Leverage). Crisis-correlation tail (sustained `ρ_bar` shock) handed off to 2.5 (Stress-Testing).
+
 ### 5.4 Effective stream count
 
 $$N_{\text{eff}} = \frac{N}{1 + (N-1)\bar\rho}$$
@@ -273,19 +275,23 @@ option = {
 
 **OUT-of-scope pointers:** 4-box + canonical 30/40/15/7.5/7.5 weights → **2.2**; IR / bet-sizing math → **2.3**; leverage ratio / funding cost → **2.4**; scenario archetypes → **2.5**.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and ambiguities
+### Limitations / design choices
 
-1. **Stream-count range.** Dalio says "fifteen to twenty" (*Principles* 2017); "fifteen good" (LinkedIn mantra); "10 to 15" (short-form video). Registry commits 15-20; § 6 uses `N_eff ≥ 15`. `N_eff ≥ 20` is defensible (80%-reduction within 2 pp).
-2. **"80%" caveats.** Match only at `ρ≈0` and `N≥20–25`. Cross-asset panels typically sit at `ρ_bar ≈ 0.15–0.30`, ceiling 50–69%. § 6's `HolyGrailRegime` uses `N_eff` (ρ-penalised) to avoid overstatement.
-3. **Rolling window stipulated.** 252-day is industry standard. Dalio ("Our Thoughts…" p. 11) notes correlations "aren't stable"; the rolling-ρ gauge is a diagnostic, not a weighting rule.
-4. **Stream granularity.** Dalio runs ~1000 streams (Principles 2017 anecdote). Math is scale-invariant; what counts as a stream is PM policy.
-5. **Equal-vol / equal-weight.** § 5.3 assumes `σ_i=σ`, `w_i=1/N`. Real portfolios need `σ_p²=w'Σw`; the proxy is adequate for regime diagnosis, not for leverage sizing (2.4).
-6. **Crisis correlation.** `ρ_bar` unstable in crises; 2.5 handles the tail.
-7. **Alpha IR precondition.** Holy Grail presupposes positive expected IR per stream. Dalio p. 3 notes alpha risk-adjusted returns "slightly negative on average"; 15 bad-IR streams are not Holy-Grail. IR filtering → 2.3.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-### Sources (all public, WebFetch'd and text-extracted in-session)
+1. **Dalio publishes a stream-count RANGE, not a point.** Cited at § 2 verbatim ("fifteen good uncorrelated return streams" mantra at LinkedIn; "fifteen to twenty" in *Principles* 2017 R9 fair-use; "10 to 15" in short-form video). Project commits to the registry value `N_eff ≥ 15` per § 6 with explicit DERIVED marker at § 5.5; `N_eff ≥ 20` is defensible (80%-reduction within 2 pp).
+2. **"80%" reduction caveats.** Dalio's Engineering Chart 5 (cited at § 2 verbatim) shows P2 (N=77, ρ=0.04) achieving the "~2.5× better IR" — Dalio's own arithmetic. The 80% reduction headline applies at `ρ ≈ 0` and large `N`; cross-asset panels with `ρ_bar ≈ 0.15–0.30` cap the achievable reduction. Closure: explicit DERIVED marker at § 5.5 deriving `N_eff` (ρ-penalised) so the regime tag matches Chart 5 anchors directly.
+3. **252-day rolling window for `ρ_{ij}` / `σ_i` is industry standard, not Dalio-prescribed.** Closure: explicit DERIVED marker at § 5.1 documenting the choice, with Dalio's caveat that correlations "aren't stable" cited at "Our Thoughts About Risk Parity and All-Weather" (Sep 2015, p. 11) — already referenced in § 9 / Sources.
+4. **Stream-granularity choice (what counts as a stream).** Dalio's Engineering math is scale-invariant; the practical population (Bridgewater institutional ~1000-stream anecdote per *Principles* 2017, R9 fair-use only — not quoted) is PM policy, not a framework parameter. Project's 4-box `(asset × geo)` granularity at § 5.4 is a design choice; § 9 Integration Points hands off real-portfolio granularity to 2.3 (alpha sleeves) and 2.4 (leverage sizing).
+5. **Equal-vol / equal-weight assumption (proxy for regime diagnosis).** § 5.3 assumes `σ_i = σ`, `w_i = 1/N`. Closure: explicit DERIVED marker at § 5.3 documenting that real portfolios use `σ_p² = w'Σw`; proxy is adequate for the regime tag here but not for leverage sizing (handed off to 2.4 per § 9).
+6. **Crisis correlation tail.** `ρ_bar` is unstable in crises. Closure: same DERIVED marker at § 5.3 hands off the sustained-shock tail to 2.5 (Stress-Testing forced `ρ_bar → 0.4 / 0.8` scenarios).
+7. **Alpha-IR precondition.** Holy Grail presupposes positive expected IR per stream. Dalio's Engineering p. 3 (cited at § 2 verbatim) notes alpha risk-adjusted returns are "slightly negative on average," meaning 15 bad-IR streams do not produce a Holy-Grail. § 9 hands IR filtering off to 2.3.
+
+### Sources
+
+All sources publicly accessible; WebFetch'd and text-extracted in-session.
 
 **Primary (Dalio / Bridgewater).**
 - Ray Dalio, "Engineering Targeted Returns and Risks," Bridgewater Associates, August 2011 PDF. Printed-footer pagination verified via pdftotext. https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf

@@ -264,18 +264,22 @@ const option = {
 - **2.5 Stress-Testing** — stresses these weights.
 - **Execution layer** — OMS/EMS consumes weights + drift band; trades only when § 6 band = RED.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-**Open questions & limitations.**
+### Limitations / design choices
 
-1. **15% intermediate bonds — nominal or inflation-linked?** The only public Dalio canonical weights (via Robbins, 2014) specify "seven- to ten-year Treasuries" — nominal intermediate Treasuries, not TIPS. Bridgewater's institutional All-Weather does use inflation-linked bonds, but production weights are not public. This report defaults to nominal intermediate Treasuries per the only public Dalio-sourced number.
-2. **"Equal risk" is not literal 25%-per-box.** Dalio's phrase is "equal risk on each scenario." Because the § 5 $B$ matrix has overlap, the four $\mathrm{RC}^{env}$ values are non-disjoint (§ 7 Step-4 and § 8c); "equal risk" is a directional target, not a partition arithmetic claim.
-3. **Rebalancing thresholds.** Vanguard (Zilbering et al. 2015) analyzes 1% / 5% / 10% thresholds. The 5% RED cutoff tracks Vanguard; the 3% GREEN/AMBER cutoff is author-derived, sitting between Vanguard's 1% and 5% ticks — marked DERIVED at point of use in § 6.
-4. **Environmental bias matrix in § 5.** The +1/0/−1 entries paraphrase Dalio's directional prose; the specific entries (zeros, overlaps) are author operationalizations marked DERIVED at point of use.
-5. **Correlation regime risk.** The canonical weights were calibrated in an era of negative stock-bond correlation. The 2022 co-crash violated that assumption; Step-4 shows how sensitive the split is to covariance. Mitigation (vol-targeted leverage) belongs to 2.4.
-6. **Geographic concentration.** The Robbins recipe is US-only. Bridgewater's own 2019 "Geographic Diversification Can Be a Lifesaver" argues against this; out of scope here by brief but material for implementation.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-**Sources (all public, verifiable at the URL listed).**
+1. **15% intermediate bonds — nominal Treasuries (Dalio's only public number).** Robbins reprint (cited at § 5.3 verbatim) specifies "15% in immediate term (seven- to ten-year Treasuries)" and "40% in long-term bonds (20- to 25-year Treasuries)" — nominal Treasuries throughout, no TIPS mention. Project defaults to nominal Treasuries because that is the only public Dalio-sourced number; Bridgewater institutional production weights are not public.
+2. **"Equal risk" is Dalio's phrasing for a directional target, not a partition.** Cited at § 5.4 verbatim: "The key was to put equal risk on each scenario to achieve balance." Because the § 5 environmental-bias matrix `B` has overlap (e.g., equities = +1 in both Growth-up and Inflation-down), the four `RC^env` values are non-disjoint by design — § 7 Step-4 + § 8c make this explicit. The 25%-per-box framing applies to risk allocation across the four growth/inflation cells, not to a disjoint partition.
+3. **Rebalancing thresholds — Vanguard 2015 NON-DALIO closes 1%/5%/10%; project's 3% GREEN/AMBER mid-tick is DERIVED.** Closure: explicit NON-DALIO marker for Vanguard at § 5.5 (or wherever in § 5 / § 6 the rebalance rule lives) + DERIVED marker for the 3% mid-tick.
+4. **Environmental bias matrix entries are DERIVED.** The +1/0/−1 entries paraphrase Dalio's directional prose; the specific entries (zeros, overlaps) are project operationalizations. Closure: explicit DERIVED marker at § 5 above the matrix.
+5. **Correlation-regime risk (canonical weights pre-2022).** The canonical `RC^env` decomposition relies on Dalio's directional bias matrix at § 5 (DERIVED marker above the matrix); 2022's stock-bond co-crash violated the negative-correlation assumption underlying that calibration. § 5's DERIVED entry already flags the matrix as project operationalization of qualitative prose; Step-4 sensitivity covers the math; mitigation handed off to 2.4.
+6. **Geographic concentration (Robbins recipe is US-only).** § 5.3 cites Robbins reprint verbatim — Dalio specifies US Treasuries / S&P 500 only. Bridgewater's own 2019 "Geographic Diversification Can Be a Lifesaver" argues for cross-country diversification; cited in Sources for downstream reference, out-of-scope per the brief.
+
+### Sources
+
+All sources publicly accessible.
 
 - Bridgewater Associates, "The All Weather Story": https://www.bridgewater.com/research-and-insights/the-all-weather-story
 - Bridgewater Associates, "Engineering Targeted Returns and Risks" (Aug 2011 reprint): https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf

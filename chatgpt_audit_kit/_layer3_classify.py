@@ -59,8 +59,12 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ("01_economic_machine.md", 5): dict(
         cluster="A",
         bucket="already-closed-here",
-        search_target="Hamilton 2018 NBER WP 23429 (already cited in §10)",
-        notes="Hamilton already cited as NON-DALIO support; +/-1sigma framing project-author. Reclassify-limitations with explicit 'Hamilton supports detrending; classification band project-author'.",
+        search_target="Hamilton 2018 NBER WP 23429 (already cited in §10) — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 3 2026-04-27): Hamilton 2018 abstract describes "
+              "regression-based detrending methodology (regress variable at t+h on four "
+              "most recent values as of t); does NOT prescribe a classification band "
+              "(no thresholds, no ±1σ language). Project's claim 'Hamilton supports "
+              "detrending; classification band project-author' is accurate.",
     ),
     ("01_economic_machine.md", 6): dict(
         cluster="C",
@@ -96,8 +100,16 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ("02_short_term_debt_cycle.md", 4): dict(
         cluster="A",
         bucket="already-closed-here",
-        search_target="NY Fed probit + Sahm 2019 (already cited)",
-        notes="Both NON-DALIO closers already cited. Reclassify-limitations as method note.",
+        search_target="NY Fed probit + Sahm 2019 (already cited) — Sahm VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 3 2026-04-27): Sahm 2019 (Hamilton Project p.76) "
+              "verbatim: 'Automatic lump-sum stimulus payments would be made to "
+              "individuals when the three-month average national unemployment rate "
+              "rises by at least 0.50 percentage points relative to its low in the "
+              "previous 12 months.' p.77: 'The direct stimulus payments to individuals "
+              "begin after a 0.50 percentage point increase or more in the three-month "
+              "moving average of the unemployment rate relative to its low in the prior "
+              "12 months.' Project's 0.5pp Sahm Rule citation is accurate. NY Fed probit "
+              "not separately re-verified this round; Estrella-Mishkin 1996 fetch 403'd.",
     ),
     ("02_short_term_debt_cycle.md", 5): dict(
         cluster="F",
@@ -296,9 +308,15 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ),
     ("06_changing_world_order.md", 2): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="CWO Ch 1 p.17 power-index weights",
-        notes="Likely Dalio canonical — search published weights table before calling it a gap.",
+        bucket="reclassify-limitations",
+        search_target="CWO Ch 1 LinkedIn — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 2 2026-04-27): Dalio CWO Ch 1 LinkedIn explicitly "
+              "states 'roughly equal average of 18 measures of strength' AND 'while one "
+              "could reconfigure them to produce marginally different readings, they "
+              "are broadly indicative in a by-and-large way' — Dalio explicitly does "
+              "NOT publish numeric weights. Project's intuition that weighting is "
+              "non-formulaic is correct. Reclassify-limitations citing CWO Ch 1 quote "
+              "directly; document weighting choice as Dalio-flagged 'broadly indicative'.",
     ),
     ("06_changing_world_order.md", 3): dict(
         cluster="A",
@@ -419,15 +437,28 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     # ------------------------------------------------------------- file 09
     ("09_all_weather.md", 1): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="Robbins reprint (already cited); Bridgewater institutional unpublished",
-        notes="Robbins says '7-10 year Treasuries' = nominal. Reclassify-limitations stating Dalio's only-public number is nominal.",
+        bucket="reclassify-limitations",
+        search_target="Robbins reprint (already cited) — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 2 2026-04-27): Robbins reprint of Dalio's All "
+              "Seasons recipe specifies '15% intermediate term (seven- to ten-year "
+              "Treasuries)' and '40% long-term bonds (20- to 25-year Treasuries)'. "
+              "NO mention of TIPS or inflation-linked bonds. Project's reading is "
+              "correct: Dalio's only-public number specifies nominal Treasuries. "
+              "Reclassify-limitations citing Robbins reprint directly.",
     ),
     ("09_all_weather.md", 2): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="'Our Thoughts' 2015 + All Weather Story",
-        notes="Dalio's wording. Reclassify-limitations.",
+        bucket="reclassify-limitations",
+        search_target="'Our Thoughts' 2015 p.6-7 — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 2 2026-04-27): Dalio/Prince/Jensen 2015 p.6: "
+              "'we put 25% of money into risk adjusted assets that do well when growth "
+              "is faster than expected, 25% into those that do well when growth is "
+              "slower than expected, 25% into those that do well when inflation is "
+              "higher than expected, and 25% into those that do well when inflation is "
+              "lower than expected.' p.7 Chart: Growth Rising 25% Risk / Inflation "
+              "Rising 25% Risk / Growth Falling 25% Risk / Inflation Falling 25% Risk. "
+              "Project's 'equal risk on each scenario' language is correct paraphrase. "
+              "Reclassify-limitations citing Our Thoughts 2015 p.6-7 verbatim.",
     ),
     ("09_all_weather.md", 3): dict(
         cluster="A",
@@ -463,8 +494,13 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ("10_alpha_portable_alpha.md", 1): dict(
         cluster="A",
         bucket="already-closed-here",
-        search_target="Grinold 1989 / Grinold-Kahn 2000 (already cited)",
-        notes="NON-DALIO foundational reference already cited. Reclassify-limitations as 'breadth definition for macro = scope ambiguity not closed by Grinold formula'.",
+        search_target="Grinold 1989 via CFI summary — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 3 2026-04-27): Grinold's Fundamental Law of "
+              "Active Management formula confirmed via CFI summary page: IR = IC × √Breadth "
+              "(equivalent to project's IR = IC × √N). Project's citation accurate; the "
+              "remaining open question is what 'independent bet' means for a global "
+              "macro manager (Dalio doesn't resolve), which is genuine scope ambiguity "
+              "not closed by Grinold's formula. Reclassify-limitations.",
     ),
     ("10_alpha_portable_alpha.md", 2): dict(
         cluster="F",
@@ -510,8 +546,14 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ("11_risk_parity_leverage.md", 1): dict(
         cluster="A",
         bucket="already-closed-here",
-        search_target="Engineering p.11 'around 2x' (already cited); AFP 2012 / Qian 2005 (already cited)",
-        notes="Dalio anchor + NON-DALIO references already in §10. Reclassify-limitations as 'project bands around Dalio anchor; AFP/Qian for context'.",
+        search_target="Engineering 'around 2x' (Dalio); AFP 2012 (already cited) — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 3 2026-04-27): AFP 2012 (Asness/Frazzini/Pedersen) "
+              "publishes risk-parity construction methodology — inverse-vol weights with "
+              "leverage k_t set to match benchmark vol. Does NOT anchor a specific 2x "
+              "leverage figure (the 'around 2x' anchor comes from Dalio Engineering 2011 "
+              "p.11). AFP Table B1 shows levered RP samples. Project's 11-#1 framing is "
+              "accurate: Dalio gives 'around 2x' anchor, AFP/Qian provide methodology "
+              "context, project's 1.0x-3.0x bands are DERIVED. Reclassify-limitations.",
     ),
     ("11_risk_parity_leverage.md", 2): dict(
         cluster="C",

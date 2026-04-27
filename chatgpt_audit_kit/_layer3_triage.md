@@ -119,7 +119,7 @@ Each file gets two blocks:
 | 2 | A | `close-by-NON-DALIO` | HEMW p.5 'shade less than 2%'; BDC trend-productivity discussion | Closer candidate: CBO trend productivity series; FRED GDPPOT methodology. Currently no NON-DALIO closer at point of use. |
 | 3 | A | `close-by-NON-DALIO` | HEMW p.7 (already cited); BDC archetypes for 'money' | Closer candidate: BIS total-credit / M2 historical norms. Project-author bucket edges currently unjustified. |
 | 4 | A | `close-by-NON-DALIO` | HEMW p.2 (already cited) | Closer candidate: BIS credit-gap or NBER credit-cycle. Or reclassify-limitations as project design choice if no industry-standard tertile cut exists. |
-| 5 | A | `already-closed-here` | Hamilton 2018 NBER WP 23429 (already cited in §10) | Hamilton already cited as NON-DALIO support; +/-1sigma framing project-author. Reclassify-limitations with explicit 'Hamilton supports detrending; classification band project-author'. |
+| 5 | A | `already-closed-here` | Hamilton 2018 NBER WP 23429 (already cited in §10) — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 3 2026-04-27): Hamilton 2018 abstract describes regression-based detrending methodology (regress variable at t+h on four most recent values as of t); does NOT prescribe a classification band (no thresholds, no ±1σ language). Project's claim 'Hamilton supports detrending; classification band project-author' is accurate. |
 | 6 | C | `reclassify-limitations` | n/a — methodological choice (real GDP composition) | Reclassify to Limitations. |
 | 7 | C | `reclassify-limitations` | HEMW currency+reserves definition (already cited) | Reclassify to Limitations (proxy doc). |
 
@@ -152,7 +152,7 @@ Each file gets two blocks:
 | 1 | B | `reclassify-limitations` | HEMW p.18-19 (already cited) | Reclassify to Limitations. |
 | 2 | A | `close-by-NON-DALIO` | HEMW + BDC archetypes | Closer candidate: CBO trend-productivity post-2015 series, OR formalize the entry's own 'trend + 2sigma' fallback as the published rule. |
 | 3 | A | `already-closed-here` | Estrella-Mishkin 1996 (already cited in §10) | NON-DALIO closer already cited. Reclassify-limitations as 'method note: thresholds from Estrella-Mishkin, not Dalio'. |
-| 4 | A | `already-closed-here` | NY Fed probit + Sahm 2019 (already cited) | Both NON-DALIO closers already cited. Reclassify-limitations as method note. |
+| 4 | A | `already-closed-here` | NY Fed probit + Sahm 2019 (already cited) — Sahm VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 3 2026-04-27): Sahm 2019 (Hamilton Project p.76) verbatim: 'Automatic lump-sum stimulus payments would be made to individuals when the three-month average national unemployment rate rises by at least 0.50 percentage points relative to its low in the previous 12 months.' p.77: 'The direct stimulus payments to individuals begin after a 0.50 percentage point increase or more in the three-month moving average of the unemployment rate relative to its low in the prior 12 months.' Project's 0.5pp Sahm Rule citation is accurate. NY Fed probit not separately re-verified this round; Estrella-Mishkin 1996 fetch 403'd. |
 | 5 | F | `reclassify-limitations` | HEMW L108-112 (template.pdf): functional recession definition | EVIDENCE (Dalio-search 2026-04-27): HEMW lines 110-112 give Dalio's structural recession definition: 'a recession is an economic contraction that is due to a contraction in private sector debt growth arising from tight central bank policy.' Project's claim 'no dating convention' is true — Dalio defines recession FUNCTIONALLY, not by dates. NBER provides dates compatible with that definition. Reclassify with explicit 'Dalio defines recession functionally; dating uses NBER for compatibility'. |
 | 6 | F | `reclassify-limitations` | HEMW L996 + L942 (template.pdf) | EVIDENCE (Dalio-search 2026-04-27): HEMW L942 'typically occur in six phases — four in the expansion and two in the recession'; L996 caveat verbatim 'not all are manifest precisely as described.' Dalio's own caveat. Reclassify-limitations citing HEMW directly. |
 | 7 | A | `close-by-NON-DALIO` | HEMW p.18 CAPUTL mention; FRED TCU methodology | Closer candidate: 50-yr TCU median is data fact (FRED-derived), not framework — reclassify-limitations as 'project anchor at TCU 50-yr median'. |
@@ -283,7 +283,7 @@ Each file gets two blocks:
 | # | Cluster | Bucket | Dalio-search target | Notes |
 |---|---------|--------|---------------------|-------|
 | 1 | B | `reclassify-limitations` | CWO Ch 1 (already cited) | Reclassify to Limitations. |
-| 2 | F | `dalio-search-pending` | CWO Ch 1 p.17 power-index weights | Likely Dalio canonical — search published weights table before calling it a gap. |
+| 2 | F | `reclassify-limitations` | CWO Ch 1 LinkedIn — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 2 2026-04-27): Dalio CWO Ch 1 LinkedIn explicitly states 'roughly equal average of 18 measures of strength' AND 'while one could reconfigure them to produce marginally different readings, they are broadly indicative in a by-and-large way' — Dalio explicitly does NOT publish numeric weights. Project's intuition that weighting is non-formulaic is correct. Reclassify-limitations citing CWO Ch 1 quote directly; document weighting choice as Dalio-flagged 'broadly indicative'. |
 | 3 | A | `reclassify-limitations` | CWO charts PDF | Min-max rescale is textbook normalization. Reclassify-limitations. |
 | 4 | A | `close-by-NON-DALIO` | CWO chapter discussion of measures | Closer candidate: WEF GCI / WIPO GII threshold conventions OR reclassify-limitations as project-author thresholds. |
 | 5 | C | `reclassify-limitations` | n/a — data anchor choice | Move to Limitations. |
@@ -372,8 +372,8 @@ Each file gets two blocks:
 
 | # | Cluster | Bucket | Dalio-search target | Notes |
 |---|---------|--------|---------------------|-------|
-| 1 | F | `dalio-search-pending` | Robbins reprint (already cited); Bridgewater institutional unpublished | Robbins says '7-10 year Treasuries' = nominal. Reclassify-limitations stating Dalio's only-public number is nominal. |
-| 2 | F | `dalio-search-pending` | 'Our Thoughts' 2015 + All Weather Story | Dalio's wording. Reclassify-limitations. |
+| 1 | F | `reclassify-limitations` | Robbins reprint (already cited) — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 2 2026-04-27): Robbins reprint of Dalio's All Seasons recipe specifies '15% intermediate term (seven- to ten-year Treasuries)' and '40% long-term bonds (20- to 25-year Treasuries)'. NO mention of TIPS or inflation-linked bonds. Project's reading is correct: Dalio's only-public number specifies nominal Treasuries. Reclassify-limitations citing Robbins reprint directly. |
+| 2 | F | `reclassify-limitations` | 'Our Thoughts' 2015 p.6-7 — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 2 2026-04-27): Dalio/Prince/Jensen 2015 p.6: 'we put 25% of money into risk adjusted assets that do well when growth is faster than expected, 25% into those that do well when growth is slower than expected, 25% into those that do well when inflation is higher than expected, and 25% into those that do well when inflation is lower than expected.' p.7 Chart: Growth Rising 25% Risk / Inflation Rising 25% Risk / Growth Falling 25% Risk / Inflation Falling 25% Risk. Project's 'equal risk on each scenario' language is correct paraphrase. Reclassify-limitations citing Our Thoughts 2015 p.6-7 verbatim. |
 | 3 | A | `already-closed-here` | Vanguard Zilbering 2015 (already cited) — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 3 2026-04-27): Vanguard 2015 paper p.7-9 explicitly publishes 1%/5%/10% rebalancing thresholds in three places: Strategy #2 'threshold-only' (p.7), Strategy #3 'time-and-threshold' (p.8 + Figure 6 p.9), and Figure 7 summary table (p.10). Conclusion (p.12): 'reasonable allocation thresholds (variations of 5% or so)'. Project's 09-#3 entry citing Zilbering for 1%/5%/10% is accurate. The 3% midpoint is correctly flagged as project-author. |
 | 4 | A | `close-by-NON-DALIO` | 'Our Thoughts' + All Weather Story | Closer candidate: Bridgewater own framework; if no numerical entries published, reclassify-limitations as project operationalization of qualitative directional prose. |
 | 5 | E | `reclassify-§9` | 'Our Thoughts' 2015 + 2022 retrospectives | Already handed off to 2.4. Reclassify to §9. |
@@ -399,7 +399,7 @@ Each file gets two blocks:
 
 | # | Cluster | Bucket | Dalio-search target | Notes |
 |---|---------|--------|---------------------|-------|
-| 1 | A | `already-closed-here` | Grinold 1989 / Grinold-Kahn 2000 (already cited) | NON-DALIO foundational reference already cited. Reclassify-limitations as 'breadth definition for macro = scope ambiguity not closed by Grinold formula'. |
+| 1 | A | `already-closed-here` | Grinold 1989 via CFI summary — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 3 2026-04-27): Grinold's Fundamental Law of Active Management formula confirmed via CFI summary page: IR = IC × √Breadth (equivalent to project's IR = IC × √N). Project's citation accurate; the remaining open question is what 'independent bet' means for a global macro manager (Dalio doesn't resolve), which is genuine scope ambiguity not closed by Grinold's formula. Reclassify-limitations. |
 | 2 | F | `reclassify-limitations` | Engineering 2011 L425-442 (engineering.txt) | EVIDENCE (Dalio-search 2026-04-27): Engineering 2011 L427 = chart values 'Average Correlation: 0.25 / 0.04'; L418-420 = 'information ratio of each slice ... is 0.35 ... approximately 2.5 times better'; L442 = general claim 'information ratios can increase by factors of two to four times'. Dalio gives chart-only values, no sample window or ex-ante/ex-post specification. Project's reconciliation is honest documentation of chart-rounding. Reclassify-limitations citing Engineering Chart 5 directly. |
 | 3 | A | `already-closed-here` | McLean & Pontiff 2016 (already cited) — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 3 2026-04-27): McLean-Pontiff 2012 working paper (2016 JF) Abstract: 'The average post-publication decay ... is about 35%, and statistically different from both 0% and 100%.' p.4: 'We estimate the average anomaly's post-publication return decays by about 35%. Thus, an in-sample alpha of 5% is expected to decay to 3.25% post-publication.' Project's 10-#3 entry citing McLean-Pontiff for 35% threshold is accurate. |
 | 4 | F | `reclassify-limitations` | Engineering 2011 L466-467 (engineering.txt) | EVIDENCE (Dalio-search 2026-04-27): Engineering 2011 L466-467 verbatim 'one client might choose a 3% tracking error while another might choose 6%.' Project's reading correct: Dalio gives examples, not anchors. Reclassify-limitations citing Engineering L466-467. |
@@ -429,7 +429,7 @@ Each file gets two blocks:
 
 | # | Cluster | Bucket | Dalio-search target | Notes |
 |---|---------|--------|---------------------|-------|
-| 1 | A | `already-closed-here` | Engineering p.11 'around 2x' (already cited); AFP 2012 / Qian 2005 (already cited) | Dalio anchor + NON-DALIO references already in §10. Reclassify-limitations as 'project bands around Dalio anchor; AFP/Qian for context'. |
+| 1 | A | `already-closed-here` | Engineering 'around 2x' (Dalio); AFP 2012 (already cited) — VERIFIED 2026-04-27 | VERIFIED (Layer-3 Check 3 2026-04-27): AFP 2012 (Asness/Frazzini/Pedersen) publishes risk-parity construction methodology — inverse-vol weights with leverage k_t set to match benchmark vol. Does NOT anchor a specific 2x leverage figure (the 'around 2x' anchor comes from Dalio Engineering 2011 p.11). AFP Table B1 shows levered RP samples. Project's 11-#1 framing is accurate: Dalio gives 'around 2x' anchor, AFP/Qian provide methodology context, project's 1.0x-3.0x bands are DERIVED. Reclassify-limitations. |
 | 2 | C | `reclassify-limitations` | AFP 2012 (already cited) | Move to Limitations. |
 | 3 | A | `close-by-NON-DALIO` | n/a — illustrative | Closer candidate: industry-standard funding-cost convention OR reclassify-limitations as illustrative-only. |
 | 4 | E | `reclassify-§9` | n/a — handed off to 2.5 | Move to §9. |
@@ -487,11 +487,11 @@ Each file gets two blocks:
 
 | Bucket | Count | Pct |
 |--------|-------|-----|
-| `dalio-search-pending` | 5 | 6% |
+| `dalio-search-pending` | 2 | 2% |
 | `dalio-canonical-found` | 1 | 1% |
 | `close-by-NON-DALIO` | 21 | 26% |
 | `already-closed-here` | 7 | 9% |
-| `reclassify-limitations` | 39 | 48% |
+| `reclassify-limitations` | 42 | 51% |
 | `reclassify-§9` | 9 | 11% |
 | **Total** | 82 | 100% |
 
@@ -501,8 +501,8 @@ Each file gets two blocks:
   Some of these may resolve to `reclassify-limitations` after Layer-3 step 1 if the
   industry standard turns out to be project-author-only.
 - **Already closed in §10 sources, just need heading move:** 7 entries (`already-closed-here`).
-- **Dalio-search pending (likely reclassify after search):** 5 entries (`dalio-search-pending`).
-- **Pure heading reclassify (no research):** 48 entries (`reclassify-limitations` + `reclassify-§9`).
+- **Dalio-search pending (likely reclassify after search):** 2 entries (`dalio-search-pending`).
+- **Pure heading reclassify (no research):** 51 entries (`reclassify-limitations` + `reclassify-§9`).
 
 ChatGPT-spend candidates concentrate in `close-by-NON-DALIO`. Estimated cost:
 ~21 × 1 multi-step ChatGPT call ≈ <$50 at Plus rates,
@@ -573,7 +573,7 @@ Status of each:
 offset-based instead of line-by-line). Asserts byte-for-byte equality with JSON.
 Result: 82/82 entries match. Layer 1 (verbatim text) verified bug-free.
 
-### Check 2 — Local Dalio-exhaustion grep on cluster F: 8 of 12 done
+### Check 2 — Dalio-exhaustion on cluster F: 11 of 12 done (8 local + 3 fetched)
 
 `_layer3_dalio_search.py` runs hand-coded keyword greps on locally-cached Dalio
 sources (`_layer3_dalio_search_report.md`). 8 cluster-F entries searched:
@@ -588,26 +588,42 @@ sources (`_layer3_dalio_search_report.md`). 8 cluster-F entries searched:
 - **10-#2** EVIDENCE: Engineering 2011 L425-442 chart values verbatim
 - **10-#4** EVIDENCE: Engineering 2011 L466-467 verbatim '3% / 6% tracking error'
 
-4 cluster-F entries pending fetch (sources NOT in local cache):
-06-#2 (CWO Ch 1), 08-#4 (Principles 2017 commercial book — R9 fair-use),
-09-#1 (Robbins reprint), 09-#2 (Our Thoughts 2015).
+After WebFetch round 2 (2026-04-27):
+- **06-#2** EVIDENCE: CWO Ch 1 LinkedIn — Dalio explicitly does NOT publish numeric weights
+  ('roughly equal average of 18 measures', 'broadly indicative in a by-and-large way').
+- **09-#1** EVIDENCE: Robbins reprint — '15% intermediate term (seven- to ten-year
+  Treasuries)', '40% long-term bonds (20- to 25-year Treasuries)'; NO TIPS mention.
+- **09-#2** EVIDENCE: 'Our Thoughts' 2015 p.6-7 — '25% of money into ... (4 boxes)';
+  chart on p.7 confirms 'Growth Rising 25% Risk / Inflation Rising 25% Risk / ...'.
+
+Only 1 cluster-F entry remains pending: **08-#4** (Principles 2017 ~1000-streams
+anecdote — commercial book; R9 fair-use only; Dalio's number documented elsewhere).
 
 Cache audit discovered: `paradigm.txt` is corrupted Dutch blog; `dalio2017.txt`
 / `dalio_deleverage.txt` / `dalio/economic_machine.pdf` are all the same file
 (Productivity & Structural Reform 2017, NOT HEMW). Real HEMW = `template.pdf`.
 
-### Check 3 — Verify already-closed-here citations: 2 of 7 done
+### Check 3 — Verify already-closed-here citations: 6 of 7 done
 
 WebFetched + verified citations actually publish the threshold claimed:
+- **01-#5** Hamilton 2018 NBER WP 23429 — VERIFIED. Methodology only (regression-
+  based detrending); no classification band prescribed. Project cite accurate.
+- **02-#4** Sahm 2019 — VERIFIED. p.76 verbatim: '... rises by at least 0.50
+  percentage points relative to its low in the previous 12 months.' p.77 trigger
+  language identical. Project cite accurate.
 - **09-#3** Vanguard Zilbering 2015 — VERIFIED. Paper p.7-10 explicitly publishes
   1%/5%/10% thresholds in Strategies #2/#3 and Figure 6/7. Project cite accurate.
+- **10-#1** Grinold 1989 via CFI summary — VERIFIED. Formula IR = IC × √Breadth
+  confirmed; equivalent to project's IR = IC × √N. Project cite accurate.
 - **10-#3** McLean-Pontiff 2012/2016 — VERIFIED. Abstract + p.4: 'average post-
   publication return decays by about 35%'. Project cite accurate.
+- **11-#1** AFP 2012 — VERIFIED. Risk-parity construction methodology (inverse-vol
+  weights, leverage k_t to match benchmark vol). Does not anchor specific 2x; that
+  comes from Dalio Engineering 2011 (also already cited in project §10 sources).
 
-5 remaining `already-closed-here` citations NOT YET RE-VERIFIED:
-01-#5 Hamilton 2018 NBER WP 23429; 02-#3 Estrella-Mishkin 1996 (NY Fed 403'd);
-02-#4 NY Fed probit + Sahm 2019; 10-#1 Grinold 1989 / Grinold-Kahn 2000;
-11-#1 AFP 2012 / Qian 2005. To verify in Phase 1 prep or Phase 3 step 1.
+1 remaining `already-closed-here` citation NOT YET VERIFIED: **02-#3** Estrella-
+Mishkin 1996 (NY Fed direct fetch 403'd; web.archive.org fetch blocked). Need
+alternate mirror or downstream Phase 3 step 1 verification.
 
 ### Cluster A entries: NOT Dalio-greped
 
@@ -623,8 +639,8 @@ audit later identifies a research-file error in cluster A, the triage updates.
 |-------|--------|------------|
 | Verbatim entry text (script) | PASS Check 1 | HIGH (byte-exact) |
 | Inventory count (82) | Verified | HIGH |
-| Cluster-F bucket assignment (12) | 8 evidence-grounded, 4 pending fetch | MEDIUM-HIGH |
-| Already-closed-here (7) | 2 verified, 5 pending | MEDIUM |
+| Cluster-F bucket assignment (12) | 11 evidence-grounded (8 local + 3 fetched), 1 pending (08-#4 commercial book) | HIGH |
+| Already-closed-here (7) | 6 verified (Hamilton, Sahm, Vanguard, Grinold, McLean-Pontiff, AFP), 1 pending (Estrella-Mishkin) | HIGH |
 | Cluster A bucket assignment (29) | Trusts Layer-2-verified §10 claims | MEDIUM |
 | Cluster B/C/D/E bucket assignment | Heading reclassify, low-stakes | HIGH |
 

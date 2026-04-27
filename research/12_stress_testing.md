@@ -270,19 +270,23 @@ const option = {
 - **Quarterly risk dashboard** — consumes § 7 tables.
 - **Execution layer** — § 6 RED flag (any archetype < −20%) triggers overlay tickets (not modeled here).
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-**Open questions & limitations.**
+### Limitations / design choices
 
-1. **Shock magnitudes are DERIVED.** Every § 5 Step-1 cell is calibrated from 1929–33, 1973–74, 2008, Weimar anchors. Dalio describes archetypes qualitatively (BDC p. 14, p. 32) but does not publish per-sleeve magnitudes. Different anchor choices would produce different results.
-2. **Single-period shocks.** No within-period path modeling. Compound-path extension is out of word budget.
-3. **Capital-weight, not risk-contribution, decomposition.** PM's "which sleeve to hedge" is capital-denominated; risk-contribution decomposition (2.2 § 5) gives different dominants.
-4. **2008 gap is a FINDING.** Unleveraged Robbins −2.34% vs fund −20%; the 17.66-ppt gap = ≈2× leverage + ILB replacing nominal ITsy. Leverage handoff = 2.4.
-5. **Gold 2008 = +5% (author approximation).** Public summaries report +4–6% for calendar 2008 depending on fix methodology; LBMA PM-fix via FRED `GOLDPMGBD228NLBM` would pin a specific number but does not change the reconciliation gap.
-6. **DGS10 is a yield, not a return.** § 4 lists DGS10 for regime diagnostics; all bond returns in § 7 come from Damodaran's T.Bond total-return column.
-7. **R11 source caveat.** BDC PDF retrieved from librairi.com mirror (economicprinciples.org requires email signup). Mirror metadata matches Bridgewater's 480-page Sep-2018 compilation; page numbers are PRINTED footer pages.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-**Sources (public; all WebFetched or HEAD-checked 2026-04-23 per R11).**
+1. **Shock magnitudes are DERIVED.** Dalio names the four archetypes qualitatively at § 2 verbatim (BDC Part 1, pp. 14, 32) but does not publish per-sleeve shock magnitudes. Closure: explicit DERIVED marker at § 5 above the shock matrix `S` documenting that every cell is a project operationalization calibrated from 1929–33, 1973–74, 2008, and Weimar anchors; column-anchor specifics in the second DERIVED block at § 5.
+2. **Single-period shocks (no within-period path modeling).** Design choice. § 5 shock matrix `S` (with DERIVED marker above it) and § 5's peak-to-trough / peak-to-recovery DERIVED block both apply at the period level; compound-path / within-period dynamics are out-of-scope per the brief. Path-dependent extension routes via § 9 to 2.4 / 2.5.
+3. **Capital-weight (not risk-contribution) decomposition.** Project's "which sleeve to hedge" answer is capital-denominated here; risk-contribution decomposition lives at 2.2 § 5. § 9 routes the alternative decomposition there explicitly.
+4. **2008 17.66-ppt gap is a FINDING.** Unleveraged Robbins −2.34% vs AW fund −20% (cited via NON-DALIO Markov Processes International marker at § 5). The gap decomposes to ≈2× leverage + ILB-replacing-nominal-ITsy; leverage handoff at § 9 to 2.4. Documented as a finding, not an open question.
+5. **Gold 2008 = +5% is a conservative author approximation.** Public summaries report +4–6% for calendar 2008 depending on fix methodology. Closure: explicit DERIVED marker at § 7 (cell-anchors block) documenting the +5% choice; LBMA PM-fix via FRED `GOLDPMGBD228NLBM` would pin a specific number but does not change the reconciliation gap.
+6. **DGS10 listed in § 4 is a yield, not a return.** Bond returns in § 7 come from Damodaran's T.Bond total-return column. Closure: same DERIVED marker at § 7 (cell-anchors block) flags the substitution explicitly.
+7. **R11 source caveat — BDC PDF mirror.** `economicprinciples.org` requires email signup; project uses the librairi.com mirror with HEAD 200, 75 MB, 480 pp matching Bridgewater's Sep-2018 compilation. Page numbers in citations are PRINTED footer pages per R12. Documented at § 2 source-line; full URL list in Sources below.
+
+### Sources
+
+R11 status — all 200 OK or WebFetched 2026-04-23.
 
 - Dalio, "Principles for Navigating Big Debt Crises" (2018), public mirror https://www.librairi.com/images/principles-for-navigating-big-debt-crises-by-ray-dalio.pdf [HEAD 200, 75MB, 480 pp].
 - Dalio / Bridgewater, "Engineering Targeted Returns and Risks" (Aug 2011): https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf [HEAD 200, 12 pp].

@@ -1,0 +1,576 @@
+[
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 1,
+    "verbatim": "1. **Cycle ranges, not thresholds.** \"5–8 years\" (short) and \"50–75 years\" (long) are descriptive ranges from p. 5; Dalio publishes no numeric test for *which* cycle you are in (→ 1.2 / 1.3).",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 2,
+    "verbatim": "2. **\"A shade less than 2%\"** (p. 5) is a historical fit, not a forward-looking threshold. The 1–3% p.a. flag band around Dalio's ~2% anchor is DERIVED (brackets typical decade realizations 0.2%–4.1% per Chart 1).",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 3,
+    "verbatim": "3. **\"Roughly 15 times\"** debt-to-money (p. 7) is a 2012 snapshot using currency + reserves as money. Dalio does not specify the aggregate or a danger threshold; the `LOW / ELEVATED / HIGH` bucket edges are author-stipulated.",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 4,
+    "verbatim": "4. **`credit_mix_regime` tertile cuts (0.66 / 0.33)** are DERIVED. Dalio supplies only the qualitative claim (p. 2) that Total $ changes drive the cycle more than Total Q; the cuts are a minimum-information split of [0,1].",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 5,
+    "verbatim": "5. **Output-gap σ-band is not Dalio.** The ±1σ classification is DERIVED (operational); Hamilton 2018 supports regression-based detrending but does not itself prescribe a classification band (see §6).",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 6,
+    "verbatim": "6. **Total Q at the economy level is an approximation.** Real GDP as aggregate Q treats composition changes as price changes in P; the identity applies more cleanly to single markets.",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "01_economic_machine.md",
+    "entry_num": 7,
+    "verbatim": "7. **Dalio's \"money\" ≠ M2.** He uses currency + reserves; M2 is the practical public proxy. Worked example (step 6) reports both.",
+    "subsection_start_line": 301,
+    "subsection_end_line": 309
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 1,
+    "verbatim": "1. **Phase durations are ranges.** Early 5–6 qtrs, mid 3–4 qtrs, late from ~2½ years (p. 18); expansions from deep recessions \"bound to last longer\" (p. 19). Classifier treats as ranges, not forecasts.",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 2,
+    "verbatim": "2. **4% early-cycle anchor is a 20th-century artifact.** Trend productivity has fallen (→ 1.1). Stipulated fallback: use `> trend + 2σ` as the relative anchor post-2015. Flagged per R5.",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 3,
+    "verbatim": "3. **Yield-curve thresholds are not Dalio.** p. 18 says \"flattening or inverting\" qualitatively; `<0` and `<100bp` cuts come from Estrella-Mishkin + post-1982 median. Marked NON-DALIO (§ 5.2) / DERIVED (§ 6).",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 4,
+    "verbatim": "4. **No Dalio P(recession) model.** NY Fed probit + Sahm are external closers (Dalio: unemployment / GDP gap qualitatively, p. 18).",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 5,
+    "verbatim": "5. **MST grounding is NBER, not Dalio.** \"2½ years\" has no dating convention; ECRI / OECD would differ.",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 6,
+    "verbatim": "6. **Six-phase sequence is not always observed.** Dalio (p. 19): \"not all are manifest precisely as described.\" `TRANSITIONAL` catches failed-all-flags.",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 7,
+    "verbatim": "7. **CAPUTL 78% is median, not Dalio.** Dalio names CAPUTL qualitatively (p. 18); 78% = 50-yr TCU median. DERIVED (§ 5.1).",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "02_short_term_debt_cycle.md",
+    "entry_num": 8,
+    "verbatim": "8. **NY Fed PDF vs XLS.** Chart is `Prob_Rec.pdf`; raw data is `allmonth.xls` (§ 4).",
+    "subsection_start_line": 272,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 1,
+    "verbatim": "1. **Cycle duration is a range** — \"~80 ±25 years\" (HCGB-1 Ch 1); year-count alone never signals late-stage.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 2,
+    "verbatim": "2. **No Dalio stage edges.** Point anchors only (1944=7x; today=37x; JPN=1376%). All § 6 edges DERIVED.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 3,
+    "verbatim": "3. **MP phases: dates, no numeric transitions.** MP1=1944–71, MP2=1971–2008, MP3=2008–20; MP4–MP6 no trigger.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 4,
+    "verbatim": "4. **\"50% ±20% reduction\"** — historical mean across 35 cases, not forward target.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 5,
+    "verbatim": "5. **\"r − g = 2% → +50%/20yr\"** — assumes zero primary deficit; lower bound. Use § 5.3.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 6,
+    "verbatim": "6. **COFER threshold \"10 pp / 10 yr\" is DERIVED**, not Dalio.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 7,
+    "verbatim": "7. **Three denominators:** % GDP (FRED feeds), % revenue (classifier), % money/gold (anchor). `Rev_GDP`≈0.17 today but 14–20% historically; pipe `FYFRGDA188S`.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "03_long_term_debt_cycle.md",
+    "entry_num": 8,
+    "verbatim": "8. **Primary vs headline.** `FYFSGDA188S` is headline; primary = `|FYFSGDA188S|−FYOIGDA188S`. § 7's 15% is CBO decade average.",
+    "subsection_start_line": 275,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 1,
+    "verbatim": "1. **\"Marginally above\" is not numeric.** $G \\in [0, +3\\text{pp}]$ DERIVED (§6); US 1933–37 (+6.3pp) sits above. Widening to +6pp captures it but risks runaway reflations.",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 2,
+    "verbatim": "2. **π bucket edges 0.5% / 4% are DERIVED.** Dalio cites points (US 1933–37 ≈ 2.0%, US 2009+ ≈ 3.3%, Japan ≈ 0.8%) without publishing thresholds.",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 3,
+    "verbatim": "3. **Lever-mix balance target undefined.** Dalio says \"well balanced\" without target weights; 0.25/0.75 flags are DERIVED.",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 4,
+    "verbatim": "4. **Redistribution lever under-specified.** Dalio: transfers \"rarely occur in amounts that contribute meaningfully.\" `k = 0.1` is a stand-in; sensitivity-test before production.",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 5,
+    "verbatim": "5. **FX_Gold < −20% p.a. edge** matches Dalio's Spain point only; no general numeric threshold.",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 6,
+    "verbatim": "6. **Regime boundary fuzziness.** US 2008–09 pre-QE was ugly-deflationary; post-QE became beautiful. `TRANSITIONAL` tag catches in-between quarters; not in Dalio's three-category taxonomy.",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "04_deleveragings.md",
+    "entry_num": 7,
+    "verbatim": "7. **Debt-service vs debt-stock ambiguity.** Dalio alternates. BIS DSR (§5.5) is the Fisher-complement; debt/GDP alone mis-times Japan (DSR fell via rate cuts as stock rose).",
+    "subsection_start_line": 294,
+    "subsection_end_line": 302
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 1,
+    "verbatim": "1. **\"About 10 years\" is an observation, not a threshold.** No Dalio numeric test for paradigm-end; all PA edges are DERIVED terciles.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 2,
+    "verbatim": "2. **Tailwind triggers are qualitative in Dalio.** The four thresholds (real-rate 0.50%, FedFunds 1.00%, buyback 2.5%, profit-share μ+σ, tax-rate post-1986 low) are calibrated to 2018–19; different calibrations shift late-paradigm start dates.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 3,
+    "verbatim": "3. **\"More opposite than similar\" is qualitative.** Spearman ρ is a DERIVED proxy; no Dalio numeric cutoff exists.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 4,
+    "verbatim": "4. **Paradigm ≠ calendar decade.** 1970s inflation arguably 1965–82; 2000s paradigm arguably ended 2008. Calendar bucketing follows the essay but introduces boundary noise (per R5).",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 5,
+    "verbatim": "5. **Commodity proxy is PPI, not total-return.** FRED publishes no canonical GSCI TR series; `PPIACO` is the best freely-accessible proxy. Cross-check via S&P DJI GSCI page; deviation >1% downgrades commodity-rank reliability.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 6,
+    "verbatim": "6. **Long-run EPS-growth anchor 6.4% nominal.** Midpoint of Multpl nominal-growth slices (since-1980 ≈ 6.1%, since-1960 ≈ 7.0%); unit-consistent with IBES nominal 12-mo. Alt anchors (real EPS ~2%) bias the recency sigmoid.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 7,
+    "verbatim": "7. **2020s observation is partial.** Confirming the 2020s rotation requires more data; live operation treats 2020+ with low confidence.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "05_paradigm_shifts.md",
+    "entry_num": 8,
+    "verbatim": "8. **Equal 1/3 weighting is stipulated.** No empirical optimisation attempted.",
+    "subsection_start_line": 269,
+    "subsection_end_line": 278
+  },
+  {
+    "file": "06_changing_world_order.md",
+    "entry_num": 1,
+    "verbatim": "1. **Cycle length ambiguous.** \"250 years, give or take 150 years\" (Ch 1, p. 6) — the 100–400 yr range is too wide for a standalone timer; CPI-level + trajectory is the operational diagnostic.",
+    "subsection_start_line": 283,
+    "subsection_end_line": 290
+  },
+  {
+    "file": "06_changing_world_order.md",
+    "entry_num": 2,
+    "verbatim": "2. **\"Roughly equal average\" weights.** Ch 1, p. 17 does not publish exact weights. Equal weights here; any tilt is DERIVED.",
+    "subsection_start_line": 283,
+    "subsection_end_line": 290
+  },
+  {
+    "file": "06_changing_world_order.md",
+    "entry_num": 3,
+    "verbatim": "3. **Min-max rescale not published.** § 5.2 anchors (max +1.9, min −1.5) reproduce Dalio's USA/CHN values to ≤ 0.04 error. May drift on historical panels (1945 USA, 1600 NLD) reaching higher z̄.",
+    "subsection_start_line": 283,
+    "subsection_end_line": 290
+  },
+  {
+    "file": "06_changing_world_order.md",
+    "entry_num": 4,
+    "verbatim": "4. **HegemonyRisk thresholds are DERIVED.** \"2–3 measures negative,\" \"−1 to −10 pp reserve-delta,\" and the −1 pp lower bound are stipulated; Ch 1 LinkedIn + Ch 2 p. 40 anchor the narrative only.",
+    "subsection_start_line": 283,
+    "subsection_end_line": 290
+  },
+  {
+    "file": "06_changing_world_order.md",
+    "entry_num": 5,
+    "verbatim": "5. **COFER anchor year = 2012.** `resDelta10` uses Q4-2012 (61.50%) → Q4-2022 (58.52%) = −2.98 pp. The broader 2000-baseline (71.14% → 58.52% = −12.6 pp) is context only — NOT used in the classifier.",
+    "subsection_start_line": 283,
+    "subsection_end_line": 290
+  },
+  {
+    "file": "06_changing_world_order.md",
+    "entry_num": 6,
+    "verbatim": "6. **API issues (R11 findings).** BIS EER API returns HTTP 500; fallback: `https://data.bis.org/bulkdownload`. COFER DBnomics series corrected from `Q.W00.RAXGFX_USD_USD` (404) to `A.W00.RAXGFXARUSDRT_PT` (200 OK). WEF GCI 2019 main PDF URL returns wrong document; use exec summary at `https://www3.weforum.org/docs/WEF_GCR_2019_Executive_Summary.pdf`. SIPRI `milex.sipri.org` SSL error; replaced with `https://www.sipri.org/databases/milex`.",
+    "subsection_start_line": 283,
+    "subsection_end_line": 290
+  },
+  {
+    "file": "07_inflation_currency.md",
+    "entry_num": 1,
+    "verbatim": "1. BDC PDF not retrievable via WebFetch in-session (canonical URL 404; economicprinciples.org email-gated; librairi.com unauthorized mirror exceeds 10MB; Wayback Machine blocked). Per R12 fallback: section-heading attribution only; no printed-footer page numbers.",
+    "subsection_start_line": 274,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "07_inflation_currency.md",
+    "entry_num": 2,
+    "verbatim": "2. Real-rate bucket edges are DERIVED — Dalio says \"significantly less than inflation rates\" without numeric cuts.",
+    "subsection_start_line": 274,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "07_inflation_currency.md",
+    "entry_num": 3,
+    "verbatim": "3. `DebaseFlag` −7%/+15% pair is a calibrated working filter, not a Dalio number.",
+    "subsection_start_line": 274,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "07_inflation_currency.md",
+    "entry_num": 4,
+    "verbatim": "4. Non-reserve INFLATIONARY threshold 3% is DERIVED from Dalio's \"more vulnerable\" directional framing; no rate cutoff in BDC vulnerability list.",
+    "subsection_start_line": 274,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "07_inflation_currency.md",
+    "entry_num": 5,
+    "verbatim": "5. `ngdp_yoy < 2 × π^hdln` is a monthly-CPI proxy for weak real growth; real-GDP cut preferred but introduces calendar-frequency mismatch.",
+    "subsection_start_line": 274,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "07_inflation_currency.md",
+    "entry_num": 6,
+    "verbatim": "6. `μ` uses M2; Dalio's archetype references narrow-money M0 — proxy is directionally correct but not numerically equivalent.",
+    "subsection_start_line": 274,
+    "subsection_end_line": 281
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 1,
+    "verbatim": "1. **Stream-count range.** Dalio says \"fifteen to twenty\" (*Principles* 2017); \"fifteen good\" (LinkedIn mantra); \"10 to 15\" (short-form video). Registry commits 15-20; § 6 uses `N_eff ≥ 15`. `N_eff ≥ 20` is defensible (80%-reduction within 2 pp).",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 2,
+    "verbatim": "2. **\"80%\" caveats.** Match only at `ρ≈0` and `N≥20–25`. Cross-asset panels typically sit at `ρ_bar ≈ 0.15–0.30`, ceiling 50–69%. § 6's `HolyGrailRegime` uses `N_eff` (ρ-penalised) to avoid overstatement.",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 3,
+    "verbatim": "3. **Rolling window stipulated.** 252-day is industry standard. Dalio (\"Our Thoughts…\" p. 11) notes correlations \"aren't stable\"; the rolling-ρ gauge is a diagnostic, not a weighting rule.",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 4,
+    "verbatim": "4. **Stream granularity.** Dalio runs ~1000 streams (Principles 2017 anecdote). Math is scale-invariant; what counts as a stream is PM policy.",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 5,
+    "verbatim": "5. **Equal-vol / equal-weight.** § 5.3 assumes `σ_i=σ`, `w_i=1/N`. Real portfolios need `σ_p²=w'Σw`; the proxy is adequate for regime diagnosis, not for leverage sizing (2.4).",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 6,
+    "verbatim": "6. **Crisis correlation.** `ρ_bar` unstable in crises; 2.5 handles the tail.",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "08_template_for_investing.md",
+    "entry_num": 7,
+    "verbatim": "7. **Alpha IR precondition.** Holy Grail presupposes positive expected IR per stream. Dalio p. 3 notes alpha risk-adjusted returns \"slightly negative on average\"; 15 bad-IR streams are not Holy-Grail. IR filtering → 2.3.",
+    "subsection_start_line": 279,
+    "subsection_end_line": 287
+  },
+  {
+    "file": "09_all_weather.md",
+    "entry_num": 1,
+    "verbatim": "1. **15% intermediate bonds — nominal or inflation-linked?** The only public Dalio canonical weights (via Robbins, 2014) specify \"seven- to ten-year Treasuries\" — nominal intermediate Treasuries, not TIPS. Bridgewater's institutional All-Weather does use inflation-linked bonds, but production weights are not public. This report defaults to nominal intermediate Treasuries per the only public Dalio-sourced number.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 277
+  },
+  {
+    "file": "09_all_weather.md",
+    "entry_num": 2,
+    "verbatim": "2. **\"Equal risk\" is not literal 25%-per-box.** Dalio's phrase is \"equal risk on each scenario.\" Because the § 5 $B$ matrix has overlap, the four $\\mathrm{RC}^{env}$ values are non-disjoint (§ 7 Step-4 and § 8c); \"equal risk\" is a directional target, not a partition arithmetic claim.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 277
+  },
+  {
+    "file": "09_all_weather.md",
+    "entry_num": 3,
+    "verbatim": "3. **Rebalancing thresholds.** Vanguard (Zilbering et al. 2015) analyzes 1% / 5% / 10% thresholds. The 5% RED cutoff tracks Vanguard; the 3% GREEN/AMBER cutoff is author-derived, sitting between Vanguard's 1% and 5% ticks — marked DERIVED at point of use in § 6.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 277
+  },
+  {
+    "file": "09_all_weather.md",
+    "entry_num": 4,
+    "verbatim": "4. **Environmental bias matrix in § 5.** The +1/0/−1 entries paraphrase Dalio's directional prose; the specific entries (zeros, overlaps) are author operationalizations marked DERIVED at point of use.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 277
+  },
+  {
+    "file": "09_all_weather.md",
+    "entry_num": 5,
+    "verbatim": "5. **Correlation regime risk.** The canonical weights were calibrated in an era of negative stock-bond correlation. The 2022 co-crash violated that assumption; Step-4 shows how sensitive the split is to covariance. Mitigation (vol-targeted leverage) belongs to 2.4.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 277
+  },
+  {
+    "file": "09_all_weather.md",
+    "entry_num": 6,
+    "verbatim": "6. **Geographic concentration.** The Robbins recipe is US-only. Bridgewater's own 2019 \"Geographic Diversification Can Be a Lifesaver\" argues against this; out of scope here by brief but material for implementation.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 277
+  },
+  {
+    "file": "10_alpha_portable_alpha.md",
+    "entry_num": 1,
+    "verbatim": "1. **Breadth for a macro shop.** Chart 5 uses N = 77 without defining an independent bet for a global-macro manager. Stock-picker = stock-month; macro is less obvious. Dalio does not resolve.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 275
+  },
+  {
+    "file": "10_alpha_portable_alpha.md",
+    "entry_num": 2,
+    "verbatim": "2. **Correlation window.** Dalio cites ρ = 0.04 for P2 without sample window or ex-ante vs ex-post. Chart's stated IR 1.4 implies ρ = 0.050 (see § 7); chart legend rounds one of the two.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 275
+  },
+  {
+    "file": "10_alpha_portable_alpha.md",
+    "entry_num": 3,
+    "verbatim": "3. **Alpha decay.** Engineering Targeted Returns (2011) does not quantify decay for individual alpha sources; 35% threshold in § 6 is McLean & Pontiff (2016), not Dalio.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 275
+  },
+  {
+    "file": "10_alpha_portable_alpha.md",
+    "entry_num": 4,
+    "verbatim": "4. **Tracking error calibration.** Dalio cites \"one client might choose a 3% tracking error while another might choose 6%\" (p. 9) as *examples*, not anchors.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 275
+  },
+  {
+    "file": "10_alpha_portable_alpha.md",
+    "entry_num": 5,
+    "verbatim": "5. **Public-data gap.** IC, N, ρ_avg, σ_Alpha have no public API by construction; HFR, Credit Suisse LAB, Barclay require paid subscriptions as of April 2026.",
+    "subsection_start_line": 270,
+    "subsection_end_line": 275
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 1,
+    "verbatim": "1. **No precise Dalio L.** Engineering Targeted Returns (p. 11) gives only \"around 2×\"; the 1.0×–3.0× GREEN/AMBER/RED bands in § 6 are DERIVED, marked at point of use.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 2,
+    "verbatim": "2. **Vol lookback.** AFP 2012 uses 36-month monthly; 63-day daily is author-stipulated for live monitoring. Substitute 36-month if turnover is an issue.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 3,
+    "verbatim": "3. **Funding spread.** 25 / 50 / 100 bp brackets are illustrative; actual broker / futures-implied financing varies by cycle stage. Dalio does not quantify.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 4,
+    "verbatim": "4. **Covariance stability.** `L = σ_target / σ_p` uses historical σ_p. A correlation-breakdown shock (1998, 2008, 2022) raises realized σ_p overnight → forced deleveraging via § 6 RED. Owned by 2.5.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 5,
+    "verbatim": "5. **Rising-rate risk.** Dalio/Prince/Jensen (2015, p. 8): All-Weather 8.7% vs 60/40 7.6% across 1946–1981 yield upcycle; weigh against the 2022 co-crash.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 6,
+    "verbatim": "6. **Inverse-vol vs full ERC.** Inverse-vol = exact ERC only with equal correlations; true ERC needs Newton iteration on `w_i·(Σw)_i = σ_p²/N`. Gap is <2 pp for 4–6 sleeves; matters at 10+. Qian 2005 and AFP 2012 both use inverse-vol.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "11_risk_parity_leverage.md",
+    "entry_num": 7,
+    "verbatim": "7. **MOVE index unavailable on FRED.** ICE/BAML does not publish MOVE free; `BAMLCC0A0CMTRIV` is Corporate Index total return, not MOVE. § 4 uses `VIXCLS` only; a public bond-vol signal is absent.",
+    "subsection_start_line": 291,
+    "subsection_end_line": 299
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 1,
+    "verbatim": "1. **Shock magnitudes are DERIVED.** Every § 5 Step-1 cell is calibrated from 1929–33, 1973–74, 2008, Weimar anchors. Dalio describes archetypes qualitatively (BDC p. 14, p. 32) but does not publish per-sleeve magnitudes. Different anchor choices would produce different results.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 2,
+    "verbatim": "2. **Single-period shocks.** No within-period path modeling. Compound-path extension is out of word budget.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 3,
+    "verbatim": "3. **Capital-weight, not risk-contribution, decomposition.** PM's \"which sleeve to hedge\" is capital-denominated; risk-contribution decomposition (2.2 § 5) gives different dominants.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 4,
+    "verbatim": "4. **2008 gap is a FINDING.** Unleveraged Robbins −2.34% vs fund −20%; the 17.66-ppt gap = ≈2× leverage + ILB replacing nominal ITsy. Leverage handoff = 2.4.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 5,
+    "verbatim": "5. **Gold 2008 = +5% (author approximation).** Public summaries report +4–6% for calendar 2008 depending on fix methodology; LBMA PM-fix via FRED `GOLDPMGBD228NLBM` would pin a specific number but does not change the reconciliation gap.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 6,
+    "verbatim": "6. **DGS10 is a yield, not a return.** § 4 lists DGS10 for regime diagnostics; all bond returns in § 7 come from Damodaran's T.Bond total-return column.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  },
+  {
+    "file": "12_stress_testing.md",
+    "entry_num": 7,
+    "verbatim": "7. **R11 source caveat.** BDC PDF retrieved from librairi.com mirror (economicprinciples.org requires email signup). Mirror metadata matches Bridgewater's 480-page Sep-2018 compilation; page numbers are PRINTED footer pages.",
+    "subsection_start_line": 276,
+    "subsection_end_line": 284
+  }
+]

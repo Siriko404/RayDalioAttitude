@@ -1,0 +1,353 @@
+"""
+Builds chatgpt_audit_kit/_layer3_triage.md from:
+- _layer3_entries.json (verbatim, script-extracted)
+- _layer3_classify.CLASSIFY (cluster + bucket + search_target + notes)
+
+The MD output joins the two: every entry text is verbatim from JSON; only
+metadata is hand-coded (in _layer3_classify.py). This eliminates paraphrase
+hallucination.
+
+Run: python chatgpt_audit_kit/_layer3_build_triage.py
+
+Coverage check is enforced: every JSON entry MUST have a CLASSIFY row.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+ENTRIES_JSON = REPO / "chatgpt_audit_kit" / "_layer3_entries.json"
+OUT_MD = REPO / "chatgpt_audit_kit" / "_layer3_triage.md"
+
+sys.path.insert(0, str(REPO / "chatgpt_audit_kit"))
+import _layer3_classify  # noqa: E402
+
+CLASSIFY = _layer3_classify.CLASSIFY
+
+
+CLUSTER_DEF = {
+    "A": "Numeric thresholds Dalio doesn't publish (DERIVED operationalization)",
+    "B": "Range/duration claims (Dalio's own range, no point estimate)",
+    "C": "Methodological caveats / proxy choices",
+    "D": "Data caveats / R11 source state",
+    "E": "Scope handoffs (X owned by 2.4 / 2.5 etc.)",
+    "F": "Possibly Dalio-canonical (worth deep search before classifying)",
+}
+
+BUCKET_DEF = {
+    "dalio-search-pending":  "Worth deep Dalio-search before close decision (Layer-3 step 1).",
+    "dalio-canonical-found": "Dalio addresses; cite + close (no NON-DALIO needed).",
+    "close-by-NON-DALIO":    "Dalio doesn't address; needs industry-standard cite.",
+    "already-closed-here":   "NON-DALIO closer ALREADY CITED in §10 sources or §6 prose; needs heading reclassify + point-of-use marker audit only.",
+    "reclassify-limitations":"Methodological / proxy / range disclosure -> 'Limitations / design choices' sub-section.",
+    "reclassify-§9":         "Explicit scope handoff -> §9 Integration Points (already exists).",
+}
+
+
+FILE_TITLES = {
+    "01_economic_machine.md":          "Economic Machine",
+    "02_short_term_debt_cycle.md":     "Short-Term Debt Cycle",
+    "03_long_term_debt_cycle.md":      "Long-Term Debt Cycle",
+    "04_deleveragings.md":             "Deleveragings",
+    "05_paradigm_shifts.md":           "Paradigm Shifts",
+    "06_changing_world_order.md":      "Changing World Order",
+    "07_inflation_currency.md":        "Inflation / Currency",
+    "08_template_for_investing.md":    "Template for Investing",
+    "09_all_weather.md":               "All Weather",
+    "10_alpha_portable_alpha.md":      "Alpha / Portable Alpha",
+    "11_risk_parity_leverage.md":      "Risk Parity Leverage",
+    "12_stress_testing.md":            "Stress Testing",
+}
+
+
+def md_escape(text: str) -> str:
+    """Markdown table cell escape: pipes and newlines."""
+    return text.replace("|", "\\|").replace("\n", "<br>")
+
+
+def main() -> None:
+    entries = json.loads(ENTRIES_JSON.read_text(encoding="utf-8"))
+
+    # Coverage: every entry must have CLASSIFY row.
+    missing = [(e["file"], e["entry_num"]) for e in entries
+               if (e["file"], e["entry_num"]) not in CLASSIFY]
+    if missing:
+        raise SystemExit(f"CLASSIFY missing for: {missing}")
+
+    extra = [k for k in CLASSIFY if k not in {(e["file"], e["entry_num"]) for e in entries}]
+    if extra:
+        raise SystemExit(f"CLASSIFY has rows for non-existent entries: {extra}")
+
+    # Stats
+    cluster_count: Counter = Counter()
+    bucket_count: Counter = Counter()
+    for k, v in CLASSIFY.items():
+        cluster_count[v["cluster"]] += 1
+        bucket_count[v["bucket"]] += 1
+
+    lines: list[str] = []
+    lines.append("# Layer-3 §10 Open-Questions Triage Report")
+    lines.append("")
+    lines.append("**Generated:** by `chatgpt_audit_kit/_layer3_build_triage.py` from")
+    lines.append("verbatim entries in `_layer3_entries.json` + classification overlay in")
+    lines.append("`_layer3_classify.py`. Re-run script after edits to either input.")
+    lines.append("")
+    lines.append("**Scope:** All 12 research files, §10 sub-section \"Open questions and ambiguities\".")
+    lines.append("")
+    lines.append(f"**Total entries (script-counted):** {len(entries)}")
+    lines.append("")
+    lines.append("**Authorization:** Phase 0 (this report) authorized 2026-04-27 by user \"go\".")
+    lines.append("Phases 1-5 NOT YET AUTHORIZED. User reviews this report before any ChatGPT")
+    lines.append("spend, file edits to `research/`, or commits other than this build artifact.")
+    lines.append("")
+
+    # ---- Mandate
+    lines.append("## 1. Mandate")
+    lines.append("")
+    lines.append("User intent (verbatim 2026-04-27): *\"WORKABLE FUCKING FRAMEWORK based on")
+    lines.append("dalios published work, and logically his work DOESNT HAVE GAPS! but if they")
+    lines.append("do, we try to close them by the best industry standards and cite EVERYTHING")
+    lines.append("EXACTLY.\"*")
+    lines.append("")
+    lines.append("User refinement (2026-04-27): *\"MAKE 100% SURE that the 'gaps' arent really")
+    lines.append("lazy work … LOGICALLY someone like dalio shouldnt have any holes in his")
+    lines.append("frameworks. so we must search specifically for dalios own work to see if")
+    lines.append("these has addressed before in his published work, if not, ONLY FROM THE BEST")
+    lines.append("AND CREDIBLE SOURCES we must apply the best compatible industry standards.\"*")
+    lines.append("")
+    lines.append("End-state: empty `### Open questions and ambiguities` sub-section across all")
+    lines.append("12 files. Every gap closed with Dalio cite OR best-credible NON-DALIO cite OR")
+    lines.append("reclassified to a sub-section that is NOT \"Open questions\" (Limitations or")
+    lines.append("Integration Points).")
+    lines.append("")
+
+    # ---- Source inventory
+    lines.append("## 2. Source inventory (Dalio-search corpus)")
+    lines.append("")
+    lines.append("### Available locally (text-extracted, verified file-size > 0)")
+    lines.append("- `dalio2017.txt` (460 KB) — compiled \"How the Economic Machine Works +")
+    lines.append("  Leveragings and Deleveragings\" Bridgewater 2008/2012/2017.")
+    lines.append("- `dalio_scratch/bdc.txt` + `bdc.pdf` — *Principles for Navigating Big Debt")
+    lines.append("  Crises* (BDC) 2018, full 480-page free PDF.")
+    lines.append("- `dalio_scratch/engineering.txt` — \"Engineering Targeted Returns and Risks\" 2011.")
+    lines.append("- `dalio_scratch/paradigm.txt` — \"Paradigm Shifts\" 2019 (LinkedIn).")
+    lines.append("- `dalio_scratch/economic_machine.pdf` + `template.pdf` — HEMW source PDFs.")
+    lines.append("")
+    lines.append("### Need fetch (Layer-3 step 1 per file when triggered)")
+    lines.append("- *Principles for Dealing with the Changing World Order* (CWO) 2021 — chapters")
+    lines.append("  via LinkedIn series + economicprinciples.org PDFs.")
+    lines.append("- *How Countries Go Broke Part 1* (HCGB-1) 2024-2025 — PDF at")
+    lines.append("  economicprinciples.org/downloads/.")
+    lines.append("- \"Our Thoughts About Risk Parity and All Weather\" 2015 — Bridgewater PDF (mirror).")
+    lines.append("- \"Geographic Diversification Can Be a Lifesaver\" 2019 — Bridgewater PDF (mirror).")
+    lines.append("- \"The All Weather Story\" — Bridgewater landing page.")
+    lines.append("- LinkedIn essays beyond Paradigm Shifts.")
+    lines.append("")
+    lines.append("### Best-credible NON-DALIO corpus (closer of last resort)")
+    lines.append("BIS (Basel III credit-gap, DSR methodology, total-credit dataset doc); IMF")
+    lines.append("(WEO, COFER, DSF technical notes); Federal Reserve / NY Fed (Estrella-Mishkin")
+    lines.append("1996, capital-markets FAQ); BEA / FRED methodology pages; CBO (trend-")
+    lines.append("productivity, output-gap, primary-balance methodology); NBER (cycle dating,")
+    lines.append("WPs); Hamilton Project / Brookings (Sahm 2019); Damodaran NYU Stern (historical")
+    lines.append("returns dataset doc); Vanguard (rebalancing thresholds); McLean & Pontiff 2016")
+    lines.append("(alpha decay); Fama-French Data Library.")
+    lines.append("")
+
+    # ---- Cluster definitions
+    lines.append("## 3. Classification clusters & buckets")
+    lines.append("")
+    lines.append("### 3.1 Clusters (structural)")
+    lines.append("")
+    lines.append("| ID | Definition |")
+    lines.append("|----|------------|")
+    for cid, defn in CLUSTER_DEF.items():
+        lines.append(f"| **{cid}** | {defn} |")
+    lines.append("")
+    lines.append("### 3.2 Buckets (preliminary disposition)")
+    lines.append("")
+    lines.append("| Bucket | Treatment |")
+    lines.append("|--------|-----------|")
+    for bid, defn in BUCKET_DEF.items():
+        lines.append(f"| `{bid}` | {defn} |")
+    lines.append("")
+
+    # ---- Per-file sections
+    lines.append("## 4. Per-file triage")
+    lines.append("")
+    lines.append("Each file gets two blocks:")
+    lines.append("1. **Verbatim entries** — script-extracted from `research/{file}` §10")
+    lines.append("   sub-section. NOT paraphrased.")
+    lines.append("2. **Classification table** — cluster, bucket, Dalio-search target, notes.")
+    lines.append("")
+
+    # group entries by file
+    by_file: dict[str, list[dict]] = {}
+    for e in entries:
+        by_file.setdefault(e["file"], []).append(e)
+
+    for fname in sorted(by_file.keys()):
+        title = FILE_TITLES.get(fname, fname)
+        block = sorted(by_file[fname], key=lambda e: e["entry_num"])
+        lines.append(f"### {fname} — {title}")
+        lines.append("")
+        ss = block[0]["subsection_start_line"]
+        se = block[0]["subsection_end_line"]
+        lines.append(f"*Sub-section spans `research/{fname}` lines {ss}-{se}; {len(block)} entries.*")
+        lines.append("")
+        lines.append("**Verbatim entries:**")
+        lines.append("")
+        for e in block:
+            # The verbatim text starts with "N." already, so we can drop into a quote.
+            for ln in e["verbatim"].splitlines():
+                lines.append(f"> {ln}")
+            lines.append("")
+        lines.append("**Classification:**")
+        lines.append("")
+        lines.append("| # | Cluster | Bucket | Dalio-search target | Notes |")
+        lines.append("|---|---------|--------|---------------------|-------|")
+        for e in block:
+            c = CLASSIFY[(fname, e["entry_num"])]
+            lines.append(
+                f"| {e['entry_num']} | {c['cluster']} | `{c['bucket']}` | "
+                f"{md_escape(c['search_target'])} | {md_escape(c['notes'])} |"
+            )
+        lines.append("")
+
+    # ---- Summary stats
+    lines.append("## 5. Summary counts (script-derived)")
+    lines.append("")
+    lines.append("### By cluster")
+    lines.append("")
+    lines.append("| Cluster | Definition | Count | Pct |")
+    lines.append("|---------|------------|-------|-----|")
+    total = sum(cluster_count.values())
+    for cid in "ABCDEF":
+        c = cluster_count.get(cid, 0)
+        pct = f"{100*c/total:.0f}%" if total else "0%"
+        lines.append(f"| **{cid}** | {CLUSTER_DEF[cid]} | {c} | {pct} |")
+    lines.append(f"| **Total** | | {total} | 100% |")
+    lines.append("")
+    lines.append("### By preliminary bucket")
+    lines.append("")
+    lines.append("| Bucket | Count | Pct |")
+    lines.append("|--------|-------|-----|")
+    for bid in [
+        "dalio-search-pending",
+        "dalio-canonical-found",
+        "close-by-NON-DALIO",
+        "already-closed-here",
+        "reclassify-limitations",
+        "reclassify-§9",
+    ]:
+        c = bucket_count.get(bid, 0)
+        pct = f"{100*c/total:.0f}%" if total else "0%"
+        lines.append(f"| `{bid}` | {c} | {pct} |")
+    lines.append(f"| **Total** | {total} | 100% |")
+    lines.append("")
+
+    # Net research load
+    research_buckets = ("close-by-NON-DALIO",)
+    research_load = sum(bucket_count.get(b, 0) for b in research_buckets)
+    pending = bucket_count.get("dalio-search-pending", 0)
+    closed_here = bucket_count.get("already-closed-here", 0)
+    reclass_lim = bucket_count.get("reclassify-limitations", 0)
+    reclass_9 = bucket_count.get("reclassify-§9", 0)
+    lines.append("### Net research load (estimated)")
+    lines.append("")
+    lines.append(f"- **Genuinely needs NEW NON-DALIO research:** {research_load} entries (`close-by-NON-DALIO`).")
+    lines.append(f"  Some of these may resolve to `reclassify-limitations` after Layer-3 step 1 if the")
+    lines.append(f"  industry standard turns out to be project-author-only.")
+    lines.append(f"- **Already closed in §10 sources, just need heading move:** {closed_here} entries (`already-closed-here`).")
+    lines.append(f"- **Dalio-search pending (likely reclassify after search):** {pending} entries (`dalio-search-pending`).")
+    lines.append(f"- **Pure heading reclassify (no research):** {reclass_lim + reclass_9} entries (`reclassify-limitations` + `reclassify-§9`).")
+    lines.append("")
+    lines.append("ChatGPT-spend candidates concentrate in `close-by-NON-DALIO`. Estimated cost:")
+    lines.append(f"~{research_load} × 1 multi-step ChatGPT call ≈ <$50 at Plus rates,")
+    lines.append("**not** thousands. Most §10 entries close locally.")
+    lines.append("")
+
+    # ---- Phase plan
+    lines.append("## 6. Recommended phase sequence")
+    lines.append("")
+    lines.append("Each phase requires explicit user \"go\". Phases 1-5 NOT YET AUTHORIZED.")
+    lines.append("")
+    lines.append("**Phase 1 — Spec fix (LOCAL, $0).** Update `research/_prompt_template.md`:")
+    lines.append("remove `### Open questions and ambiguities`; add `### Limitations / design")
+    lines.append("choices` and `### Integration points (forward-references)`. Update")
+    lines.append("`_acceptance_criteria.md` accordingly. Add R-rule: \"§10 has no unresolved")
+    lines.append("gaps; every gap is Dalio-cited or NON-DALIO-cited at point of use\".")
+    lines.append("")
+    lines.append("**Phase 2 — File 07 trim (LOCAL, $0).** Trim `research/07_inflation_currency.md`")
+    lines.append("from 3811w to ≤3000w. Layer-3 patches will add words; this is required prep.")
+    lines.append("")
+    lines.append("**Phase 3 — Layer-3 sweep, per file (mixed local + ChatGPT).** Per-file")
+    lines.append("authorization gate. Per file:")
+    lines.append("1. Local Dalio-exhaustion search (cache + WebFetch CWO/HCGB-1 as needed).")
+    lines.append("2. Reclassify all `reclassify-*` and `already-closed-here` entries (local, $0).")
+    lines.append("3. ChatGPT 5-step research for `close-by-NON-DALIO` (only if Dalio-search empty).")
+    lines.append("4. Local verify each ChatGPT step against primary sources.")
+    lines.append("5. Patch + commit + advisor.")
+    lines.append("")
+    lines.append("**Phase 4 — Layer-2 finish on files 05-12.** Separate from Layer-3.")
+    lines.append("")
+    lines.append("**Phase 5 — Final consolidation.** Reconcile C3 audit-file path; build 3 final")
+    lines.append("artifacts (README + dalio_dashboard.html + dalio_model.xlsx); push.")
+    lines.append("")
+
+    # ---- Decision points
+    lines.append("## 7. User decision points (BEFORE Phase 1)")
+    lines.append("")
+    lines.append("**D1 — Spec fix scope.** Three options for `### Open questions and ambiguities`:")
+    lines.append("- (a) **Remove entirely** (replace with Limitations + Integration points).")
+    lines.append("- (b) **Rename + require empty** (\"Open questions — should be EMPTY in production\").")
+    lines.append("- (c) **Keep but require all entries cited** (each entry ends with \"→ closed via [src]\").")
+    lines.append("")
+    lines.append("Recommendation: (a). Enforces design intent structurally.")
+    lines.append("")
+    lines.append("**D2 — Reclassify ALL or only-some.** Recommendation: full reclassify per cluster table.")
+    lines.append("")
+    lines.append("**D3 — Per-file or batched reclassify.** Recommendation: per-file (one commit per file).")
+    lines.append("")
+    lines.append(f"**D4 — Net-unclosed entries — research now or accept reclassify-limitations.**")
+    lines.append(f"For the {research_load} `close-by-NON-DALIO` entries:")
+    lines.append("- (a) Research all → strongest closure, ~$20-50 ChatGPT.")
+    lines.append("- (b) Reclassify-limitations with explicit \"DERIVED, project calibration\" framing → $0.")
+    lines.append("- (c) Mix — research the 3-5 where industry standard exists; reclassify the rest.")
+    lines.append("")
+
+    # ---- Risks
+    lines.append("## 8. Risks not in scope of this triage")
+    lines.append("")
+    lines.append("- **R7b coverage on every closure** — markers within 3 lines of every numeric")
+    lines.append("  threshold. Audited at Phase 3 step 2, not here.")
+    lines.append("- **Word-cap pressure** — file 07 at 3811w is over; file 04 at 2955w has <50w")
+    lines.append("  headroom. Reclassify-only is word-neutral; close-by-NON-DALIO adds words.")
+    lines.append("- **C3 audit-file path** in `_acceptance_criteria.md` still points to deleted")
+    lines.append("  `research/_audit_*` location; reconcile at Phase 5.")
+    lines.append("")
+
+    # ---- Provenance footer
+    lines.append("## 9. Provenance (script integrity)")
+    lines.append("")
+    lines.append("- Verbatim entries: `_layer3_extract.py` reads `research/[0-9][0-9]_*.md`,")
+    lines.append("  locates `## § 10` header + open-questions sub-section header (5 known")
+    lines.append("  variants), splits on numbered list items, writes JSON.")
+    lines.append("- Classification overlay: `_layer3_classify.CLASSIFY` is the only hand-typed")
+    lines.append("  data; coverage check enforces every JSON entry has exactly one CLASSIFY row.")
+    lines.append("- Build: `_layer3_build_triage.py` joins JSON + CLASSIFY into this MD; counts")
+    lines.append("  via `collections.Counter`; no paraphrase of entry text anywhere.")
+    lines.append("")
+
+    OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Wrote {OUT_MD}")
+    print(f"Entries: {total}")
+    print(f"By cluster: {dict(cluster_count)}")
+    print(f"By bucket: {dict(bucket_count)}")
+
+
+if __name__ == "__main__":
+    main()

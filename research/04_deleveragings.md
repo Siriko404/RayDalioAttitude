@@ -72,7 +72,7 @@ Regime is assigned on the joint sign of $G_t$ and $\pi_t$:
 
 | Regime | Condition | Dalio anchor |
 |---|---|---|
-| UGLY_DEFLATIONARY | $G_t < 0$ AND $\Delta D_t > 0$ AND $\pi_t$ small | "economy was bad while the debt/income ratio rose" |
+| UGLY_DEFLATIONARY | $G_t < 0$ AND $\Delta D_t > 0$ | "economy was bad while the debt/income ratio rose" |
 | BEAUTIFUL | $G_t > 0$ AND $\Delta D_t < 0$ AND $\pi_t$ moderate | "nominal growth rate above the nominal interest rate" |
 | UGLY_INFLATIONARY | $G_t > 0$ AND CPI_yoy > LT_Rate AND FX_Gold < −20% p.a. | "self-reinforcing upward spiral" |
 
@@ -120,8 +120,8 @@ Numbers below are type (a) per the template — Dalio-reported historical values
 
 1. $G = -17.0 - 3.4 = -20.4$pp — matches Dalio's table row.
 2. $\Delta D = +32$pp/yr (Dalio's stated rate); total change = +97pp.
-3. $\pi = 0.4\% + 0.4\% = 0.8\%$ — at small/moderate boundary (same as Japan 1990s; § 5.3 edges are stipulated, not strict).
-4. Regime: $G<0 \wedge \Delta D>0$, $\pi$ at boundary ⇒ `UGLY_DEFLATIONARY` (Dalio's own classification, § 2).
+3. $\pi = 0.4\% + 0.4\% = 0.8\%$ — print stayed low (§ 5.3 bucket-edge anchor).
+4. Regime: $G<0 \wedge \Delta D>0$ ⇒ `UGLY_DEFLATIONARY`.
 5. Lever shares: defaults dominant (bank failures), austerity active (Hoover), printing low, redistribution ~0 ⇒ $s^{\text{print}} \approx 0.10 < 0.25$ ⇒ **under-printing flag** true.
 
 **US Reflation 1933–1937 (Beautiful, post-gold-devaluation).** Per Dalio's US Reflation table: NGDP_yoy = +9.2%; Gov't Bond Yield = 2.9%; M0 Growth %GDP = 1.7%; CB Asset Purchases = 0.3%.
@@ -135,11 +135,9 @@ Numbers below are type (a) per the template — Dalio-reported historical values
 
 **Japan 1990–Present (Ugly Deflationary, chronic).** Per Dalio's Japan table: NGDP_yoy = 0.6%; Gov't Bond Yield = 2.6%; M0 Growth %GDP = 0.7%; CB Asset Purchases = 0.1%; DebtGDP 403% → 498%. Dalio narrative: "nominal growth 2% below nominal interest rates."
 
-> **DERIVED (operational)** — π=0.8% sits at § 5.3 small/moderate boundary; UGLY_DEFLATIONARY tag follows Dalio's own taxonomy (parallels US Depression).
-
 1. $G = 0.6 - 2.6 = -2.0$pp — matches Dalio's row.
 2. $\Delta D \approx +95$pp over 20 yr — rising.
-3. $\pi = 0.7\% + 0.1\% = 0.8\%$ — at small/moderate cutoff.
+3. $\pi = 0.7\% + 0.1\% = 0.8\%$ — print stayed low (matches § 5.3 Japan bucket-edge anchor).
 4. Regime: `UGLY_DEFLATIONARY` — under-printed and prolonged.
 
 ## § 8 Implementation Specs
@@ -205,24 +203,18 @@ beautiful = IF(AND(G_gap>=0, G_gap<=3, dDebtGDP<0,
                    pi_total>=0.5, pi_total<=4), 1, 0)
 ```
 
-BIS DSR via portal export URL (SDMX API unstable, 2026 — returns 400/500). Use the BIS Data Portal CSV export:
+BIS DSR via portal CSV export (SDMX API unstable, 2026 — 400/500). The portal serves direct CSV at `data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P?file_format=csv&format=long&include=code,label`:
 
-```
-https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P  (download CSV/XLSX)
-```
-
-Power Query:
 ```m
 let
-    Src      = Csv.Document(
-                   Web.Contents("https://data.bis.org/static/dataportal/datasets/WS_DSR.csv"),
+    URL      = "https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P?file_format=csv&format=long&include=code,label",
+    Src      = Csv.Document(Web.Contents(URL),
                    [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
     Promoted = Table.PromoteHeaders(Src, [PromoteAllScalars=true]),
     Typed    = Table.TransformColumnTypes(Promoted,
-                   {{"TIME_PERIOD", type text}, {"OBS_VALUE", type number}}),
-    USpriv   = Table.SelectRows(Typed, each [BORROWERS_CTY]="US" and [TC_BORROWERS]="P")
+                   {{"TIME_PERIOD", type text}, {"OBS_VALUE", type number}})
 in
-    USpriv
+    Typed
 ```
 
 ### 8c. ECharts config — chart type, encoding, palette tokens

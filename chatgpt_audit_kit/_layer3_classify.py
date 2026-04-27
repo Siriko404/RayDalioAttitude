@@ -101,15 +101,24 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ),
     ("02_short_term_debt_cycle.md", 5): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="BDC + HEMW for 'recession' / 'contraction' / 'mid-cycle' definition",
-        notes="Dalio uses NBER-aligned framing implicitly via US data. Verify whether BDC has explicit dating convention.",
+        bucket="reclassify-limitations",
+        search_target="HEMW L108-112 (template.pdf): functional recession definition",
+        notes="EVIDENCE (Dalio-search 2026-04-27): HEMW lines 110-112 give Dalio's "
+              "structural recession definition: 'a recession is an economic contraction "
+              "that is due to a contraction in private sector debt growth arising from "
+              "tight central bank policy.' Project's claim 'no dating convention' is "
+              "true — Dalio defines recession FUNCTIONALLY, not by dates. NBER provides "
+              "dates compatible with that definition. Reclassify with explicit "
+              "'Dalio defines recession functionally; dating uses NBER for compatibility'.",
     ),
     ("02_short_term_debt_cycle.md", 6): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="HEMW p.19 (already cited as source of the quoted caveat)",
-        notes="Dalio's own caveat. Reclassify-limitations citing Dalio.",
+        bucket="reclassify-limitations",
+        search_target="HEMW L996 + L942 (template.pdf)",
+        notes="EVIDENCE (Dalio-search 2026-04-27): HEMW L942 'typically occur in six "
+              "phases — four in the expansion and two in the recession'; L996 caveat "
+              "verbatim 'not all are manifest precisely as described.' Dalio's own "
+              "caveat. Reclassify-limitations citing HEMW directly.",
     ),
     ("02_short_term_debt_cycle.md", 7): dict(
         cluster="A",
@@ -138,15 +147,29 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ),
     ("03_long_term_debt_cycle.md", 3): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="HCGB-1 Ch 3 + CWO MP definitions",
-        notes="High likelihood Dalio addresses MP4-6 trigger conditions in HCGB-1. Search before bucketing as close-by-NON-DALIO.",
+        bucket="dalio-canonical-found",
+        search_target="HCGB-1 L462-514 (hcgb1.txt): MP1-MP5 definitions",
+        notes="EVIDENCE (Dalio-search 2026-04-27): HCGB-1 footnote L461-462 explicitly "
+              "RENUMBERS the MP scheme vs BDC: 'separated linked monetary systems from "
+              "fiat ones, which were previously both described as being part of MP1.' "
+              "L513-514: 'numbering is now different (i.e., MP2 has become MP3 and MP3 "
+              "has become MP4).' L464=MP1 Linked, L489=MP4 Coordinated Fiscal/Monetary, "
+              "L495=MP5 Big Deleveraging. **SUBSTANTIVE LAYER-2 ISSUE:** project file "
+              "03 uses STALE BDC numbering (MP1=1944-71). HCGB-1 reorganized this. "
+              "Layer-2 patch needed (separate from §10 closure): update file 03 §6 + "
+              "§5 to HCGB-1's current MP scheme. Then this entry moves to "
+              "dalio-canonical-found / reclassify-limitations citing HCGB-1 Ch 1 "
+              "explicitly. Whether HCGB-1 also publishes numeric transition triggers "
+              "(MP4->MP5 etc.) requires deeper read of HCGB-1 Ch 3.",
     ),
     ("03_long_term_debt_cycle.md", 4): dict(
         cluster="F",
         bucket="dalio-search-pending",
-        search_target="BDC deleveraging archetypes ~p.25-30 (debt-reduction averages)",
-        notes="50%+/-20% is Dalio's own number from BDC. Reclassify-limitations as Dalio's-stated-historical-mean.",
+        search_target="BDC deleveraging archetypes (debt-reduction averages); 119 hits in BDC need targeted re-search",
+        notes="EVIDENCE (Dalio-search 2026-04-27): grep on '50%' / '35 cases' returned "
+              "119 hits in BDC — too noisy for keyword approach. Need deeper targeted "
+              "read of BDC archetypes section. Provisional bucket reclassify-limitations "
+              "as Dalio's-stated-historical-mean pending precise BDC quote retrieval.",
     ),
     ("03_long_term_debt_cycle.md", 5): dict(
         cluster="C",
@@ -341,15 +364,27 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     # ------------------------------------------------------------- file 08
     ("08_template_for_investing.md", 1): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="Engineering Targeted Returns p.~3 + LinkedIn mantra (both already cited)",
-        notes="Dalio's own variation across sources. Reclassify-limitations citing Dalio's range.",
+        bucket="reclassify-limitations",
+        search_target="Engineering 2011 L393 (engineering.txt); '15 to 20' is from Principles 2017 (commercial)",
+        notes="EVIDENCE (Dalio-search 2026-04-27): Engineering 2011 only says 'well-"
+              "diversified portfolio of uncorrelated return streams' (L393) — does NOT "
+              "specify 15-20 there. The 15-20 / 'fifteen to twenty' phrasing is from "
+              "Principles 2017 (commercial book, R9 fair-use already in §10 sources). "
+              "'Fifteen good' is LinkedIn mantra. The cross-source variation is real "
+              "and documented; reclassify-limitations citing the three Dalio sources.",
     ),
     ("08_template_for_investing.md", 2): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="Engineering Targeted Returns Holy Grail math",
-        notes="Dalio's own caveats in essay. Likely dalio-canonical-found; reclassify-limitations.",
+        bucket="close-by-NON-DALIO",
+        search_target="Engineering 2011 L425-429 + Chart 5 (engineering.txt)",
+        notes="EVIDENCE (Dalio-search 2026-04-27): Engineering 2011 L425-429 shows "
+              "Chart 5 with 'Sources Of Value Added: 6/77' and 'Average Correlation: "
+              "0.25/0.04' for two portfolios. Dalio's 'Holy Grail' framing implies the "
+              "low-correlation portfolio achieves better IR. The project's caveats "
+              "(N>=20-25 + rho~=0 conditions) are NOT explicit in Engineering 2011 — "
+              "they're project-author derivations from the math. Either close-by-NON-"
+              "DALIO (cite textbook Markowitz / Grinold for the explicit rho-N "
+              "tradeoff) OR reclassify-limitations as honest derivation from chart.",
     ),
     ("08_template_for_investing.md", 3): dict(
         cluster="C",
@@ -397,8 +432,14 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ("09_all_weather.md", 3): dict(
         cluster="A",
         bucket="already-closed-here",
-        search_target="Vanguard Zilbering 2015 (already cited)",
-        notes="Vanguard already cited as NON-DALIO closer for 1%/5%; 3% midpoint is project-author. Reclassify-limitations.",
+        search_target="Vanguard Zilbering 2015 (already cited) — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 3 2026-04-27): Vanguard 2015 paper p.7-9 "
+              "explicitly publishes 1%/5%/10% rebalancing thresholds in three places: "
+              "Strategy #2 'threshold-only' (p.7), Strategy #3 'time-and-threshold' "
+              "(p.8 + Figure 6 p.9), and Figure 7 summary table (p.10). Conclusion "
+              "(p.12): 'reasonable allocation thresholds (variations of 5% or so)'. "
+              "Project's 09-#3 entry citing Zilbering for 1%/5%/10% is accurate. The "
+              "3% midpoint is correctly flagged as project-author.",
     ),
     ("09_all_weather.md", 4): dict(
         cluster="A",
@@ -427,21 +468,37 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ),
     ("10_alpha_portable_alpha.md", 2): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="Engineering Targeted Returns Chart 5 + p. discussion",
-        notes="Mathematical reconciliation already in §7. Reclassify-limitations as documentation of chart-rounding.",
+        bucket="reclassify-limitations",
+        search_target="Engineering 2011 L425-442 (engineering.txt)",
+        notes="EVIDENCE (Dalio-search 2026-04-27): Engineering 2011 L427 = chart values "
+              "'Average Correlation: 0.25 / 0.04'; L418-420 = 'information ratio of "
+              "each slice ... is 0.35 ... approximately 2.5 times better'; L442 = "
+              "general claim 'information ratios can increase by factors of two to "
+              "four times'. Dalio gives chart-only values, no sample window or "
+              "ex-ante/ex-post specification. Project's reconciliation is honest "
+              "documentation of chart-rounding. Reclassify-limitations citing "
+              "Engineering Chart 5 directly.",
     ),
     ("10_alpha_portable_alpha.md", 3): dict(
         cluster="A",
         bucket="already-closed-here",
-        search_target="McLean & Pontiff 2016 (already cited)",
-        notes="NON-DALIO closer already cited. Reclassify-limitations as 'NON-DALIO threshold from McLean-Pontiff'.",
+        search_target="McLean & Pontiff 2016 (already cited) — VERIFIED 2026-04-27",
+        notes="VERIFIED (Layer-3 Check 3 2026-04-27): McLean-Pontiff 2012 working paper "
+              "(2016 JF) Abstract: 'The average post-publication decay ... is about 35%, "
+              "and statistically different from both 0% and 100%.' p.4: 'We estimate "
+              "the average anomaly's post-publication return decays by about 35%. Thus, "
+              "an in-sample alpha of 5% is expected to decay to 3.25% post-publication.' "
+              "Project's 10-#3 entry citing McLean-Pontiff for 35% threshold is "
+              "accurate.",
     ),
     ("10_alpha_portable_alpha.md", 4): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="Engineering Targeted Returns p.9",
-        notes="Dalio's own examples. Reclassify-limitations as Dalio's-stated-examples-not-anchors.",
+        bucket="reclassify-limitations",
+        search_target="Engineering 2011 L466-467 (engineering.txt)",
+        notes="EVIDENCE (Dalio-search 2026-04-27): Engineering 2011 L466-467 verbatim "
+              "'one client might choose a 3% tracking error while another might choose "
+              "6%.' Project's reading correct: Dalio gives examples, not anchors. "
+              "Reclassify-limitations citing Engineering L466-467.",
     ),
     ("10_alpha_portable_alpha.md", 5): dict(
         cluster="D",

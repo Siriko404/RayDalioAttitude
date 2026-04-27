@@ -86,6 +86,8 @@ $$\text{Sahm}_t = \text{MA}_3(u_t) - \min_{s \in [t-12, t]} u_s$$
 
 Take latest NBER recession-end date; compute MST in months. Grounds the late-cycle 30-month gate. JSON: https://data.nber.org/data/cycles/business_cycle_dates.json.
 
+> **NON-DALIO (industry standard)** — NBER Business Cycle Dating Committee provides the recession-end date used for MST. Dalio defines recession functionally (p. 3 verbatim, § 2) but publishes no dating convention; NBER's committee dates are the public-data analogue. Project cites NBER for date math only — the late-cycle 30-month gate itself is DERIVED (Dalio's "about 2½ years" anchor; § 5.1).
+
 ## § 6 Output Variables & Decision Rules
 
 Three regime tags + two probabilities. Each rule carries attribution within 3 lines (R7b).
@@ -266,20 +268,24 @@ Phase chips: `#00D08C` (EARLY / EASING / STEEP), `#7FFFD4` (MID / NEUTRAL / FLAT
 
 **Not covered:** post-ZLB dynamics (→ 1.4); debt-to-GDP ceiling (→ 1.3); CPI regime beyond the tightening flag (→ 1.7); paradigm shifts (→ 1.5).
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and ambiguities
+### Limitations / design choices
 
-1. **Phase durations are ranges.** Early 5–6 qtrs, mid 3–4 qtrs, late from ~2½ years (p. 18); expansions from deep recessions "bound to last longer" (p. 19). Classifier treats as ranges, not forecasts.
-2. **4% early-cycle anchor is a 20th-century artifact.** Trend productivity has fallen (→ 1.1). Stipulated fallback: use `> trend + 2σ` as the relative anchor post-2015. Flagged per R5.
-3. **Yield-curve thresholds are not Dalio.** p. 18 says "flattening or inverting" qualitatively; `<0` and `<100bp` cuts come from Estrella-Mishkin + post-1982 median. Marked NON-DALIO (§ 5.2) / DERIVED (§ 6).
-4. **No Dalio P(recession) model.** NY Fed probit + Sahm are external closers (Dalio: unemployment / GDP gap qualitatively, p. 18).
-5. **MST grounding is NBER, not Dalio.** "2½ years" has no dating convention; ECRI / OECD would differ.
-6. **Six-phase sequence is not always observed.** Dalio (p. 19): "not all are manifest precisely as described." `TRANSITIONAL` catches failed-all-flags.
-7. **CAPUTL 78% is median, not Dalio.** Dalio names CAPUTL qualitatively (p. 18); 78% = 50-yr TCU median. DERIVED (§ 5.1).
-8. **NY Fed PDF vs XLS.** Chart is `Prob_Rec.pdf`; raw data is `allmonth.xls` (§ 4).
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-### Sources (all publicly accessible, no login)
+1. **Phase durations are Dalio-published ranges, not point thresholds.** Dalio publishes early "5–6 quarters", mid "3–4 quarters", late "from about 2 ½ years" (HEMW p. 18; § 2 verbatim) and notes that expansions following deep recessions are "bound to last longer" (p. 19). Classifier treats them as ranges; per-phase tests rely on growth/inflation gates in § 5.1, not on duration alone.
+2. **4% early-cycle anchor reflects 20th-century trend productivity.** Dalio's "in excess of 4%" gate (HEMW p. 18; § 2 + § 5.1 verbatim) was calibrated to a higher trend than today's. Forward extension uses 1.1's trend-growth anchor; live runs add a `> trend + 2σ` relative fallback. § 5.1 carries the Dalio quote at point of use; the relative-anchor guidance is a project design choice documented here.
+3. **Yield-curve thresholds (`< 0`, `< 100bp`) are NOT Dalio.** Dalio's "flattening or inverting" (HEMW p. 18; § 2 verbatim) is qualitative. Cuts come from Estrella-Mishkin 1996 (NON-DALIO marker at § 5.2) and the post-1982 T10Y3M median (DERIVED markers at § 5.1 + § 6).
+4. **No Dalio P(recession) model.** Closed via two NON-DALIO citations: Estrella-Mishkin 1996 yield-curve probit (§ 5.2 NON-DALIO marker) and Sahm 2019 unemployment-rule (§ 5.3 NON-DALIO marker). Dalio's qualitative inputs (unemployment, GDP gap, p. 18) ground the inputs; the model itself is industry-standard.
+5. **MST uses NBER recession-end dates.** Dalio defines recession functionally (HEMW p. 3 verbatim, § 2) but publishes no dating convention. NBER Business Cycle Dating Committee is the public-data analogue (NON-DALIO marker at § 5.4). The 30-month late-cycle gate is itself DERIVED from Dalio's "about 2½ years" anchor (§ 5.1).
+6. **Six-phase sequence is not always observed.** Dalio's own caveat (HEMW p. 19; § 2 + § 6 quote): "not all are manifest precisely as described." The `TRANSITIONAL` regime catches failed-all-flags states; explicit DERIVED note at § 6.
+7. **`CAPUTL > 78%` gate is the 50-yr FRED TCU median, not a Dalio number.** Dalio names capacity utilization as a tightness input (HEMW p. 18) without a threshold. The 78% median is documented as DERIVED at § 5.1's late-cycle DERIVED block.
+8. **NY Fed PDF vs XLS source-format choice.** The fitted probability chart lives at `Prob_Rec.pdf`; raw monthly data lives at `allmonth.xls`. Project pulls the XLS path (§ 4 + § 5.2) for reproducibility; the PDF chart is reference-only.
+
+### Sources
+
+All sources publicly accessible, no login required.
 
 - **Primary, page-numbered.** Dalio, "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater, updated March 2012 (pp. 3, 5, 18–19): https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf.
 - **Canonical Dalio portal:** https://www.economicprinciples.org/

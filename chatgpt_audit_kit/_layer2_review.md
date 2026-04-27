@@ -77,8 +77,12 @@
 ## File 04 — 1.4 Deleveragings (`_audit_04_deleveragings.md`)
 
 **Audit verdict:** REJECT-re-spawn (5 CRITICAL, 6 MAJOR, 1 MINOR).
-**Layer 2 commit:** `2f4b9b1` (2026-04-27).
-**Final structural state:** S2=3000w (≤3000 ✓), S5 §1=78w (≤100 ✓), R4=6.57 (≥5.67 ✓), R7=18 markers (≥8 ✓), P1 palette 12 unique hex ✓, S3/S4/S6/S7 ✓.
+**Layer 2 commits:** `2f4b9b1` (initial 10-patch round) → `b4b62ef` (review-doc) → `026c271` (advisor follow-up: drop π gate + fix BIS DSR URL).
+**Final structural state (post-follow-up):** S2=2955w (≤3000 ✓), S5 §1=78w (≤100 ✓), R4=6.43 (≥5.67 ✓), R7=17 markers (≥8 ✓), P1 palette 12 unique hex ✓, S3/S4/S6/S7 ✓.
+
+**Advisor follow-up notes:**
+- §5.3 UD rule had `AND π_t small` gate that contradicted §8a JS + §8b Excel implementations (which don't gate UD on π) AND excluded both Dalio-canonical UD cases (π=0.8% for US Depression + Japan). Dropped the gate; UD = G<0 ∧ ΔD>0. §7 worked-example "boundary" caveats simplified.
+- §8b BIS DSR Power Query URL was fabricated. Verified real portal CSV form via WebSearch: `data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P?file_format=csv&format=long&include=code,label`. Replaced.
 
 | Finding | Severity | Verdict | Evidence | Patch summary |
 |---|---|---|---|---|

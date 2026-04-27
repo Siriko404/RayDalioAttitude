@@ -2,7 +2,7 @@
 
 ## § 1 Executive Summary
 
-When a long-term debt cycle tops, policymakers pull Dalio's four levers to reduce debt/income ratios: 1) debt reduction, 2) austerity, 3) transferring wealth from the haves to the have-nots, 4) debt monetization. Dalio classifies the outcome into three regimes: *ugly deflationary* (levers 1–2 dominate, NGDP < rate, debt/income still rising), *beautiful* (balanced mix, NGDP above rate, debt/income falling), *ugly inflationary* (lever 4 dominates, currency collapses). This subsection operationalises classification and lever scoring — it does NOT detect the cycle (→ 1.2, 1.3) or forecast regime successors (→ 1.5).
+When a long-term debt cycle tops, policymakers pull Dalio's four levers — debt reduction, austerity, wealth transfer, debt monetization — to reduce debt/income ratios. Dalio classifies outcomes into three regimes: *ugly deflationary* (NGDP < rate, debt/income still rising), *beautiful* (balanced, NGDP > rate, debt/income falling), *ugly inflationary* (lever 4 dominates, currency collapses). Scope: classification + lever scoring; not cycle detection (→ 1.2/1.3) or transitions (→ 1.5).
 
 ## § 2 Dalio's Framework — Verbatim
 
@@ -26,41 +26,43 @@ Given 1.1 has tagged `debt_money_regime = HIGH` with `gap_regime = BELOW_TREND`,
 
 | name | description | unit | data source | API endpoint | update frequency | typical range |
 |---|---|---|---|---|---|---|
-| `NGDP_yoy` | Nominal GDP, year-on-year growth | % | FRED (BEA) | `https://api.stlouisfed.org/fred/series/observations?series_id=GDP` | Quarterly | -17% (1932) to +20% (1940s) |
-| `DebtGDP` | Total non-financial debt / GDP | % | FRED (Fed Z.1 via BIS) | `.../series_id=QUSPAMUSQNSA` (BIS) or `TCMDO/GDP` construct | Quarterly | 100%–500% |
-| `LT_Rate` | 10-yr sovereign bond yield (nominal interest rate proxy) | % p.a. | FRED | `.../series_id=GS10` | Daily | 0.5%–15% |
-| `M0_GDP` | Monetary base / GDP (print intensity) | % of GDP | FRED | `.../series_id=BOGMBASE` ÷ `GDP` | Monthly | 3%–30% |
-| `CB_Assets` | Central bank balance sheet / GDP | % of GDP | FRED (Fed) / ECB / BoJ | `.../series_id=WALCL` | Weekly | 5%–130% (BoJ) |
-| `CPI_yoy` | Headline CPI, year-on-year | % | FRED (BLS) | `.../series_id=CPIAUCSL` | Monthly | -10% to +15% |
+| `GDP_level` | Nominal GDP, level (USD bn SAAR) | USD bn | FRED (BEA) | `series_id=GDP` | Quarterly | 1000–30000 |
+| `DebtGDP` | Total credit to non-financial sector / GDP | % of GDP | FRED (BIS) | `series_id=QUSCAM770A` | Quarterly | 100%–500% |
+| `LT_Rate` | 10-yr UST yield (nominal interest rate proxy) | % p.a. | FRED | `series_id=DGS10` | Daily | 0.5%–15% |
+| `M0_GDP` | Monetary base / GDP (print intensity) | % of GDP | FRED | `series_id=BOGMBASE` ÷ `GDP` | Monthly | 3%–30% |
+| `CB_Assets` | Central bank balance sheet / GDP | % of GDP | FRED (Fed) / ECB / BoJ | `series_id=WALCL` | Weekly | 5%–130% (BoJ) |
+| `CPI_yoy` | Headline CPI, year-on-year | % | FRED (BLS) | `series_id=CPIAUCSL` | Monthly | -10% to +15% |
 | `FX_Gold` | Trade-weighted FX vs gold price | % p.a. | Stooq / LBMA | `https://stooq.com/q/?s=xauusd&i=d` + DXY | Daily | -40% p.a. to +5% p.a. |
-| `FiscalBal` | Federal fiscal balance / GDP (austerity proxy; negative = deficit) | % of GDP | FRED (OMB) | `.../series_id=FYFSGDA188S` | Annual | -15% to +5% |
-| `LoanWriteoff` | Net charge-off rate, all commercial banks (default proxy) | % of loans | FRED (Fed) | `.../series_id=NCOTOT` | Quarterly | 0.2%–3.0% |
-| `Gini_net` | Post-tax Gini (wealth transfer proxy) | Index | World Inequality Database | `https://wid.world/data/` (variable `agini992j`) | Annual | 0.25–0.65 |
+| `FiscalBal` | Federal fiscal balance / GDP (austerity proxy; negative = deficit) | % of GDP | FRED (OMB) | `series_id=FYFSGDA188S` | Annual | -15% to +5% |
+| `LoanWriteoff` | Net charge-off rate, all banks (default proxy) | % of loans | FRED (FDIC QBP) | `series_id=QBPLNTLNNTCGOFFR` | Quarterly | 0.2%–3.0% |
+| `Gini_net` | Post-tax disposable-income Gini (wealth-transfer proxy) | Index | World Inequality Database | `https://wid.world/data/` (variable `gdiinc992j`) | Annual | 0.25–0.65 |
 
-All FRED endpoints require a free `api_key`. BIS total-credit series codes at https://data.bis.org/topics/TOTAL_CREDIT (series `Q:US:P:A:M:XDC:A`). For cross-country extension, substitute the ISO-indexed BIS code.
+FRED cells show `series_id` only — full template per R3: `https://api.stlouisfed.org/fred/series/observations?series_id=X&api_key={FRED_API_KEY}&file_type=json` (free key). BIS direct alt: https://data.bis.org/topics/TOTAL_CREDIT/BIS,WS_TC,2.0/Q.US.C.A.M.770.A.
 
 ## § 5 Computation / Transformations
 
 ### 5.1 Regime classification inputs
 
-Three ratios over a trailing 4-quarter window:
+Note FRED `GDP` returns level (USD bn SAAR), not growth — DERIVED `NGDP_yoy = yoy(GDP_level, 4)`. Three ratios over a trailing 4-quarter window:
 
 1. **Growth-to-rate gap** (beautiful-condition core): $G_t = \text{NGDP}_{yoy,t} - \text{LT\_Rate}_t$
 2. **Debt-to-income trajectory**: $\Delta D_t = \text{DebtGDP}_t - \text{DebtGDP}_{t-4}$
-3. **Print intensity**: $\pi_t = (M0\_GDP_t - M0\_GDP_{t-4}) + (CB\_Assets_t - CB\_Assets_{t-4})$ (change in print stock + CB asset purchases, both as % of GDP)
+3. **Print intensity**: $\pi_t = (M0\_GDP_t - M0\_GDP_{t-4}) + (CB\_Assets_t - CB\_Assets_{t-4})$ (4Q deltas in print stock + CB assets, both as % of GDP)
+
+> **DERIVED (operational)** — $\pi_t$ is author-stipulated as the sum of M0/GDP and CB-Assets/GDP 4Q deltas; Dalio names "money printing" + "central bank asset purchases" qualitatively but writes no formula.
 
 > **Dalio** — source: "An In-Depth Look at Deleveragings": "get the nominal growth rate marginally above the nominal interest rate to tolerably spread out the deleveraging process." This anchors $G_t$'s sign as the beautiful gate.
 
 ### 5.2 Four-lever decomposition (Dalio's 4 paths)
 
-Mapped to observables; per-quarter contribution in pp of GDP:
+> **DERIVED (operational)** — Dalio names the four levers qualitatively, without coefficients. Mapping below (fiscal tightening as −ΔBalance; writeoffs × debt stock; print-sum; Gini × debt × k=0.1) is operational. Dalio notes wealth transfers "rarely occur in amounts that contribute meaningfully," so `k` is small.
+
+Per-quarter contribution in pp of GDP:
 
 $$L^{\text{aust}}_t = -\Delta\text{FiscalBal}_t; \quad L^{\text{def}}_t = \text{Writeoff}_t \cdot \text{DebtGDP}_t$$
 $$L^{\text{print}}_t = \pi_t; \quad L^{\text{redist}}_t = -k \cdot \Delta\text{Gini}_t \cdot \text{DebtGDP}_t$$
 
 > **Dalio** — source: ibid.: "Debt reduction (i.e., defaults and restructurings) and austerity are both deflationary and depressing while debt monetization is inflationary and stimulative."
-
-> **DERIVED (operational)** — Dalio names the four levers qualitatively, without coefficients. The mapping above (fiscal tightening as −ΔBalance; writeoffs × debt stock; print-sum; Gini × debt stock × k=0.1) is operational. Dalio notes wealth transfers "rarely occur in amounts that contribute meaningfully," so `k` is small.
 
 ### 5.3 Regime rule (Dalio's three categories)
 
@@ -88,9 +90,9 @@ Lever shares: $s^i_t = L^i_t / \sum_j L^j_t$ for $i \in \{\text{aust, def, print
 
 > **Dalio** — source: "How the Economic Machine Works — A Template": "the total amount of debt in the U.S. is about $50 trillion and the total amount of money … is about $3 trillion … roughly 15 times the amount of money there is to deliver" — structural squeeze arithmetic.
 
-Use BIS DSR directly (https://data.bis.org/topics/DSR ; SDMX CSV `https://stats.bis.org/api/v1/data/WS_DSR/Q.US?format=csv`) — debt-service-to-income by country.
+Use BIS DSR portal `https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P` (private non-financial sector key, CSV/XLSX export). SDMX `stats.bis.org/api/v1/...` is unstable in 2026.
 
-> **NON-DALIO (industry standard)** — source: Fisher, Irving (1933), "The Debt-Deflation Theory of Great Depressions," *Econometrica* 1(4), FRASER free PDF: https://fraser.stlouisfed.org/files/docs/meltzer/fisdeb33.pdf . Closes the gap because Dalio emphasises debt service qualitatively; Fisher supplies the nine-link mechanism (liquidation → falling prices → rising real debt → further liquidation) operationalising the "debt spiral."
+> **NON-DALIO (industry standard)** — Fisher, Irving (1933), "The Debt-Deflation Theory of Great Depressions," *Econometrica* 1(4), FRASER PDF: https://fraser.stlouisfed.org/files/docs/meltzer/fisdeb33.pdf. Dalio emphasises debt service qualitatively; Fisher's nine-link mechanism (liquidation → falling prices → rising real debt → further liquidation) operationalises the "debt spiral."
 
 ## § 6 Output Variables & Decision Rules
 
@@ -103,7 +105,7 @@ The layer emits one categorical regime tag plus a 4-vector of lever shares plus 
 | `beautiful_score` | ($G_t$ in [0, +3pp]) AND ($\Delta D_t < 0$) AND ($\pi_t \in [0.5\%, 4\%]$) | binary 0/1 | condition set DERIVED from Dalio's "marginally above" |
 | `fisher_spiral` | $\Delta(\text{DSR})_t > 0$ while $\text{CPI}_{yoy} < 0$ | binary 0/1; true = classical debt-deflation trap | Fisher (1933) NON-DALIO |
 
-> **DERIVED (operational)** — `beautiful_score`'s $G_t \in [0, +3pp]$ operationalises Dalio's "marginally above." Lower edge = Dalio's strict inequality; +3pp upper edge rejects inflationary spikes (e.g. Weimar late stage) from mis-tagging as BEAUTIFUL. $\pi_t \in [0.5\%, 4\%]$ re-uses the § 5.3 bucket.
+> **DERIVED (operational)** — `beautiful_score` $G_t \in [0, +3pp]$ operationalises Dalio's "marginally above"; +3pp ceiling rejects runaway reflations from mis-tagging BEAUTIFUL. $\pi_t \in [0.5\%, 4\%]$ re-uses § 5.3 bucket.
 
 Downstream regime mappings:
 - `UGLY_DEFLATIONARY` → long-duration nominals + cash (growth-down/inflation-down). Stress set: 1930–32 US, 1990–98 Japan.
@@ -114,28 +116,30 @@ Downstream regime mappings:
 
 Numbers below are type (a) per the template — Dalio-reported historical values from his "An In-Depth Look at Deleveragings" case tables, not live data. Periods match Dalio's table labels exactly.
 
-**US Depression 1930–1932 (Ugly Deflationary).** Per Dalio's US table: NGDP_yoy = −17.0%; Gov't Bond Yield = 3.4%; M0 Growth %GDP = 0.4%; CB Asset Purchases = 0.0%; DebtGDP 155% → 252%. Dalio narrative: "debt to GDP rose at a rate of 32% per year."
+**US Depression 1930–1932 (Ugly Deflationary).** Per Dalio's US table (verified PDF p. 4 + p. 8): NGDP_yoy = −17.0%; Gov't Bond Yield = 3.4%; M0 Growth %GDP = 0.4%; CB Asset Purchases = 0.4%; DebtGDP 155% → 252%. Dalio narrative: "debt to GDP rose at a rate of 32% per year."
 
 1. $G = -17.0 - 3.4 = -20.4$pp — matches Dalio's table row.
 2. $\Delta D = +32$pp/yr (Dalio's stated rate); total change = +97pp.
-3. $\pi = 0.4\% + 0.0\% = 0.4\% < 0.5\%$ — small.
-4. Regime: $G<0 \wedge \Delta D>0 \wedge \pi$ small ⇒ `UGLY_DEFLATIONARY`.
-5. Lever shares: defaults dominant (bank failures), austerity active (Hoover), printing ~0, redistribution ~0 ⇒ $s^{\text{print}} \approx 0.05 < 0.25$ ⇒ **under-printing flag** true.
+3. $\pi = 0.4\% + 0.4\% = 0.8\%$ — at small/moderate boundary (same as Japan 1990s; § 5.3 edges are stipulated, not strict).
+4. Regime: $G<0 \wedge \Delta D>0$, $\pi$ at boundary ⇒ `UGLY_DEFLATIONARY` (Dalio's own classification, § 2).
+5. Lever shares: defaults dominant (bank failures), austerity active (Hoover), printing low, redistribution ~0 ⇒ $s^{\text{print}} \approx 0.10 < 0.25$ ⇒ **under-printing flag** true.
 
 **US Reflation 1933–1937 (Beautiful, post-gold-devaluation).** Per Dalio's US Reflation table: NGDP_yoy = +9.2%; Gov't Bond Yield = 2.9%; M0 Growth %GDP = 1.7%; CB Asset Purchases = 0.3%.
 
-1. $G = 9.2 - 2.9 = +6.3$pp — positive but above the DERIVED +3pp ceiling.
+> **DERIVED (operational)** — Steps 1+3 reuse § 6 +3pp ceiling and § 5.3 π-bucket [0.5%, 4%]; both author-stipulated.
+
+1. $G = 9.2 - 2.9 = +6.3$pp — positive but above the +3pp ceiling.
 2. $\Delta D < 0$ — falling (Dalio: "falling 17% per year in 1933-1937").
 3. $\pi = 1.7\% + 0.3\% = 2.0\% \in [0.5\%, 4\%]$ — moderate.
-4. Categorical `regime` = BEAUTIFUL (Dalio's own characterisation); `beautiful_score` = 0 under the strict +3pp ceiling.
-
-> **DERIVED (operational)** — 1933–37 illustrates the +3pp ceiling trade-off: tight enough to reject Weimar-style runaways but also excludes vigorous reflations. A widened +6pp ceiling captures 1933–37; +3pp is the conservative baseline.
+4. Categorical `regime` = BEAUTIFUL (Dalio's own); `beautiful_score` = 0 under +3pp. A widened +6pp captures 1933–37 but risks over-including runaway reflations.
 
 **Japan 1990–Present (Ugly Deflationary, chronic).** Per Dalio's Japan table: NGDP_yoy = 0.6%; Gov't Bond Yield = 2.6%; M0 Growth %GDP = 0.7%; CB Asset Purchases = 0.1%; DebtGDP 403% → 498%. Dalio narrative: "nominal growth 2% below nominal interest rates."
 
-1. $G = 0.6 - 2.6 = -2.0$pp — matches Dalio's table row exactly.
+> **DERIVED (operational)** — π=0.8% sits at § 5.3 small/moderate boundary; UGLY_DEFLATIONARY tag follows Dalio's own taxonomy (parallels US Depression).
+
+1. $G = 0.6 - 2.6 = -2.0$pp — matches Dalio's row.
 2. $\Delta D \approx +95$pp over 20 yr — rising.
-3. $\pi = 0.7\% + 0.1\% = 0.8\%$ — just above the 0.5% "small" cutoff.
+3. $\pi = 0.7\% + 0.1\% = 0.8\%$ — at small/moderate cutoff.
 4. Regime: `UGLY_DEFLATIONARY` — under-printed and prolonged.
 
 ## § 8 Implementation Specs
@@ -153,7 +157,7 @@ async function deleveragings({ apiKey, machineOut }) {
   if (machineOut.debtMoney !== 'HIGH' || machineOut.gapRegime !== 'BELOW_TREND')
     return { regime: 'NOT_DELEVERAGING' };
 
-  const ids = ['GDP','GS10','BOGMBASE','WALCL','CPIAUCSL','FYFSGDA188S','NCOTOT'];
+  const ids = ['GDP','DGS10','BOGMBASE','WALCL','CPIAUCSL','FYFSGDA188S','QBPLNTLNNTCGOFFR'];
   const [gdp, gs10, m0, walcl, cpi, fiscal, writeoff] =
     (await Promise.all(ids.map(i => fetch(FRED(i, apiKey)).then(r => r.json()))))
     .map(toNumeric);
@@ -185,7 +189,7 @@ async function deleveragings({ apiKey, machineOut }) {
 }
 ```
 
-### 8b. Excel — sheet layout, Power Query M, key formulas
+### 8b. Excel — sheet layout, Power Query M or URL, key formulas
 
 Sheet `4_Deleverage`. Columns: `date | NGDP_yoy | LT_Rate | G_gap | DebtGDP | dDebtGDP | pi_total | CPI_yoy | FX_Gold | regime`. One Power Query per FRED series. Key formulas:
 
@@ -201,19 +205,24 @@ beautiful = IF(AND(G_gap>=0, G_gap<=3, dDebtGDP<0,
                    pi_total>=0.5, pi_total<=4), 1, 0)
 ```
 
-BIS DSR Power Query. Uses BIS SDMX REST v1 with `format=csv` (no ZIP decompression needed); `Table.PromoteHeaders` runs before `Table.SelectRows` so `BORROWERS_CTY` resolves:
+BIS DSR via portal export URL (SDMX API unstable, 2026 — returns 400/500). Use the BIS Data Portal CSV export:
 
+```
+https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P  (download CSV/XLSX)
+```
+
+Power Query:
 ```m
 let
-    Src       = Csv.Document(
-                    Web.Contents("https://stats.bis.org/api/v1/data/WS_DSR/Q.US?format=csv"),
-                    [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
-    Promoted  = Table.PromoteHeaders(Src, [PromoteAllScalars=true]),
-    Typed     = Table.TransformColumnTypes(Promoted,
-                    {{"TIME_PERIOD", type text}, {"OBS_VALUE", type number}}),
-    USonly    = Table.SelectRows(Typed, each [BORROWERS_CTY] = "US")
+    Src      = Csv.Document(
+                   Web.Contents("https://data.bis.org/static/dataportal/datasets/WS_DSR.csv"),
+                   [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+    Promoted = Table.PromoteHeaders(Src, [PromoteAllScalars=true]),
+    Typed    = Table.TransformColumnTypes(Promoted,
+                   {{"TIME_PERIOD", type text}, {"OBS_VALUE", type number}}),
+    USpriv   = Table.SelectRows(Typed, each [BORROWERS_CTY]="US" and [TC_BORROWERS]="P")
 in
-    USonly
+    USpriv
 ```
 
 ### 8c. ECharts config — chart type, encoding, palette tokens
@@ -281,7 +290,7 @@ Regime chips: `#00D08C` BEAUTIFUL, `#E5484D` UGLY_*, `#D4A373` TRANSITIONAL. Tex
 
 **Upstream preconditions:** 1.1 Economic Machine (activates this layer only when `debt_money_regime = HIGH` AND `gap_regime = BELOW_TREND`); 1.3 Long-Term Debt Cycle (late-stage warning trigger).
 
-**Upstream data feeds:** FRED API (GDP, GS10, BOGMBASE, WALCL, CPIAUCSL, FYFSGDA188S, NCOTOT); BIS DSR via SDMX CSV `https://stats.bis.org/api/v1/data/WS_DSR/Q.US?format=csv` and total credit at https://data.bis.org/topics/TOTAL_CREDIT ; WID at https://wid.world/data/; Stooq / LBMA gold.
+**Upstream data feeds:** FRED API (GDP, DGS10, BOGMBASE, WALCL, CPIAUCSL, FYFSGDA188S, QBPLNTLNNTCGOFFR, QUSCAM770A); BIS DSR portal `https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P` and total credit at https://data.bis.org/topics/TOTAL_CREDIT ; WID at https://wid.world/data/ (`gdiinc992j`); Stooq / LBMA gold.
 
 **Downstream consumers:** 1.5 Paradigm Shifts (ingests `regime` + lever mix); 1.7 Inflation & Currency Debasement (sharpens inflationary classification); 2.2 All-Weather (regime re-weighting); 2.5 Stress-Testing (1930–32 US, 1933–37 US, 1990s Japan, Weimar 1922–23 as stress set).
 
@@ -291,26 +300,26 @@ Regime chips: `#00D08C` BEAUTIFUL, `#E5484D` UGLY_*, `#D4A373` TRANSITIONAL. Tex
 
 ### Open questions and ambiguities
 
-1. **"Marginally above" is not numeric.** Dalio bounds no band. $G \in [0, +3\text{pp}]$ is DERIVED (§6). US 1933–37 (+6.3pp) sat above this edge; a widened +6pp captures it but risks over-including runaway reflations. Flagged per R5.
-2. **Print-intensity bucket edges (0.5% / 4%) are DERIVED.** Dalio cites point values (US 1933–37 ≈ 2.0%, US 2009+ ≈ 3.3%, Japan ≈ 0.8%) without publishing thresholds.
-3. **Lever-mix balance target is undefined.** Dalio says beautiful deleveragings are "well balanced" but assigns no target weights; 0.25/0.75 flags are DERIVED.
-4. **Wealth-redistribution lever is under-specified.** Dalio notes transfers "rarely occur in amounts that contribute meaningfully." `k = 0.1` is a stand-in; sensitivity test before production use.
-5. **Currency devaluation edge.** FX_Gold < −20% p.a. matches Dalio's Spain data point; he does not define "too much" devaluation numerically.
-6. **Regime boundary fuzziness.** US 2008–09 pre-QE was ugly-deflationary; post-QE became beautiful. The `TRANSITIONAL` tag catches in-between quarters and is NOT in Dalio's three-category taxonomy.
-7. **Debt-service vs debt-stock ambiguity.** Dalio alternates between the two. BIS DSR (§5.5) is the Fisher-complement; debt/GDP alone mis-times Japan (DSR fell via rate cuts as stock rose).
+1. **"Marginally above" is not numeric.** $G \in [0, +3\text{pp}]$ DERIVED (§6); US 1933–37 (+6.3pp) sits above. Widening to +6pp captures it but risks runaway reflations.
+2. **π bucket edges 0.5% / 4% are DERIVED.** Dalio cites points (US 1933–37 ≈ 2.0%, US 2009+ ≈ 3.3%, Japan ≈ 0.8%) without publishing thresholds.
+3. **Lever-mix balance target undefined.** Dalio says "well balanced" without target weights; 0.25/0.75 flags are DERIVED.
+4. **Redistribution lever under-specified.** Dalio: transfers "rarely occur in amounts that contribute meaningfully." `k = 0.1` is a stand-in; sensitivity-test before production.
+5. **FX_Gold < −20% p.a. edge** matches Dalio's Spain point only; no general numeric threshold.
+6. **Regime boundary fuzziness.** US 2008–09 pre-QE was ugly-deflationary; post-QE became beautiful. `TRANSITIONAL` tag catches in-between quarters; not in Dalio's three-category taxonomy.
+7. **Debt-service vs debt-stock ambiguity.** Dalio alternates. BIS DSR (§5.5) is the Fisher-complement; debt/GDP alone mis-times Japan (DSR fell via rate cuts as stock rose).
 
 ### Sources (all publicly accessible, no paywall, no login)
 
 **Dalio primary:**
-- "An In-Depth Look at Deleveragings," Bridgewater, February 2012 — standalone PDF: https://www.nowandfutures.com/large/an-in-depth-look-at-deleveragings--ray-dalio-bridgewater.pdf
-- "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater 2015 draft: https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf
-- Compiled "Economic Principles" volume (Ch I Template + Ch II In-Depth Look + US-1930s/Weimar case timelines): https://operators.macro-ops.com/wp-content/uploads/2022/12/ray_dalio__how_the_economic_machine_works__leveragings_and_deleveragings.pdf (archive.org OCR mirror: https://archive.org/stream/RayDalioHowTheEconomicMachineWorksLeveragingsAndDeleveragings/Ray+Dalio+-+How+the+Economic+Machine+Works+-+Leveragings+and+Deleveragings_djvu.txt)
+- "An In-Depth Look at Deleveragings," Bridgewater 2012 — PDF: https://www.nowandfutures.com/large/an-in-depth-look-at-deleveragings--ray-dalio-bridgewater.pdf
+- "How the Economic Machine Works — A Template," Bridgewater 2015 draft: https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf
+- Compiled "Economic Principles" volume (Ch I Template + Ch II In-Depth Look): https://operators.macro-ops.com/wp-content/uploads/2022/12/ray_dalio__how_the_economic_machine_works__leveragings_and_deleveragings.pdf
 - Dalio hub: https://www.economicprinciples.org/
 
 **Non-Dalio:**
 - Fisher, Irving (1933), "The Debt-Deflation Theory of Great Depressions," *Econometrica* 1(4): 337–357. FRASER: https://fraser.stlouisfed.org/files/docs/meltzer/fisdeb33.pdf
 
 **Data endpoints:**
-- FRED API: https://fred.stlouisfed.org/docs/api/fred/ (series `GDP`, `GS10`, `BOGMBASE`, `WALCL`, `CPIAUCSL`, `FYFSGDA188S`, `NCOTOT`).
-- BIS data portal: https://data.bis.org/topics/TOTAL_CREDIT , https://data.bis.org/topics/DSR ; BIS SDMX REST v1 (returns CSV when `?format=csv` appended): https://stats.bis.org/api/v1/data/WS_DSR/Q.US?format=csv
-- WID: https://wid.world/data/  |  Stooq: https://stooq.com/q/?s=xauusd
+- FRED API: https://fred.stlouisfed.org/docs/api/fred/ (series `GDP`, `DGS10`, `BOGMBASE`, `WALCL`, `CPIAUCSL`, `FYFSGDA188S`, `QBPLNTLNNTCGOFFR`, `QUSCAM770A`). `NCOTOT` discontinued; `QBPLNTLNNTCGOFFR` is the FDIC QBP successor. `GS10` is monthly; use `DGS10` for daily.
+- BIS data portal: https://data.bis.org/topics/TOTAL_CREDIT/BIS,WS_TC,2.0/Q.US.C.A.M.770.A , https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P (CSV/XLSX export). SDMX API `stats.bis.org/api/v1/...` returns 400/500 in 2026 — portal is the stable path.
+- WID: https://wid.world/data/ (variable `gdiinc992j` = Gini of disposable income). Stooq: https://stooq.com/q/?s=xauusd

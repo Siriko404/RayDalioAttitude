@@ -15,11 +15,15 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
   test -f research/<SEQ>_<slug>.md && echo PASS || echo FAIL
   ```
 
-- [ ] **S2. Word count is between 2000 and 3000.**
+- [ ] **S2. Word count is between 2000 and 5000.**
   ```bash
   words=$(wc -w < research/<SEQ>_<slug>.md); echo "$words words"; \
-    [ "$words" -ge 2000 ] && [ "$words" -le 3000 ] && echo PASS || echo FAIL
+    [ "$words" -ge 2000 ] && [ "$words" -le 5000 ] && echo PASS || echo FAIL
   ```
+  NOTE 2026-04-27: Cap raised from 3000 to 5000 to accommodate Phase-3
+  closure-cite work (R5/R15 require Dalio or NON-DALIO cite at point of
+  use; ~20 words per closure × dozens of closures per file would have
+  busted 3000 cap). Floor unchanged at 2000.
 
 - [ ] **S3. Exactly 10 top-level `## § N` section headers, numbered 1 through 10, in order.**
   ```bash
@@ -87,7 +91,7 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 - [ ] **R7. Every claim has a visual attribution marker.**
   ```bash
   grep -cE '^> \*\*(Dalio|NON-DALIO|DERIVED)' research/<SEQ>_<slug>.md
-  # Expect >= 8 markers for a 2000-3000 word report.
+  # Expect >= 8 markers for a 2000-5000 word report (floor unchanged; cap raised 2026-04-27).
   # If 0, attribution was silently skipped = FAIL.
   ```
   NOTE: This is a PRESENCE check (fast filter). It does NOT verify that

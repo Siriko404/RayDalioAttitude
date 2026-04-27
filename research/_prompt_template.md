@@ -62,7 +62,7 @@ SOURCE PRIORITY (use WebSearch and WebFetch freely)
        marked per R7 below.
 
 DELIVERABLE
-  One Markdown file, 2000-3000 words, saved at:
+  One Markdown file, 2000-5000 words, saved at:
   research/{SEQ}_{slug}.md
   Document title (the H1 at the top of the file) must be exactly:
       # {ID} {TITLE}

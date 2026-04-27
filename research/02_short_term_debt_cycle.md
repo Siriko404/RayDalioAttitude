@@ -74,6 +74,8 @@ $$P(\text{rec})_{t+12} = \Phi(\alpha + \beta \cdot spread_t)$$
 
 NY Fed publishes fitted probabilities monthly in `allmonth.xls`; no client-side re-fit needed.
 
+> **DERIVED (operational)** — Source-format choice: project pulls fitted P(rec) from `allmonth.xls` (machine-readable monthly series); the NY Fed's `Prob_Rec.pdf` is a chart-only artefact and would force OCR. The XLS path is reproducible end-to-end via Power Query (§ 8b) and the JS fetch in § 8a.
+
 ### 5.3 Recession probability — labor-market model (Sahm Rule)
 
 > **NON-DALIO (industry standard)** — Sahm (2019), "Direct Stimulus Payments to Individuals," in *Recession Ready*, Hamilton Project: https://www.hamiltonproject.org/wp-content/uploads/2023/01/Sahm_web_20190506.pdf. Closes a gap: Dalio names unemployment as a tightness proxy (p. 18) but gives no recession-call rule.
@@ -281,7 +283,7 @@ Each entry below references the body location where the gap is closed via Dalio 
 5. **MST uses NBER recession-end dates.** Dalio defines recession functionally (HEMW p. 3 verbatim, § 2) but publishes no dating convention. NBER Business Cycle Dating Committee is the public-data analogue (NON-DALIO marker at § 5.4). The 30-month late-cycle gate is itself DERIVED from Dalio's "about 2½ years" anchor (§ 5.1).
 6. **Six-phase sequence is not always observed.** Dalio's own caveat (HEMW p. 19; § 2 + § 6 quote): "not all are manifest precisely as described." The `TRANSITIONAL` regime catches failed-all-flags states; explicit DERIVED note at § 6.
 7. **`CAPUTL > 78%` gate is the 50-yr FRED TCU median, not a Dalio number.** Dalio names capacity utilization as a tightness input (HEMW p. 18) without a threshold. The 78% median is documented as DERIVED at § 5.1's late-cycle DERIVED block.
-8. **NY Fed PDF vs XLS source-format choice.** The fitted probability chart lives at `Prob_Rec.pdf`; raw monthly data lives at `allmonth.xls`. Project pulls the XLS path (§ 4 + § 5.2) for reproducibility; the PDF chart is reference-only.
+8. **`allmonth.xls` chosen over `Prob_Rec.pdf` — NY Fed source-format choice.** § 5.2's NON-DALIO Estrella-Mishkin block uses fitted monthly probabilities from `allmonth.xls` (also referenced at § 4 row `NYFED_prob`); the PDF chart `Prob_Rec.pdf` would force OCR and is reference-only.
 
 ### Sources
 

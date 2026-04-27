@@ -80,6 +80,8 @@ Regime is assigned on the joint sign of $G_t$ and $\pi_t$:
 
 > **DERIVED (operational)** — FX_Gold < −20% p.a. matches Dalio's Spain data point; Dalio defines no "too much" devaluation numerically.
 
+> **DERIVED (operational)** — Regime boundary fuzziness (US 2008–09): pre-QE 2008 prints UGLY_DEFLATIONARY (G<0, ΔD>0); post-QE 2009 prints BEAUTIFUL once $\pi_t$ enters the moderate bucket. The transition lives between quarters and is documented as a boundary case here, not a fourth regime — the three-category taxonomy is Dalio's verbatim (above).
+
 ### 5.4 Lever-mix score (balance diagnostic)
 
 Lever shares: $s^i_t = L^i_t / \sum_j L^j_t$ for $i \in \{\text{aust, def, print, redist}\}$.
@@ -300,7 +302,7 @@ Each entry below references the body location where the gap is closed via Dalio 
 4. **Redistribution lever stand-in.** Dalio says wealth transfers "rarely occur in amounts that contribute meaningfully" (cited at § 5.2 DERIVED block). Project sets `k = 0.1` accordingly with explicit "stand-in pending sensitivity-test" framing at § 5.2 DERIVED; no industry-standard transfer-elasticity exists.
 5. **FX_Gold < −20% p.a. edge matches Dalio's Spain case only.** Dalio gives no general numeric currency-collapse threshold. Closure at § 5.3 DERIVED block (FX_Gold edge calibrated to Spain).
 6. **Regime boundary fuzziness (US 2008–09).** Methodological note: 2008–09 pre-QE prints as UGLY_DEFLATIONARY, post-QE as BEAUTIFUL; transition lives between quarters. Project's three-category taxonomy is Dalio's (§ 5.3 verbatim quote) — the in-between is documented here, not invented as a fourth regime.
-7. **Debt-service vs debt-stock — handed off to § 9 Integration Points.** Dalio alternates between debt/income and debt-service framing. Project pipes BIS DSR alongside debt/GDP per § 5.5; the cross-test is forward-referenced. § 9 routes DSR to 1.5 / 2.2 / 2.5 as the Fisher-complement signal; Japan's "DSR fell via rate cuts as stock rose" cautionary case is preserved at § 5.5.
+7. **Debt-service vs debt-stock — both tracked in-scope at § 5.5.** Dalio alternates between debt/income and debt-service framing. § 5.5 brings BIS DSR alongside debt/GDP via the Fisher complement (Dalio quote anchoring the structural squeeze, NON-DALIO Fisher (1933) anchoring the debt-deflation mechanism). § 6 emits the `fisher_spiral` output keyed on $\Delta\text{DSR}_t > 0$ while $\text{CPI}_{yoy} < 0$. The choice to track both stock and service signals is operational, not a forward-handoff.
 
 ### Sources
 

@@ -162,17 +162,17 @@ CLASSIFY: dict[tuple[str, int], dict] = {
         bucket="dalio-canonical-found",
         search_target="HCGB-1 L462-514 (hcgb1.txt): MP1-MP5 definitions",
         notes="EVIDENCE (Dalio-search 2026-04-27): HCGB-1 footnote L461-462 explicitly "
-              "RENUMBERS the MP scheme vs BDC: 'separated linked monetary systems from "
+              "RENUMBERS the MP scheme vs BDC ('separated linked monetary systems from "
               "fiat ones, which were previously both described as being part of MP1.' "
               "L513-514: 'numbering is now different (i.e., MP2 has become MP3 and MP3 "
               "has become MP4).' L464=MP1 Linked, L489=MP4 Coordinated Fiscal/Monetary, "
-              "L495=MP5 Big Deleveraging. **SUBSTANTIVE LAYER-2 ISSUE:** project file "
-              "03 uses STALE BDC numbering (MP1=1944-71). HCGB-1 reorganized this. "
-              "Layer-2 patch needed (separate from §10 closure): update file 03 §6 + "
-              "§5 to HCGB-1's current MP scheme. Then this entry moves to "
-              "dalio-canonical-found / reclassify-limitations citing HCGB-1 Ch 1 "
-              "explicitly. Whether HCGB-1 also publishes numeric transition triggers "
-              "(MP4->MP5 etc.) requires deeper read of HCGB-1 Ch 3.",
+              "L495=MP5 Big Deleveraging). RESOLVED 2026-04-27 (commit 11ae972 self-"
+              "correction): re-read of file 03 §5.6 confirms project ALREADY uses HCGB-1 "
+              "current scheme (MP1 Linked/Hard, MP2 Fiat-IR-Driven, MP3 Fiat-Debt-"
+              "Monetization, MP4 Coordinated Fiscal/Monetary, MP5 Big Deleveraging, "
+              "MP6 Return to Hard Money). Earlier 'stale BDC numbering' flag was a "
+              "misread. No Layer-2 patch needed. §10 entry 3 closes via Dalio § 5.6 "
+              "verbatim citing HCGB-1 Ch 1 phases-of-monetary-policy section.",
     ),
     ("03_long_term_debt_cycle.md", 4): dict(
         cluster="F",

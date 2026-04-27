@@ -58,7 +58,7 @@ $$IR_{slice} = IC \cdot \sqrt{n_{dec}}$$
 
 where n_dec is the number of independent decisions *within* a slice (one strategy) per year.
 
-> **NON-DALIO (industry standard)** — source: Grinold, R. (1989) "The Fundamental Law of Active Management," *Journal of Portfolio Management* 15(3). Formula as summarized by Corporate Finance Institute, https://corporatefinanceinstitute.com/resources/career-map/sell-side/capital-markets/fundamental-law-of-active-management/ (verified April 2026). Used to close a gap because Dalio does not state the n_dec half of the law.
+> **NON-DALIO (industry standard)** — source: Grinold, R. (1989) "The Fundamental Law of Active Management," *Journal of Portfolio Management* 15(3). Formula `IR = IC × √breadth` as summarized by Corporate Finance Institute, https://corporatefinanceinstitute.com/resources/career-map/sell-side/capital-markets/fundamental-law-of-active-management/ (verified April 2026). Used to close a gap because Dalio does not state the n_dec ("breadth") half of the law. Breadth definition for a global-macro shop is genuinely scope-ambiguous (stock-month is conventional for stock-pickers; per-strategy independent-decision count is the macro analogue) — the granularity choice is operational and handed off to 2.3 sleeves.
 
 **Step 3 — aggregate to portfolio IR under correlation.** With N slices and average pairwise correlation ρ_avg:
 

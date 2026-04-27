@@ -80,7 +80,7 @@ Environmental bias matrix $B$ used below has entries in $\{+1, 0, -1\}$: +1 = as
 
 **Target capital weights** (the single most important output of this subsection):
 
-> **Dalio** — source: Tony Robbins, "MONEY: Master the Game" (2014), reprinted at tonyrobbins.com, https://www.tonyrobbins.com/blog/the-end-of-the-bull-market: "30% in stocks — for instance, the S&P 500 or other indexes … 15% in immediate term (seven- to ten-year Treasuries) … 40% in long-term bonds (20- to 25-year Treasuries) … 7.5% in gold … 7.5% in commodities"
+> **Dalio** — source: Tony Robbins, "MONEY: Master the Game" (2014), reprinted at tonyrobbins.com, https://www.tonyrobbins.com/blog/the-end-of-the-bull-market: "30% in stocks — for instance, the S&P 500 or other indexes … 15% in immediate term (seven- to ten-year Treasuries) … 40% in long-term bonds (20- to 25-year Treasuries) … 7.5% in gold … 7.5% in commodities" — Robbins recipe is US-only by design (S&P 500 + US Treasuries; geographic concentration is intentional at this layer; cross-country diversification deferred to 1.6 / 2.5 per the brief).
 
 | Sleeve | Weight | Instrument class | Primary environmental bias |
 |---|---|---|---|
@@ -270,12 +270,12 @@ const option = {
 
 Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-1. **15% intermediate bonds — nominal Treasuries (Dalio's only public number).** Robbins reprint (cited at § 5.3 verbatim) specifies "15% in immediate term (seven- to ten-year Treasuries)" and "40% in long-term bonds (20- to 25-year Treasuries)" — nominal Treasuries throughout, no TIPS mention. Project defaults to nominal Treasuries because that is the only public Dalio-sourced number; Bridgewater institutional production weights are not public.
+1. **15% intermediate bonds — nominal Treasuries (Dalio's only public number).** Robbins reprint (cited at § 6 verbatim) specifies "15% in immediate term (seven- to ten-year Treasuries)" and "40% in long-term bonds (20- to 25-year Treasuries)" — nominal Treasuries throughout, no TIPS mention. Project defaults to nominal Treasuries because that is the only public Dalio-sourced number; Bridgewater institutional production weights are not public.
 2. **"Equal risk" is Dalio's phrasing for a directional target, not a partition.** Cited at § 5.4 verbatim: "The key was to put equal risk on each scenario to achieve balance." Because the § 5 environmental-bias matrix `B` has overlap (e.g., equities = +1 in both Growth-up and Inflation-down), the four `RC^env` values are non-disjoint by design — § 7 Step-4 + § 8c make this explicit. The 25%-per-box framing applies to risk allocation across the four growth/inflation cells, not to a disjoint partition.
 3. **Rebalancing thresholds — Vanguard 2015 NON-DALIO closes 1%/5%/10%; project's 3% GREEN/AMBER mid-tick is DERIVED.** Closure: explicit NON-DALIO marker for Vanguard at § 5.5 (or wherever in § 5 / § 6 the rebalance rule lives) + DERIVED marker for the 3% mid-tick.
 4. **Environmental bias matrix entries are DERIVED.** The +1/0/−1 entries paraphrase Dalio's directional prose; the specific entries (zeros, overlaps) are project operationalizations. Closure: explicit DERIVED marker at § 5 above the matrix.
 5. **Correlation-regime risk (canonical weights pre-2022).** The canonical `RC^env` decomposition relies on Dalio's directional bias matrix at § 5 (DERIVED marker above the matrix); 2022's stock-bond co-crash violated the negative-correlation assumption underlying that calibration. § 5's DERIVED entry already flags the matrix as project operationalization of qualitative prose; Step-4 sensitivity covers the math; mitigation handed off to 2.4.
-6. **Geographic concentration (Robbins recipe is US-only).** § 5.3 cites Robbins reprint verbatim — Dalio specifies US Treasuries / S&P 500 only. Bridgewater's own 2019 "Geographic Diversification Can Be a Lifesaver" argues for cross-country diversification; cited in Sources for downstream reference, out-of-scope per the brief.
+6. **Geographic concentration (Robbins recipe is US-only).** § 6 cites Robbins reprint verbatim — Dalio specifies US Treasuries / S&P 500 only; the marker block carries the US-only framing inline. Bridgewater's own 2019 "Geographic Diversification Can Be a Lifesaver" argues for cross-country diversification; cited in Sources for downstream reference, out-of-scope per the brief.
 
 ### Sources
 

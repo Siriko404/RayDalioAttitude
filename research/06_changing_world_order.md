@@ -100,7 +100,7 @@ Let `gap_m = z_{USA,m} − z_{CHN,m}`. `cntNeg` = count of measures where `gap_m
 | ELEVATED | 2 – 3 | −1 to −10 pp |
 | HIGH | ≥ 4 | < −10 pp |
 
-> **DERIVED (operational)** — No Dalio numeric trigger. Thresholds place April-2022 panel (CHN leads Cost Competitiveness + Trade) at ELEVATED — consistent with Dalio's "early decline" framing (CWO 2020). The −1 pp lower bound excludes trivially small reserve declines from ELEVATED.
+> **DERIVED (operational)** — `HegemonyRisk` thresholds are DERIVED (no Dalio numeric trigger). The 2–3 / ≥4 `cntNeg` cuts and the −1 / −10 pp reserve-delta cuts place April-2022 panel (CHN leads Cost Competitiveness + Trade) at ELEVATED — consistent with Dalio's "early decline" framing (CWO 2020). The −1 pp lower bound excludes trivially small reserve declines from ELEVATED.
 
 ## § 6 Output Variables & Decision Rules
 
@@ -290,7 +290,7 @@ Each entry below references the body location where the gap is closed via Dalio 
 1. **Cycle length is a Dalio-published range.** "Roughly 250 years, give or take 150 years" (CWO Ch 1, p. 6; § 2 verbatim + § 5.4 verbatim). The 100–400 yr range is too wide for a standalone timer by Dalio's own framing; the project's operational diagnostic uses Country-Power Index level + 20-yr trajectory, not duration. Stage classifier in § 6 reads CPI-z and `s20`, not year-count.
 2. **"Roughly equal average of eight measures of strength" — Dalio's exact weighting language.** Cited verbatim at § 2 + § 5.2 (CWO Ch 1, p. 17). Equal weights match Dalio's framing; any non-equal weighting is DERIVED (§ 5.2 marker). Web-fetch verification 2026-04-27 of CWO Ch 1 LinkedIn confirms Dalio's caveat "while one could reconfigure them to produce marginally different readings, they are broadly indicative in a by-and-large way" — explicit Dalio-non-formulaic framing.
 3. **Min-max rescale anchors (max ≈ +1.9, min ≈ −1.5) are DERIVED.** Dalio publishes Country-Power-Index point values (USA 0.89, CHN 0.76 in *Country Power Index 2022*) but not the rescaling formula. Closure: explicit DERIVED marker at § 5.2 documenting that the chosen anchors reproduce the published USA/CHN values to ≤ 0.04 absolute error.
-4. **HegemonyRisk thresholds are DERIVED.** "2–3 measures negative," "−1 to −10 pp reserve-delta," and the −1 pp lower bound are stipulated; CWO Ch 1 LinkedIn + Ch 2 p. 40 anchor the qualitative narrative only. Closure: DERIVED markers at § 6 (multiple blocks); each threshold tied back to Dalio's narrative.
+4. **HegemonyRisk thresholds are DERIVED.** "2–3 measures negative," "−1 to −10 pp reserve-delta," and the −1 pp lower bound are stipulated; CWO Ch 1 LinkedIn + Ch 2 p. 40 anchor the qualitative narrative only. Closure: explicit DERIVED marker at § 5.5 ("Thresholds place April-2022 panel … at ELEVATED — consistent with Dalio's 'early decline' framing"); each threshold tied back to Dalio's narrative.
 5. **COFER anchor year 2012 is a project design choice.** `resDelta10` uses Q4-2012 → Q4-2022 to capture the post-GFC reserve-share trend (−2.98 pp). Closure: explicit DERIVED design-choice marker at § 5.5 documenting the 10-year rolling window matching the cycle-stage timeframe; broader 2000-baseline noted as context only.
 6. **API endpoint state per R11 (2026-04).** Corrections logged: BIS EER → bulkdownload fallback; COFER DBnomics series corrected; WEF GCI 2019 → executive-summary PDF; SIPRI URL fix. Closure: explicit DERIVED R11-endpoint-state marker at § 4 documenting all four corrections; § 4 table cells already reflect the corrected forms.
 

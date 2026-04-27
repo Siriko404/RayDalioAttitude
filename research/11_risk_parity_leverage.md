@@ -117,6 +117,8 @@ Realized 21-day annualized `σ_p_realized`. If `|σ_p_realized − σ_target|/σ
 
 > **DERIVED (operational)** — `5% × (L−1)` is author-stipulated, sized for one daily 3-σ move on `(L−1)` notional at σ_p=10% (~1.9%/day; 2.5 days headroom). Dalio's related principle — leverage "employed in a range of highly liquid forms that can be rebalanced and liquidated if asset prices fall" — is from Engineering Targeted Returns, p. 11.
 
+> **DERIVED (operational)** — Covariance stability: `L = σ_target / σ_p` uses historical realised σ_p; a correlation-breakdown shock (1998, 2008, 2022) raises realised σ_p overnight, triggering forced deleveraging via the § 6 RED band. The covariance-stability tail is handed off to 2.5 (Stress-Testing) per § 9 — measurement here is intentionally backward-looking; forward-tail sizing belongs to 2.5.
+
 ## § 7 Worked Numeric Example
 
 **Scenario (illustrative).** Four-sleeve portfolio — SPX, 10-year UST, Gold, BCOM — as-of end-April-2026.

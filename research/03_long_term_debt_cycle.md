@@ -92,7 +92,7 @@ Dalio's Ex 1/Ex 3 inputs use PRIMARY deficit (excludes interest). FRED `FYFSGDA1
 
 $$PrimDef\_GDP_t \approx |HdlDef\_GDP_t| - DS\_int\_GDP_t; \quad PrimDef\_Rev_t = PrimDef\_GDP_t / Rev\_GDP_t$$
 
-> **DERIVED (operational)** — standard OMB/CBO convention. Sanity-check: ~7%−~3% = ~4% GDP ÷ 0.17 ≈ ~24% rev; Dalio's 15% is CBO decade average.
+> **DERIVED (operational)** — Primary vs headline deficit derivation: FRED `FYFSGDA188S` is the HEADLINE deficit (includes interest); Dalio's Ex 1/Ex 3 inputs use the PRIMARY deficit (excludes interest). Subtraction follows the standard OMB/CBO convention. Sanity-check: ~7%−~3% = ~4% GDP ÷ 0.17 ≈ ~24% rev; Dalio's 15% is CBO decade average.
 
 ### 5.6 MP phase overlay (Dalio taxonomy)
 
@@ -278,7 +278,7 @@ Each entry below references the body location where the gap is closed via Dalio 
 1. **Cycle duration is a Dalio-published range.** "~80 ±25 years" (HCGB-1 Ch 1; § 2 verbatim). Year-count alone never signals late-stage; § 6's stage classifier relies on the four indicators (`I1`–`I4`), not duration.
 2. **Stage edges 200/400/550/900 and 5/10/15/40 are DERIVED.** Dalio publishes point anchors only (1944=7x; today=580%; JPN=1376%); inter-stage edges are project-author. Closure: explicit `DERIVED (operational)` markers at § 6 above and below the stage table; 550/900 bracket the US (580%) and Japan (1376%) cases.
 3. **MP phases (HCGB-1 Ch 1) are taxonomic, not numeric.** Dalio defines MP1–MP6 by qualitative regime (Linked/Hard, Fiat-Interest-Rate-Driven, Fiat-with-Debt-Monetization, Coordinated Fiscal/Monetary, Big Deleveraging, Return to Hard Money) at § 5.6 verbatim. Transition triggers are described qualitatively (rate floor hit → MP3; QE exhausted → MP4; etc.) without numeric thresholds. Classifier in § 5.6 uses Boolean checks (rate active? QE active? coordinated fiscal-monetary? restructuring?) — taxonomic by design.
-4. **"50% ±20% reduction" is Dalio's historical mean, not a forward target.** Cited at § 2 verbatim (HCGB-1 Ch 1, Stage 4); appears as backward-looking summary across the deleveraging archetype, not a calibrated parameter for projection.
+4. **"50% ±20%" debt-to-income reduction is a Dalio deleveraging archetype, not a forward target.** Cited at § 2 verbatim (HCGB-1 Ch 1, Stage 4); appears as backward-looking summary across the deleveraging archetype, not a calibrated parameter for projection.
 5. **"r − g = 2% → +50%/20 yr" is a Dalio rule of thumb under zero primary deficit.** Cited at § 5.4 verbatim (HCGB-1 Ch 3 Ex 2). The DERIVED note at § 5.4 flags non-linear blow-ups at high starting debt; § 5.3 closed-form formula is the production projection.
 6. **COFER "falling > 10 pp / 10 yr" trigger is DERIVED.** Dalio gives no numeric threshold for reserve-currency drift. Closure: explicit `DERIVED (operational)` marker at § 6 reserve-currency overlay.
 7. **Three-denominator design choice (% GDP, % revenue, % money/gold).** Dalio uses revenue throughout HCGB-1 Ch 3; FRED publishes most series in % GDP. Conversion at § 5.2 (with US revenue/GDP anchor 17% per Dalio Ch 3 cross-country table verbatim) + DERIVED note that `Rev_GDP` varies 14–20% historically, so production runs pipe FRED `FYFRGDA188S` rather than hard-coding 0.17.

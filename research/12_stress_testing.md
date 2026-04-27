@@ -75,6 +75,8 @@ Given 2.2's locked weights and Dalio's four archetypes, compute per-regime portf
 
 The ≈17.7-ppt gap vs the −20% fund result is the leverage + sleeve-mix differential: retail weights are unleveraged and use nominal intermediate Treasuries; the institutional fund is ≈2× leveraged and uses inflation-linked bonds. This is a boundary FINDING, not an arithmetic error — leverage sizing is 2.4's scope.
 
+> **DERIVED (operational)** — Decomposition is capital-weight, not risk-contribution. Step 3's per-sleeve contribution `C_i_e = w_i · S_i_e` is denominated in capital weights (the locked Robbins 30/40/15/7.5/7.5). Risk-contribution decomposition (`RC%_i = w_i (Σw)_i / σ_p²`) is owned by 2.2 § 5; § 9 routes the alternative there explicitly. Capital-weight is the right answer for "which sleeve drove this archetype's loss"; risk-contribution is the right answer for "which sleeve drove this archetype's risk budget".
+
 ## § 6 Output Variables & Decision Rules
 
 **Outputs per scenario run.**

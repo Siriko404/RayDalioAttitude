@@ -12,7 +12,7 @@ Primary: **Dalio, "Engineering Targeted Returns and Risks," Bridgewater, Aug 201
 
 > **Dalio** — p. 3: "Betas are limited in number […] they are typically relatively correlated with each other, and their excess returns are relatively low compared to their excess risks, with Sharpe ratios typically ranging from 0.2 to 0.3."
 
-> **Dalio** — p. 3: "Alphas […] Sources of alpha are numerous and relatively uncorrelated with each other."
+> **Dalio** — p. 3: "Alphas […] Sources of alpha are numerous and relatively uncorrelated with each other. However, their returns are unreliable, with risk-adjusted returns slightly negative on average […]." This is the alpha-IR precondition: Holy-Grail presupposes positive expected IR per stream.
 
 > **Dalio** — p. 8: "create a well-diversified portfolio of uncorrelated return streams calibrated to balance each other and to deliver a targeted return."
 
@@ -81,7 +81,7 @@ $$N_{\text{eff}} = \frac{N}{1 + (N-1)\bar\rho}$$
 
 so that `σ_p/σ = 1/√N_eff` for any `(N, ρ)` pair. `N_eff` collapses the two-parameter space onto the x-axis of the ρ=0 curve.
 
-> **DERIVED (operational)** — `N_eff` is an algebraic re-expression of § 5.3, not a Dalio-named construct. It makes Dalio's p. 8 comparison (P1: N=6, ρ=0.25, N_eff=2.67 vs P2: N=77, ρ=0.04, N_eff=19.06) directly interpretable as "effectively 3 vs 19 independent streams." Ratio `√(N_eff2/N_eff1) = √(19.06/2.67) = 2.67×` ≈ Dalio's published "~2.5× better IR" (p. 8); within rounding the two match.
+> **DERIVED (operational)** — `N_eff` is an algebraic re-expression of § 5.3, not a Dalio-named construct. It makes Dalio's p. 8 comparison (P1: N=6, ρ=0.25, N_eff=2.67 vs P2: N=77, ρ=0.04, N_eff=19.06) directly interpretable as "effectively 3 vs 19 independent streams." Ratio `√(N_eff2/N_eff1) = √(19.06/2.67) = 2.67×` ≈ Dalio's published "~2.5× better IR" (p. 8); within rounding the two match. The "up to 80%" σ-reduction headline (caveats: applies at ρ ≈ 0 and large N) is anchored at N_eff ≈ 25; cross-asset panels with `ρ̄ ≈ 0.15–0.30` cap the realisable reduction near `1/√N_eff ≤ 0.26` at N_eff ≥ 15.
 
 ## § 6 Output Variables & Decision Rules
 
@@ -281,8 +281,8 @@ option = {
 
 Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-1. **Dalio publishes a stream-count RANGE, not a point.** Cited at § 2 verbatim ("fifteen good uncorrelated return streams" mantra at LinkedIn; "fifteen to twenty" in *Principles* 2017 R9 fair-use; "10 to 15" in short-form video). Project commits to the registry value `N_eff ≥ 15` per § 6 with explicit DERIVED marker at § 5.5; `N_eff ≥ 20` is defensible (80%-reduction within 2 pp).
-2. **"80%" reduction caveats.** Dalio's Engineering Chart 5 (cited at § 2 verbatim) shows P2 (N=77, ρ=0.04) achieving the "~2.5× better IR" — Dalio's own arithmetic. The 80% reduction headline applies at `ρ ≈ 0` and large `N`; cross-asset panels with `ρ_bar ≈ 0.15–0.30` cap the achievable reduction. Closure: explicit DERIVED marker at § 5.5 deriving `N_eff` (ρ-penalised) so the regime tag matches Chart 5 anchors directly.
+1. **Dalio publishes a stream-count RANGE, not a point.** Cited at § 2 verbatim ("fifteen good uncorrelated return streams" mantra at LinkedIn; "fifteen to twenty" in *Principles* 2017 R9 fair-use; "10 to 15" in short-form video). Project commits to the registry value `N_eff ≥ 15` per § 6 with explicit DERIVED marker at § 5.4; `N_eff ≥ 20` is defensible (80%-reduction within 2 pp).
+2. **"80%" reduction caveats.** Dalio's Engineering Chart 5 (cited at § 2 verbatim) shows P2 (N=77, ρ=0.04) achieving the "~2.5× better IR" — Dalio's own arithmetic. The 80% reduction headline applies at `ρ ≈ 0` and large `N`; cross-asset panels with `ρ_bar ≈ 0.15–0.30` cap the achievable reduction. Closure: explicit DERIVED marker at § 5.4 deriving `N_eff` (ρ-penalised) and stating the 80%-reduction caveat inline so the regime tag matches Chart 5 anchors directly.
 3. **252-day rolling window for `ρ_{ij}` / `σ_i` is industry standard, not Dalio-prescribed.** Closure: explicit DERIVED marker at § 5.1 documenting the choice, with Dalio's caveat that correlations "aren't stable" cited at "Our Thoughts About Risk Parity and All-Weather" (Sep 2015, p. 11) — already referenced in § 9 / Sources.
 4. **Stream-granularity choice (what counts as a stream).** Dalio's Engineering math is scale-invariant; the practical population (Bridgewater institutional ~1000-stream anecdote per *Principles* 2017, R9 fair-use only — not quoted) is PM policy, not a framework parameter. Project's 4-box `(asset × geo)` granularity at § 5.4 is a design choice; § 9 Integration Points hands off real-portfolio granularity to 2.3 (alpha sleeves) and 2.4 (leverage sizing).
 5. **Equal-vol / equal-weight assumption (proxy for regime diagnosis).** § 5.3 assumes `σ_i = σ`, `w_i = 1/N`. Closure: explicit DERIVED marker at § 5.3 documenting that real portfolios use `σ_p² = w'Σw`; proxy is adequate for the regime tag here but not for leverage sizing (handed off to 2.4 per § 9).

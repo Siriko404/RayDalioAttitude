@@ -8,6 +8,8 @@ Inflation is the symptom; currency debasement is the mechanism. Dalio splits inf
 
 LinkedIn quotes retrieved and verified via WebFetch this session. BDC page numbers are not cited (PDF not retrievable in-session; R12 section-heading fallback used — see § 10 item 1).
 
+> **DERIVED (R12 fallback)** — BDC PDF retrieval failed in-session (canonical URL 404, economicprinciples.org email-gated, librairi.com mirror is an unauthorized copy, Wayback Machine blocked). Per R12, all "Principles for Navigating Big Debt Crises" quotes below cite by section heading, never by printed-footer page number.
+
 > **Dalio** — source: "Paradigm Shifts," LinkedIn, 17 Jul 2019, https://www.linkedin.com/pulse/paradigm-shifts-ray-dalio: "those that will most likely do best will be those that do well when the value of money is being depreciated [...] such as gold."
 
 > **Dalio** — source: "Paradigm Shifts," LinkedIn, 17 Jul 2019, https://www.linkedin.com/pulse/paradigm-shifts-ray-dalio: "For this reason, I believe that it would be both risk-reducing and return-enhancing to consider adding gold to one's portfolio."
@@ -135,6 +137,8 @@ Portfolio-tilt rules relative to All-Weather baseline (2.2 owns the base weights
 
 - If `r^mkt < 0` for ≥ 6 consecutive months → set `CashTrashFlag = 1`, rotate strategic cash into short-duration TIPS + gold.
 - If `r^mkt > +1%` → reset flag; cash is competitive again.
+
+> **DERIVED (operational)** — `CashTrashFlag` is binary at this layer's 5–8-yr resolution; the hyperinflation tail (monthly π > 50%) is out-of-scope here and handed off to 2.5 Stress-Testing per § 9 Integration Points. The binary flag is sufficient for tactical bond-vs-cash overlay; tail-regime sizing is owned by 2.5.
 
 ## § 7 Worked Numeric Example
 
@@ -282,7 +286,7 @@ Each entry below references the body location where the gap is closed via Dalio 
 4. **Non-reserve INFLATIONARY threshold 3% is DERIVED.** Dalio's "more vulnerable" framing for non-reserve currencies (BDC vulnerability section) gives no numeric rate cutoff. Closure: explicit DERIVED marker at § 5.6 documenting the lower 3% threshold for non-reserve countries vs the 4% reserve-currency threshold; precedence rule INFLATIONARY > STAGFLATION > BEAUTIFUL > DEFLATIONARY also captured there.
 5. **`ngdp_yoy < 2 × π^hdln` is an operational proxy for weak real growth.** Closure: explicit DERIVED marker at § 5.6 documenting the choice (real-GDP cut preferable but introduces a calendar-frequency mismatch with monthly headline CPI; project accepts the proxy and documents the mismatch).
 6. **`μ` uses M2, not narrow-money M0.** Dalio's archetype references M0 creation (BDC, "The Template"); M2 is the broader, publicly observable proxy. Closure: explicit DERIVED marker at § 5.4 flagging the proxy and the +4 % / yr `μ` threshold rationale.
-7. **US-centric scope (design choice).** Cross-country extension requires national-CPI swap, bilateral REER, and a non-USD reserve test; not in scope here. § 9 Integration Points routes cross-country detail to 1.6 (Big Cycle) and 2.5 (Stress-Testing); body cites at § 4 (US-only data series), § 5.6 (reserve-vs-non-reserve threshold split with DERIVED marker carrying the framing).
+7. **US-centric scope — non-reserve threshold split (design choice).** Cross-country extension requires national-CPI swap, bilateral REER, and a non-USD reserve test; not in scope here. § 9 Integration Points routes cross-country detail to 1.6 (Big Cycle) and 2.5 (Stress-Testing); body cites at § 4 (US-only data series), § 5.6 (reserve-vs-non-reserve INFLATIONARY threshold split, 4% vs 3%, with DERIVED marker carrying the framing).
 8. **`CashTrashFlag` is binary; hyperinflation tail handed off to 2.5.** Body usage at § 6 (decision rule) and § 7 step 6. Project's binary flag is sufficient at 5–8-yr resolution; hyperinflation (monthly π > 50%) is documented as out-of-scope here and routed via § 9 Integration Points to 2.5 Stress-Testing.
 9. **Tilt magnitudes are not Dalio-published numbers.** Direction (gold up, bonds and cash down during debasement) is Dalio's explicit guidance (Paradigm Shifts essay). Closure: explicit DERIVED marker at § 6 tilt-table block; ±10 pts max deviation from All-Weather gold baseline preserves the AW risk-parity structure (handed off to 2.2 / 2.4).
 

@@ -52,6 +52,8 @@ $$P_t = \frac{\text{Total \$}_t}{Q_t}$$
 
 At the economy level: $\text{GDP}_{\text{nom},t} = \text{GDP}_{\text{real},t} \cdot P_t / 100$, identifying `Total $` with `GDP_nom`, `Q` with `GDP_real`, and `P` with `GDP_defl`.
 
+> **DERIVED (design choice)** — applying the identity at the whole-economy level treats composition shifts as price changes in `P`. The identity applies more cleanly to single markets; project accepts the approximation and reports both narrow-money and M2-based ratios in § 5.5 / § 7 for transparency.
+
 > **Dalio** — source: ibid., p. 2: "All changes in economic activity and all changes in financial markets' prices are due to changes in the amounts of 1) money or 2) credit that are spent on them (total $), and the amounts of these items sold (total Q)."
 
 ### 5.2 Money-vs-credit decomposition

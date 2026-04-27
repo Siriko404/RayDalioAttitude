@@ -288,19 +288,23 @@ Regime chips: `#00D08C` BEAUTIFUL, `#E5484D` UGLY_*, `#D4A373` TRANSITIONAL. Tex
 
 **Not covered here:** cycle timing → 1.2 / 1.3; regime transitions → 1.5; reserve-currency loss → 1.6.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and ambiguities
+### Limitations / design choices
 
-1. **"Marginally above" is not numeric.** $G \in [0, +3\text{pp}]$ DERIVED (§6); US 1933–37 (+6.3pp) sits above. Widening to +6pp captures it but risks runaway reflations.
-2. **π bucket edges 0.5% / 4% are DERIVED.** Dalio cites points (US 1933–37 ≈ 2.0%, US 2009+ ≈ 3.3%, Japan ≈ 0.8%) without publishing thresholds.
-3. **Lever-mix balance target undefined.** Dalio says "well balanced" without target weights; 0.25/0.75 flags are DERIVED.
-4. **Redistribution lever under-specified.** Dalio: transfers "rarely occur in amounts that contribute meaningfully." `k = 0.1` is a stand-in; sensitivity-test before production.
-5. **FX_Gold < −20% p.a. edge** matches Dalio's Spain point only; no general numeric threshold.
-6. **Regime boundary fuzziness.** US 2008–09 pre-QE was ugly-deflationary; post-QE became beautiful. `TRANSITIONAL` tag catches in-between quarters; not in Dalio's three-category taxonomy.
-7. **Debt-service vs debt-stock ambiguity.** Dalio alternates. BIS DSR (§5.5) is the Fisher-complement; debt/GDP alone mis-times Japan (DSR fell via rate cuts as stock rose).
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-### Sources (all publicly accessible, no paywall, no login)
+1. **"Marginally above" → $G \in [0, +3\text{pp}]$ ceiling is DERIVED.** Dalio anchors the beautiful-condition core via the verbatim "marginally above" quote at § 2 (In-Depth Look) and § 5.1; the ceiling at +3pp is operational so a runaway reflation does not mis-tag as BEAUTIFUL. Closure at § 6's `beautiful_score` DERIVED block; § 7 US 1933–37 case (+6.3pp) explicitly notes it sits above the ceiling.
+2. **π bucket edges 0.5% / 4% are DERIVED.** Dalio cites historical π points (US 1933–37 ≈ 2.0%, US 2009+ ≈ 3.3%, Japan ≈ 0.8%) without bucket edges. Closure at § 5.3's DERIVED block, which states the edges and notes Dalio gives no thresholds.
+3. **Lever-mix balance is qualitative in Dalio.** "Well balanced" is Dalio's term without weights; closure at § 5.4 DERIVED block, which states the 0.25 / 0.75 flag cutoffs as quartile anchors and ties them back to the under-print / over-print rules.
+4. **Redistribution lever stand-in.** Dalio says wealth transfers "rarely occur in amounts that contribute meaningfully" (cited at § 5.2 DERIVED block). Project sets `k = 0.1` accordingly with explicit "stand-in pending sensitivity-test" framing at § 5.2 DERIVED; no industry-standard transfer-elasticity exists.
+5. **FX_Gold < −20% p.a. edge matches Dalio's Spain case only.** Dalio gives no general numeric currency-collapse threshold. Closure at § 5.3 DERIVED block (FX_Gold edge calibrated to Spain).
+6. **Regime boundary fuzziness (US 2008–09).** Methodological note: 2008–09 pre-QE prints as UGLY_DEFLATIONARY, post-QE as BEAUTIFUL; transition lives between quarters. Project's three-category taxonomy is Dalio's (§ 5.3 verbatim quote) — the in-between is documented here, not invented as a fourth regime.
+7. **Debt-service vs debt-stock — handed off to § 9 Integration Points.** Dalio alternates between debt/income and debt-service framing. Project pipes BIS DSR alongside debt/GDP per § 5.5; the cross-test is forward-referenced. § 9 routes DSR to 1.5 / 2.2 / 2.5 as the Fisher-complement signal; Japan's "DSR fell via rate cuts as stock rose" cautionary case is preserved at § 5.5.
+
+### Sources
+
+All sources publicly accessible.
 
 **Dalio primary:**
 - "An In-Depth Look at Deleveragings," Bridgewater 2012 — PDF: https://www.nowandfutures.com/large/an-in-depth-look-at-deleveragings--ray-dalio-bridgewater.pdf

@@ -58,6 +58,10 @@ $$r_{a,d} = \left(\prod_{t \in d} (1+r_{a,t})\right)^{1/|d|} - 1$$
 
 Real: $r^{\text{real}}_{a,d} = (1 + r_{a,d})/(1 + \pi_d) - 1$. Rank within decade: `rank(a,d) ∈ {1,…,5}`, 1 = best.
 
+> **DERIVED (design choice)** — `ret_cmdty` uses FRED `PPIACO` (price index) as the freely-accessible commodity proxy because no canonical S&P GSCI total-return series is published on FRED. Cross-check via S&P DJI GSCI page; deviation > 1% downgrades commodity-rank reliability. Dalio's essay treats commodities as one of the five rotating asset classes; the proxy choice is operational.
+
+> **DERIVED (design choice)** — d11 (2020s) is partial as of writing; live operation treats 2020+ rankings with low confidence. Decade buckets follow Dalio's verbatim convention (§ 2 quote: "paradigm shifts have coincidently tended to happen around decade shifts") — calendar bucketing inherits the boundary noise that Dalio himself flags ("not always perfectly aligned").
+
 > **Dalio** — "Paradigm Shifts," ibid.: "Every decade had its own distinctive characteristics, though within all decades there were long-lasting periods (e.g., 1 to 3 years) that had almost the exact opposite characteristics of what typified the decade."
 
 ### 5.2 Rank-inversion score
@@ -263,20 +267,24 @@ Stage chips: EARLY `#00D08C`, MID `#D4A373`, LATE `#E5484D`. Tertiary labels `#6
 
 **Not covered:** 250-yr empire dynamics → 1.6; reserve-currency flip → 1.7; debt-cycle endgame → 1.3, 1.4.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and ambiguities
+### Limitations / design choices
 
-1. **"About 10 years" is an observation, not a threshold.** No Dalio numeric test for paradigm-end; all PA edges are DERIVED terciles.
-2. **Tailwind triggers are qualitative in Dalio.** The four thresholds (real-rate 0.50%, FedFunds 1.00%, buyback 2.5%, profit-share μ+σ, tax-rate post-1986 low) are calibrated to 2018–19; different calibrations shift late-paradigm start dates.
-3. **"More opposite than similar" is qualitative.** Spearman ρ is a DERIVED proxy; no Dalio numeric cutoff exists.
-4. **Paradigm ≠ calendar decade.** 1970s inflation arguably 1965–82; 2000s paradigm arguably ended 2008. Calendar bucketing follows the essay but introduces boundary noise (per R5).
-5. **Commodity proxy is PPI, not total-return.** FRED publishes no canonical GSCI TR series; `PPIACO` is the best freely-accessible proxy. Cross-check via S&P DJI GSCI page; deviation >1% downgrades commodity-rank reliability.
-6. **Long-run EPS-growth anchor 6.4% nominal.** Midpoint of Multpl nominal-growth slices (since-1980 ≈ 6.1%, since-1960 ≈ 7.0%); unit-consistent with IBES nominal 12-mo. Alt anchors (real EPS ~2%) bias the recency sigmoid.
-7. **2020s observation is partial.** Confirming the 2020s rotation requires more data; live operation treats 2020+ with low confidence.
-8. **Equal 1/3 weighting is stipulated.** No empirical optimisation attempted.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-### Sources (all publicly accessible, no login)
+1. **"About 10 years" is Dalio's observation, not a numeric test.** Cited at § 2 verbatim ("Paradigm Shifts" essay). Operationalised via Spearman-ρ rank-inversion (§ 5.2) plus the PA terciles (§ 6 with DERIVED marker for 0.33 / 0.67 cuts). No Dalio numeric paradigm-end test exists; the project closes via DERIVED at § 5.5 + § 6.
+2. **Four tailwind triggers (real-rate 0.50%, FedFunds 1.00%, buyback 2.5%, profit-share μ+σ, tax post-1986 low).** Dalio names the four tailwinds qualitatively (§ 5.3 verbatim block). Numeric thresholds are calibrated so T2/T3/T4 fire 2018–19 — the period Dalio explicitly flagged late-paradigm. Closure: explicit DERIVED marker at § 5.3 below the trigger table.
+3. **"More opposite than similar" is operationalised via Spearman ρ.** Dalio cite at § 5.2 verbatim; Spearman is the textbook proxy with explicit DERIVED marker at § 5.2.
+4. **Paradigm vs calendar-decade boundary noise.** Dalio's verbatim observation at § 2 is that "paradigm shifts have coincidently tended to happen around decade shifts" but "not always perfectly aligned." Project's calendar bucketing inherits this caveat; explicit DERIVED design-choice marker at § 5.1 acknowledges 2020s partial data and Dalio's own boundary-noise flag.
+5. **PPI commodity proxy.** No canonical GSCI total-return series on FRED; `PPIACO` (price) is the best free proxy. Closure: explicit DERIVED design-choice marker at § 5.1 + cross-check guidance to S&P DJI GSCI page.
+6. **Long-run EPS-growth 6.4% nominal anchor.** Midpoint of Multpl nominal-growth slices (since-1980 ≈ 6.1%, since-1960 ≈ 7.0%); unit-consistent with IBES nominal 12-month consensus. Closure: explicit DERIVED marker at § 5.4 with the calculation and σ_Δ rationale.
+7. **2020s data partial — live operation low-confidence.** Closed via the same DERIVED design-choice marker added at § 5.1 (same block as #4); live runs treat d11 rankings with low confidence until decade completes.
+8. **Equal 1/3 weighting on the three signals.** Dalio publishes no composite rule; closure via explicit DERIVED marker at § 5.5 (minimum-information prior under three co-equal signals).
+
+### Sources
+
+All sources publicly accessible.
 
 - **Primary, Dalio.** Ray Dalio, "Paradigm Shifts," LinkedIn Pulse, 17 July 2019. https://www.linkedin.com/pulse/paradigm-shifts-ray-dalio/
 - **Damodaran histretSP** (SPX/UST10/Gold/Tbill). Landing: https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html ; Xls: https://pages.stern.nyu.edu/~adamodar/pc/datasets/histretSP.xls

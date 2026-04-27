@@ -269,20 +269,24 @@ Stage chips: `#00D08C` SOUND · `#7FFFD4` BUBBLE · `#D4A373` TOP · `#E5484D` D
 
 **Scope pointers (out-of-scope):** 4 levers → **1.4**; short 5–8 yr cycle → **1.2**; 8-measures/250-yr empire → **1.6**; 10-yr asset-leadership rotation → **1.5**.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and ambiguities
+### Limitations / design choices
 
-1. **Cycle duration is a range** — "~80 ±25 years" (HCGB-1 Ch 1); year-count alone never signals late-stage.
-2. **No Dalio stage edges.** Point anchors only (1944=7x; today=37x; JPN=1376%). All § 6 edges DERIVED.
-3. **MP phases: dates, no numeric transitions.** MP1=1944–71, MP2=1971–2008, MP3=2008–20; MP4–MP6 no trigger.
-4. **"50% ±20% reduction"** — historical mean across 35 cases, not forward target.
-5. **"r − g = 2% → +50%/20yr"** — assumes zero primary deficit; lower bound. Use § 5.3.
-6. **COFER threshold "10 pp / 10 yr" is DERIVED**, not Dalio.
-7. **Three denominators:** % GDP (FRED feeds), % revenue (classifier), % money/gold (anchor). `Rev_GDP`≈0.17 today but 14–20% historically; pipe `FYFRGDA188S`.
-8. **Primary vs headline.** `FYFSGDA188S` is headline; primary = `|FYFSGDA188S|−FYOIGDA188S`. § 7's 15% is CBO decade average.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-### Sources (all public)
+1. **Cycle duration is a Dalio-published range.** "~80 ±25 years" (HCGB-1 Ch 1; § 2 verbatim). Year-count alone never signals late-stage; § 6's stage classifier relies on the four indicators (`I1`–`I4`), not duration.
+2. **Stage edges 200/400/550/900 and 5/10/15/40 are DERIVED.** Dalio publishes point anchors only (1944=7x; today=580%; JPN=1376%); inter-stage edges are project-author. Closure: explicit `DERIVED (operational)` markers at § 6 above and below the stage table; 550/900 bracket the US (580%) and Japan (1376%) cases.
+3. **MP phases (HCGB-1 Ch 1) are taxonomic, not numeric.** Dalio defines MP1–MP6 by qualitative regime (Linked/Hard, Fiat-Interest-Rate-Driven, Fiat-with-Debt-Monetization, Coordinated Fiscal/Monetary, Big Deleveraging, Return to Hard Money) at § 5.6 verbatim. Transition triggers are described qualitatively (rate floor hit → MP3; QE exhausted → MP4; etc.) without numeric thresholds. Classifier in § 5.6 uses Boolean checks (rate active? QE active? coordinated fiscal-monetary? restructuring?) — taxonomic by design.
+4. **"50% ±20% reduction" is Dalio's historical mean, not a forward target.** Cited at § 2 verbatim (HCGB-1 Ch 1, Stage 4); appears as backward-looking summary across the deleveraging archetype, not a calibrated parameter for projection.
+5. **"r − g = 2% → +50%/20 yr" is a Dalio rule of thumb under zero primary deficit.** Cited at § 5.4 verbatim (HCGB-1 Ch 3 Ex 2). The DERIVED note at § 5.4 flags non-linear blow-ups at high starting debt; § 5.3 closed-form formula is the production projection.
+6. **COFER "falling > 10 pp / 10 yr" trigger is DERIVED.** Dalio gives no numeric threshold for reserve-currency drift. Closure: explicit `DERIVED (operational)` marker at § 6 reserve-currency overlay.
+7. **Three-denominator design choice (% GDP, % revenue, % money/gold).** Dalio uses revenue throughout HCGB-1 Ch 3; FRED publishes most series in % GDP. Conversion at § 5.2 (with US revenue/GDP anchor 17% per Dalio Ch 3 cross-country table verbatim) + DERIVED note that `Rev_GDP` varies 14–20% historically, so production runs pipe FRED `FYFRGDA188S` rather than hard-coding 0.17.
+8. **Primary vs headline deficit derivation.** FRED `FYFSGDA188S` is HEADLINE (includes interest); Dalio's Ex 1 / Ex 3 inputs use PRIMARY. Closure: explicit `DERIVED (operational)` marker at § 5.5 documenting the OMB/CBO-standard subtraction; sanity-check arithmetic vs Dalio's 15% revenue decade average preserved.
+
+### Sources
+
+All sources publicly accessible.
 
 - **Primary.** Dalio, *How Countries Go Broke: Part 1*, Intro + Ch 1 + Ch 3 Ex 1–3. https://economicprinciples.org/downloads/how-countries-go-broke-part-1.pdf
 - **Primary.** Dalio, "How the Economic Machine Works," Bridgewater 2012. https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf

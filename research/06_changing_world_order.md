@@ -41,6 +41,8 @@ Eight primary rows map one-to-one to Dalio's eight measures. Two supplemental ro
 
 WB API pattern: `https://api.worldbank.org/v2/country/{ISO}/indicator/{IND}?format=json&per_page=60`. All WB endpoints 200 OK; COFER DBnomics confirmed 200 OK.
 
+> **DERIVED (R11 endpoint state, 2026-04)** — endpoint corrections logged this session: BIS EER API → fallback `https://data.bis.org/bulkdownload`; COFER DBnomics series corrected from `Q.W00.RAXGFX_USD_USD` (404) to `A.W00.RAXGFXARUSDRT_PT` (200 OK); WEF GCI 2019 main PDF fixed to executive-summary (`https://www3.weforum.org/docs/WEF_GCR_2019_Executive_Summary.pdf`); SIPRI replaced with `https://www.sipri.org/databases/milex`. All § 4 cells already reflect the corrected forms.
+
 ## § 5 Computation / Transformations
 
 ### 5.1 Per-measure z-score (cross-country, current reading)
@@ -89,6 +91,8 @@ Stage rule: `(CPI_level, s20, reserve_currency_z_slope)`
 > **Dalio** — source: "Changing World Order", Ch 1, p. 17 (LinkedIn, verbatim retrieved 2026-04-23): "You can see this happening today as the US and China are now roughly comparable in both their economic outputs and their shares of world trade." And: "the long-lagging strength has been the reserve currency."
 
 Let `gap_m = z_{USA,m} − z_{CHN,m}`. `cntNeg` = count of measures where `gap_m ≤ 0`. `resDelta10` = COFER USD reserve-share 10-yr Δ in pp (Q4-current minus Q4-10yr-ago; baseline year: 2012).
+
+> **DERIVED (design choice)** — the 2012 COFER anchor is operational; it captures the post-GFC reserve-share trend over a rolling 10-year window that matches the cycle-stage timeframe (CWO Ch 1 stages). The broader 2000-baseline (71.14% → 58.52% = −12.6 pp) is documented as context but NOT used in the classifier.
 
 | HegemonyRisk | `cntNeg` | Reserve-share 10-yr Δ `resDelta10` |
 |---|---|---|
@@ -277,18 +281,22 @@ All 12 palette tokens used: `#0B0B0B` `#141414` `#1C1C1C` `#080808` `#262626` `#
 
 **Out-of-scope:** paradigm rotation → **1.5**; debasement → **1.7**; cycle timing → **1.2** / **1.3**.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and limitations
+### Limitations / design choices
 
-1. **Cycle length ambiguous.** "250 years, give or take 150 years" (Ch 1, p. 6) — the 100–400 yr range is too wide for a standalone timer; CPI-level + trajectory is the operational diagnostic.
-2. **"Roughly equal average" weights.** Ch 1, p. 17 does not publish exact weights. Equal weights here; any tilt is DERIVED.
-3. **Min-max rescale not published.** § 5.2 anchors (max +1.9, min −1.5) reproduce Dalio's USA/CHN values to ≤ 0.04 error. May drift on historical panels (1945 USA, 1600 NLD) reaching higher z̄.
-4. **HegemonyRisk thresholds are DERIVED.** "2–3 measures negative," "−1 to −10 pp reserve-delta," and the −1 pp lower bound are stipulated; Ch 1 LinkedIn + Ch 2 p. 40 anchor the narrative only.
-5. **COFER anchor year = 2012.** `resDelta10` uses Q4-2012 (61.50%) → Q4-2022 (58.52%) = −2.98 pp. The broader 2000-baseline (71.14% → 58.52% = −12.6 pp) is context only — NOT used in the classifier.
-6. **API issues (R11 findings).** BIS EER API returns HTTP 500; fallback: `https://data.bis.org/bulkdownload`. COFER DBnomics series corrected from `Q.W00.RAXGFX_USD_USD` (404) to `A.W00.RAXGFXARUSDRT_PT` (200 OK). WEF GCI 2019 main PDF URL returns wrong document; use exec summary at `https://www3.weforum.org/docs/WEF_GCR_2019_Executive_Summary.pdf`. SIPRI `milex.sipri.org` SSL error; replaced with `https://www.sipri.org/databases/milex`.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-### Sources (all public; R11 in-session status — all 200 OK unless noted)
+1. **Cycle length is a Dalio-published range.** "Roughly 250 years, give or take 150 years" (CWO Ch 1, p. 6; § 2 verbatim + § 5.4 verbatim). The 100–400 yr range is too wide for a standalone timer by Dalio's own framing; the project's operational diagnostic uses Country-Power Index level + 20-yr trajectory, not duration. Stage classifier in § 6 reads CPI-z and `s20`, not year-count.
+2. **"Roughly equal average of eight measures of strength" — Dalio's exact weighting language.** Cited verbatim at § 2 + § 5.2 (CWO Ch 1, p. 17). Equal weights match Dalio's framing; any non-equal weighting is DERIVED (§ 5.2 marker). Web-fetch verification 2026-04-27 of CWO Ch 1 LinkedIn confirms Dalio's caveat "while one could reconfigure them to produce marginally different readings, they are broadly indicative in a by-and-large way" — explicit Dalio-non-formulaic framing.
+3. **Min-max rescale anchors (max ≈ +1.9, min ≈ −1.5) are DERIVED.** Dalio publishes Country-Power-Index point values (USA 0.89, CHN 0.76 in *Country Power Index 2022*) but not the rescaling formula. Closure: explicit DERIVED marker at § 5.2 documenting that the chosen anchors reproduce the published USA/CHN values to ≤ 0.04 absolute error.
+4. **HegemonyRisk thresholds are DERIVED.** "2–3 measures negative," "−1 to −10 pp reserve-delta," and the −1 pp lower bound are stipulated; CWO Ch 1 LinkedIn + Ch 2 p. 40 anchor the qualitative narrative only. Closure: DERIVED markers at § 6 (multiple blocks); each threshold tied back to Dalio's narrative.
+5. **COFER anchor year 2012 is a project design choice.** `resDelta10` uses Q4-2012 → Q4-2022 to capture the post-GFC reserve-share trend (−2.98 pp). Closure: explicit DERIVED design-choice marker at § 5.5 documenting the 10-year rolling window matching the cycle-stage timeframe; broader 2000-baseline noted as context only.
+6. **API endpoint state per R11 (2026-04).** Corrections logged: BIS EER → bulkdownload fallback; COFER DBnomics series corrected; WEF GCI 2019 → executive-summary PDF; SIPRI URL fix. Closure: explicit DERIVED R11-endpoint-state marker at § 4 documenting all four corrections; § 4 table cells already reflect the corrected forms.
+
+### Sources
+
+R11 in-session status — all 200 OK unless noted.
 
 **Dalio primary:**
 - CWO Ch 1 LinkedIn (verbatim retrieved): https://www.linkedin.com/pulse/chapter-1-big-picture-tiny-nutshell-ray-dalio

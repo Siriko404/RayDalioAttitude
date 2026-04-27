@@ -74,7 +74,30 @@
 
 ---
 
-## Files 04-12
+## File 04 — 1.4 Deleveragings (`_audit_04_deleveragings.md`)
+
+**Audit verdict:** REJECT-re-spawn (5 CRITICAL, 6 MAJOR, 1 MINOR).
+**Layer 2 commit:** `2f4b9b1` (2026-04-27).
+**Final structural state:** S2=3000w (≤3000 ✓), S5 §1=78w (≤100 ✓), R4=6.57 (≥5.67 ✓), R7=18 markers (≥8 ✓), P1 palette 12 unique hex ✓, S3/S4/S6/S7 ✓.
+
+| Finding | Severity | Verdict | Evidence | Patch summary |
+|---|---|---|---|---|
+| F1 — §7 US Depression CB miscopy 0.0% vs Dalio 0.4% | CRITICAL | **VALID-patched** | Dalio "An In-Depth Look at Deleveragings" PDF (nowandfutures mirror) read directly via Read pages tool. p. 4 (Ugly Deflationary table) + p. 8 (closer-look table) both show US Depression 1930-1932: M0=0.4%, **CB Asset Purchases=0.4%**. Research file claimed 0.0%. | Line 119 `0.0%` → `0.4%`. Line 123 π recomputed = 0.4+0.4 = 0.8% (boundary, not <0.5%). Step 4 regime tag retained `UGLY_DEFLATIONARY` on Dalio's own taxonomy + deeply negative G; step 5 print share updated 0.05 → 0.10 (still <0.25 under-print flag). |
+| F2 — §4 DebtGDP series IDs invalid | CRITICAL | **VALID-patched** | WebSearch confirmed `QUSPAMUSQNSA` does not appear in FRED catalog (returns no series page). `TCMDO` is "All Sectors; Debt Securities and Loans" — different concept than non-financial. `QUSCAM770A` = "Total Credit to Non-Financial Sector, Adjusted for Breaks, for United States" expressed as % of GDP. | §4 DebtGDP row endpoint switched to `series_id=QUSCAM770A`; data-source updated to "FRED (BIS)"; range kept 100%-500%. Footer notes `QUSCAM770A` is BIS data hosted on FRED. |
+| F3 — §4 WID code `agini992j` invalid | CRITICAL | **VALID-patched** | WID code structure (per WID dictionary): 1-letter type prefix + 5-letter concept + 3-digit population + 1-letter gender. `g` = Gini (metric prefix); `gini` is not a 5-letter concept code. `diinc` = post-tax disposable income (verified via WebSearch). `gdiinc992j` parses correctly: Gini of disposable income, adults, both genders. | §4 Gini_net row variable updated `agini992j` → `gdiinc992j`; description tightened to "Post-tax disposable-income Gini." |
+| F4 — §4 LT_Rate frequency `Daily` but `GS10` is monthly | CRITICAL | **VALID-patched** | WebSearch confirmed FRED GS10 frequency = Monthly (averages of business days). DGS10 = daily 10Y yield since 1962-01-02. | §4 line 31 endpoint `GS10` → `DGS10` (frequency stays Daily). Also §8a line 160 JS ids array, §9 line 293 upstream feeds, §10 line 323 sources block updated. §10 retains explanatory note "GS10 monthly; DGS10 daily" for clarity. |
+| F5 — §5.5/§8b/§10 BIS DSR SDMX API broken | CRITICAL | **VALID-patched** | WebSearch returned BIS Data Portal as canonical landing for DSR series with key `Q.US.P` (private non-financial sector). SDMX API `stats.bis.org/api/v1/data/WS_DSR/Q.US?format=csv` returns HTTP 400 (key incomplete + API unstable per audit and parallel pattern from file 03). | §5.5 endpoint replaced with portal URL `https://data.bis.org/topics/DSR/BIS,WS_DSR,1.0/Q.US.P` (CSV/XLSX export). §8b Power Query rewritten for portal CSV (filter `BORROWERS_CTY="US" AND TC_BORROWERS="P"`). §9 + §10 source lines updated. |
+| F6 — §4 LoanWriteoff `NCOTOT` discontinued | MAJOR | **VALID-patched** | FRED page literally shows "DISCONTINUED" in title; release notes point users to `QBPLNTLNNTCGOFFR` (FDIC QBP) as live alternative. | §4 endpoint `NCOTOT` → `QBPLNTLNNTCGOFFR` (data source FDIC QBP). §8a JS + §10 sources updated. §10 retains note that NCOTOT is discontinued for context. |
+| F7 — §5 DERIVED markers >3 lines from π_t + lever formulas | MAJOR | **VALID-patched** | §5.1 line 50 π_t formula had only Dalio quote (different concept) within 3 lines. §5.2 lever formulas had DERIVED marker at line 63 (>3 from line 59). | §5.1: added formal `DERIVED (operational)` marker immediately above π_t formula block. §5.2: moved DERIVED marker above lever formulas (now 1-2 lines distant, within R7b). |
+| F8 — §7 worked-example threshold reuses | MAJOR | **VALID-patched** | Audit cites lines 121, 129, 138 (now 123, 129, 140 post-shift) reusing 0.5%, 4%, +3pp without nearby markers. | Added inline `DERIVED (operational)` marker above US Reflation block (covers steps 1+3 reuse of +3pp + π-bucket [0.5%, 4%]) and above Japan block (covers π=0.8% boundary). US Depression's step 3 inline note tightened to reference §5.3 + §2 explicitly. |
+| F9 — R4 ratio 5.36 < 5.67 | MAJOR | **DISMISS-noncanonical** | Audit Python recomputation diverges from canonical method in `_acceptance_criteria.md` lines 67-70 (`awk '/^## § 2 /,/^## § 4 /' \| wc -w` etc.). Canonical method on current file gives R4 = 6.5689 — PASSES. Audit's Python likely excluded code blocks. Same false-positive pattern as file 02 audit (5.102 audit vs 6.350 canonical). | No patch; file already passes canonical R4. |
+| F10 — Header schema spacing single vs double | MAJOR | **DISMISS-cluster** | `audit_prompt.md` lines 194-201 use 2 spaces after `## § N`; `_acceptance_criteria.md` S4 regex (canonical acceptance check) uses 1 space. Research files comply with canonical regex. Cluster false-positive across all 12 audits per `memory/project_layer2_state.md`. | No patch; cluster false-positive. |
+| F11 — Bare FRED URLs return 400 (URL pre-flight) | MAJOR | **VALID-patched** | Same pattern as file 03 F1 — `series_id=GDP` URL without api_key returns 400. | §4 footer rewritten — FRED cells show `series_id` only; full executable template per R3 documented inline (`?series_id=X&api_key={FRED_API_KEY}&file_type=json`). Parallels file 01/03 patch pattern. |
+| F12 — §8b heading "Power Query M" vs schema "Power Query M or URL" | MINOR | **VALID-patched** | `_prompt_template.md` line 186 confirms canonical title `### 8b. Excel — sheet layout, Power Query M or URL, key formulas`. | Heading updated to schema-exact string. |
+
+---
+
+## Files 05-12
 
 Not yet processed. See `memory/project_layer2_state.md` for per-file expected findings + verification plan.
 

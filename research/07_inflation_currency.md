@@ -110,6 +110,8 @@ $$\Delta Gold^{12m}_t = \tfrac{gold\_pm_t}{gold\_pm_{t-12}} - 1$$
 | `DEFLATIONARY` | `π^hdln < 1%` AND `r^mkt > 0` AND `ΔGold^12m < 0` | same |
 | `BEAUTIFUL` | `1% ≤ π^hdln ≤ 3%` AND `μ > 0` AND `r^mkt > 0` | same |
 | `STAGFLATION` | `π^hdln > 3%` AND `ngdp_yoy < 2 × π^hdln` | same |
+
+> **DERIVED (operational)** — `ngdp_yoy < 2 × π^hdln` is the operational proxy for "weak real growth alongside elevated inflation"; the `× 2` multiplier means real growth is slower than inflation itself. Real-GDP cut is preferable but introduces a quarterly/monthly calendar-frequency mismatch with the headline-CPI input; project accepts the proxy and documents it here. Dalio describes stagflation qualitatively (BDC Part 1, sections "Deflationary Debt Cycles" + "Inflationary Depressions") without a real-growth threshold.
 | `INFLATIONARY` | `π^hdln > 4%` AND `r^mkt < 0` AND `DebaseFlag = 1` | `π^hdln > 3%` AND `r^mkt < 0` AND `DebaseFlag = 1` |
 
 Non-reserve-currency INFLATIONARY threshold is set at 3% (below the 4% reserve-currency threshold), not above it. This is the LOWER bar: a non-reserve country enters the INFLATIONARY regime more easily, consistent with its greater vulnerability to currency crisis. The label "lower bar" refers to the lower numeric threshold, not to fewer conditions.
@@ -268,56 +270,25 @@ Chart data uses the same § 7 illustrative numbers (π^hdln 8.5%, r_mkt −0.5%,
 - **Upstream:** 1.3 Long-Term Debt Cycle supplies debt/GDP stress flags (used to widen the INFLATIONARY trigger when debt-service/GDP is also elevated); 1.6 Changing World Order supplies `rsv_status` binary (reserve-currency score → threshold tier selection in § 5.6); 2.3 FX/Rates alpha book supplies realised bilateral FX moves for the FX-short overlay.
 - **Downstream:** 2.2 All-Weather consumes `RegimeTag` + tilt deltas to shift inflation-quadrant weighting (bond → gold → commodities gradient); 2.5 Stress-Testing uses STAGFLATION and INFLATIONARY as two of its canonical forward scenarios; 1.4 Deleveragings uses `DebaseFlag = 1` to tag which lever (printing/monetization) is currently dominant.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-**Ambiguities (R5):**
+### Limitations / design choices
 
-1. BDC PDF not retrievable via WebFetch in-session (canonical URL 404; economicprinciples.org email-gated; librairi.com unauthorized mirror exceeds 10MB; Wayback Machine blocked). Per R12 fallback: section-heading attribution only; no printed-footer page numbers.
-2. Real-rate bucket edges are DERIVED — Dalio says "significantly less than inflation rates" without numeric cuts.
-3. `DebaseFlag` −7%/+15% pair is a calibrated working filter, not a Dalio number.
-4. Non-reserve INFLATIONARY threshold 3% is DERIVED from Dalio's "more vulnerable" directional framing; no rate cutoff in BDC vulnerability list.
-5. `ngdp_yoy < 2 × π^hdln` is a monthly-CPI proxy for weak real growth; real-GDP cut preferred but introduces calendar-frequency mismatch.
-6. `μ` uses M2; Dalio's archetype references narrow-money M0 — proxy is directionally correct but not numerically equivalent.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-**Limitations:** US-centric (extension needs national-CPI swap, bilateral REER, non-USD reserve test); `CashTrashFlag` is binary — hyperinflation (monthly π > 50%) owned by 2.5; tilt magnitudes are not Dalio-published numbers.
+1. **BDC PDF retrieval failed in-session — R12 section-heading attribution applies.** Canonical URL returned 404; `economicprinciples.org` is email-gated; the `librairi.com` mirror is an unauthorized copy exceeding 10 MB; Wayback Machine was blocked. Project applies the R12 fallback throughout — Dalio quotes from "Principles for Navigating Big Debt Crises" cite by section heading, never by printed-footer page number. § 2 verbatim quotes use this convention.
+2. **Real-rate bucket edges (DEEPLY_NEG, MILDLY_NEG, MILDLY_POS, POSITIVE) are DERIVED.** Dalio names negative real rates as a vulnerability marker (BDC Part 1, "Which Countries/Currencies Are Most Vulnerable") but gives no numeric edges. Closure: explicit DERIVED marker at § 5.3 documenting the post-2020 TIPS trough, late-2022 reading, and long-run median anchors.
+3. **`DebaseFlag` −7% / +15% pair is a calibrated working filter, not a Dalio number.** Dalio anchors gold + FX decline as the debasement pair (Paradigm Shifts essay) but does not publish numeric thresholds. Closure: DERIVED marker at § 5.5; thresholds calibrated so 1971/2002/2008/2020 episodes trigger and 1995–1999/2014–2015 do not.
+4. **Non-reserve INFLATIONARY threshold 3% is DERIVED.** Dalio's "more vulnerable" framing for non-reserve currencies (BDC vulnerability section) gives no numeric rate cutoff. Closure: explicit DERIVED marker at § 5.6 documenting the lower 3% threshold for non-reserve countries vs the 4% reserve-currency threshold; precedence rule INFLATIONARY > STAGFLATION > BEAUTIFUL > DEFLATIONARY also captured there.
+5. **`ngdp_yoy < 2 × π^hdln` is an operational proxy for weak real growth.** Closure: explicit DERIVED marker at § 5.6 documenting the choice (real-GDP cut preferable but introduces a calendar-frequency mismatch with monthly headline CPI; project accepts the proxy and documents the mismatch).
+6. **`μ` uses M2, not narrow-money M0.** Dalio's archetype references M0 creation (BDC, "The Template"); M2 is the broader, publicly observable proxy. Closure: explicit DERIVED marker at § 5.4 flagging the proxy and the +4 % / yr `μ` threshold rationale.
+7. **US-centric scope (design choice).** Cross-country extension requires national-CPI swap, bilateral REER, and a non-USD reserve test; not in scope here. § 9 Integration Points routes cross-country detail to 1.6 (Big Cycle) and 2.5 (Stress-Testing); body cites at § 4 (US-only data series), § 5.6 (reserve-vs-non-reserve threshold split with DERIVED marker carrying the framing).
+8. **`CashTrashFlag` is binary; hyperinflation tail handed off to 2.5.** Body usage at § 6 (decision rule) and § 7 step 6. Project's binary flag is sufficient at 5–8-yr resolution; hyperinflation (monthly π > 50%) is documented as out-of-scope here and routed via § 9 Integration Points to 2.5 Stress-Testing.
+9. **Tilt magnitudes are not Dalio-published numbers.** Direction (gold up, bonds and cash down during debasement) is Dalio's explicit guidance (Paradigm Shifts essay). Closure: explicit DERIVED marker at § 6 tilt-table block; ±10 pts max deviation from All-Weather gold baseline preserves the AW risk-parity structure (handed off to 2.2 / 2.4).
 
-**Findings Dispatch (F1–F8):**
+### Sources
 
-| # | Resolution |
-|---|---|
-| F1 CRITICAL — non-reserve trigger inverted | FIXED. Threshold lowered to 3% (vs 4% reserve); separate column in § 5.6 table; DERIVED marker immediately above table; explicit prose "lower threshold = easier trigger = more vulnerable." |
-| F2 MAJOR — DBnomics 404 | FIXED. Swapped to `A.W00.RAXGFXARUSDRT_PT` (200 OK confirmed). Updated § 4 + § 8a. Frequency corrected to A (annual). |
-| F3 MAJOR — librairi.com piracy mirror | FIXED. R12 fallback applied: section-heading attribution only; no page numbers; failure declared in § 10 item 1; verbatim quotes from LinkedIn only. |
-| F4 MAJOR — DERIVED marker 4 lines after tilt table | FIXED. Row-sums self-check moved to § 7 R14 block. DERIVED marker now immediately follows last tilt-table row. |
-| F5 MINOR — quote-splices missing `[…]` | FIXED. `[...]` inserted in gold quote. Cash quote now quotes full sentence from its opening words as retrieved. |
-| F6 MINOR — tie rule invoked but undefined | FIXED. Tie rule removed. § 5.3 uses strict inequalities + at-boundary convention; § 7 Step 1 explains result directly. |
-| F7 MINOR — BLS URL = not-SA series | FIXED. Sources cite CUSR0000SA0 (confirmed SA). § 4 uses CPIAUCSL (SA). Both confirmed this session. |
-| F8 MINOR — no precedence rule | FIXED. Precedence INFLATIONARY > STAGFLATION > BEAUTIFUL > DEFLATIONARY added in § 5.6 and applied in § 7 + § 8a. |
-
-**URL Audited Table (R11 verdicts — this session):**
-
-| URL | Status | Notes |
-|---|---|---|
-| `https://www.economicprinciples.org/Big-Debt-Crises-Ray-Dalio.pdf` | 404 | Not cited — PDF not retrievable |
-| `https://www.linkedin.com/pulse/paradigm-shifts-ray-dalio` | 200 PASS | All Paradigm Shifts quotes verified verbatim |
-| `https://api.db.nomics.world/v22/series/IMF/COFER/A.W00.RAXGFXARUSDRT_PT` | 200 PASS | Series confirmed: "Shares of Allocated Reserves, Shares of U.S. dollars, Percent," annual |
-| `https://data.bls.gov/timeseries/CUSR0000SA0` | 200 PASS | Confirmed seasonally adjusted CPI-U All Items |
-| FRED series pages (CPIAUCSL, CPILFESL, DFII10, DGS10, etc.) | 403 (bot-protection) | FRED series identities confirmed via WebSearch; per prior audit brief = MINOR for FRED specifically |
-| `https://www.librairi.com/images/principles-for-navigating-big-debt-crises-by-ray-dalio.pdf` | Not fetched | Unauthorized mirror; not cited |
-
-**R12 Provenance:** All 5 verbatim quotes sourced from LinkedIn WebFetch this session. Elision `[...]` inserted where sentence-level text is dropped (quote 1: "...such as gold"). Quotes 2-5 are full sentences as retrieved; no dropped openings.
-
-**R13 Series-ID Verdicts:** CPIAUCSL — SA confirmed via WebSearch (PASS). CPILFESL — SA confirmed (PASS). DFII10/DGS10 — standard FRED H.15 (PASS). GOLDPMGBD228NLBM — LBMA PM fix (PASS). A.W00.RAXGFXARUSDRT_PT — "Shares of Allocated Reserves, Shares of U.S. dollars, Percent," confirmed via DBnomics fetch (PASS).
-
-**R14 Arithmetic Self-Check:**
-
-- `π^be = 3.0 − (−0.5) = 3.5%` ✓
-- `μ = 7.0 − 9.0 = −2.0%` ✓
-- STAGFLATION ngdp check: `9.0 < 2 × 8.5 = 17.0` ✓
-- Tilt row sums: DEFLATIONARY: `−2.5 − 2.5 + 0 + 5 = 0` ✓; BEAUTIFUL: `0` ✓; STAGFLATION: `5 + 5 − 5 − 5 = 0` ✓; INFLATIONARY: `10 + 5 − 10 − 5 = 0` ✓
-- Chart data = § 7 inputs: π^hdln 8.5%, r_mkt −0.5%, ΔGold +1.5%, ΔUSD +8.0% ✓
-
-**Sources:**
+All sources publicly accessible.
 
 - Ray Dalio, "Principles for Navigating Big Debt Crises," Part 1, 2018. Canonical URL (economicprinciples.org) email-gated; PDF not retrieved in-session. All citations use section-heading attribution per R12 fallback.
 - Ray Dalio, "Paradigm Shifts," LinkedIn, 17 Jul 2019. https://www.linkedin.com/pulse/paradigm-shifts-ray-dalio. All verbatim quotes retrieved from this URL this session.

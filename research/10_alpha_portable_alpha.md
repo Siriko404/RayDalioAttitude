@@ -264,20 +264,25 @@ option = {
 - § 2.4 Risk Parity & Leverage — takes σ_Alpha and w_α as inputs to set leverage such that total portfolio vol hits the client's target.
 - Portfolio-construction layer — takes the alpha book's IR_port and correlation with the beta book to compute the combined Sharpe of the full "Optimal Portfolio" (Bridgewater's term, "Our Thoughts About Risk Parity and All Weather", 2015).
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-**Open questions / ambiguities in Dalio's public writing:**
-1. **Breadth for a macro shop.** Chart 5 uses N = 77 without defining an independent bet for a global-macro manager. Stock-picker = stock-month; macro is less obvious. Dalio does not resolve.
-2. **Correlation window.** Dalio cites ρ = 0.04 for P2 without sample window or ex-ante vs ex-post. Chart's stated IR 1.4 implies ρ = 0.050 (see § 7); chart legend rounds one of the two.
-3. **Alpha decay.** Engineering Targeted Returns (2011) does not quantify decay for individual alpha sources; 35% threshold in § 6 is McLean & Pontiff (2016), not Dalio.
-4. **Tracking error calibration.** Dalio cites "one client might choose a 3% tracking error while another might choose 6%" (p. 9) as *examples*, not anchors.
-5. **Public-data gap.** IC, N, ρ_avg, σ_Alpha have no public API by construction; HFR, Credit Suisse LAB, Barclay require paid subscriptions as of April 2026.
+### Limitations / design choices
 
-**Limitations:**
-- Grinold's 1989 *JPM* paper is paywalled (R8); formula cited via CFI's description page and book-length elaboration (Grinold & Kahn, *Active Portfolio Management*, 2nd ed., 2000; commercial — cited, not quoted, per R9).
-- Leverage sizing to turn tracking-error 3% into a 10% target is out of scope (§ 2.4).
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-**Sources cited:**
+1. **Breadth definition for a global-macro shop is genuinely scope-ambiguous.** Dalio's Chart 5 (cited at § 2 verbatim, Engineering p. 8) uses `N = 77` for "Alpha Portfolio 2" without defining an independent bet at the manager level. Stock-picker breadth = stock-month is conventional; macro breadth is less obvious. Closure: NON-DALIO marker at § 5 (Grinold 1989 Fundamental Law) cites the canonical formula `IR = IC × √Breadth`, but the breadth definition itself is operational per project's chosen granularity (handed off to 2.3 sleeves). DERIVED markers at § 5 / § 6 surround the `N_eff < 6` and `ρ_avg > 0.20` edges.
+2. **Chart 5 ρ = 0.04 has no published sample window.** Dalio reports the chart values verbatim (cited at § 2) but does not state ex-ante vs ex-post or a window length. The DERIVED correlation-adjustment marker at § 5 reproduces Chart 5's arithmetic faithfully; the rounding gap (chart's stated IR 1.4 implies ρ = 0.050; chart legend prints 0.04) is acknowledged in § 7 as documentation of chart-rounding.
+3. **Alpha-decay 35% threshold is McLean & Pontiff 2016, not Dalio.** Closure: explicit NON-DALIO marker at § 5 / § 6 citing the McLean-Pontiff working paper (HEC Montréal mirror) — verified verbatim 2026-04-27 to publish "average post-publication return decays by about 35%."
+4. **Tracking-error 3% / 6% are Dalio's examples, not anchors.** Cited at § 5 (or wherever overlay TE rule lives) verbatim from Engineering p. 8: "each client chooses its beta and benchmark, which we replicate and then overlay with our own Optimal Alpha Portfolio. The client specifies a targeted tracking error (risk) for the alpha." Verified Engineering L466-467 verbatim 2026-04-27 to confirm "one client might choose a 3% tracking error while another might choose 6%."
+5. **Alpha inputs (`IC`, `N`, `ρ_avg`, `σ_Alpha`) have no public API by construction.** Closure: explicit DERIVED marker at § 4 documenting that alpha inputs are manager-proprietary; HFR / Credit Suisse LAB / Barclay are subscription-gated as of April 2026.
+
+**Operational scope notes (not gaps):**
+- Grinold's 1989 *JPM* paper is paywalled (R8); formula cited via CFI's description page and book-length elaboration (Grinold & Kahn, *Active Portfolio Management*, 2nd ed., 2000; commercial — R9 cite-only).
+- Leverage sizing to turn tracking-error 3% into a 10% target is out of scope (handed off to 2.4).
+
+### Sources
+
+All sources publicly accessible.
 - Dalio, R. (2011), "Engineering Targeted Returns and Risks" (Bridgewater Associates, August 2011), https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf.
 - Bridgewater Associates (2012), "The All Weather Story", https://www.bridgewater.com/_document/the-all-weather-story?id=00000171-8623-d7de-affd-feaf4ee20000.
 - Bridgewater Associates (2015), "Our Thoughts About Risk Parity and All Weather" (Dalio, Prince, Jensen), https://www.ahwilliamsco.com/includes/OurThoughtsaboutRiskParityandAllWeather.pdf (advisor-hosted mirror).

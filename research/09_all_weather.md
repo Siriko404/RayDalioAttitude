@@ -80,7 +80,9 @@ Environmental bias matrix $B$ used below has entries in $\{+1, 0, -1\}$: +1 = as
 
 **Target capital weights** (the single most important output of this subsection):
 
-> **Dalio** — source: Tony Robbins, "MONEY: Master the Game" (2014), reprinted at tonyrobbins.com, https://www.tonyrobbins.com/blog/the-end-of-the-bull-market: "30% in stocks — for instance, the S&P 500 or other indexes … 15% in immediate term (seven- to ten-year Treasuries) … 40% in long-term bonds (20- to 25-year Treasuries) … 7.5% in gold … 7.5% in commodities" — Robbins recipe is US-only by design (S&P 500 + US Treasuries; geographic concentration is intentional at this layer; cross-country diversification deferred to 1.6 / 2.5 per the brief).
+> **Dalio** — source: Tony Robbins, "MONEY: Master the Game" (2014), reprinted at tonyrobbins.com, https://www.tonyrobbins.com/blog/the-end-of-the-bull-market: "30% in stocks — for instance, the S&P 500 or other indexes … 15% in immediate term (seven- to ten-year Treasuries) … 40% in long-term bonds (20- to 25-year Treasuries) … 7.5% in gold … 7.5% in commodities"
+
+> **DERIVED (design choice)** — Robbins recipe is US-only by construction (S&P 500 + US Treasuries; no cross-country sleeves named); geographic concentration is intentional at this layer. Cross-country diversification is out-of-scope per the brief and deferred to 1.6 (Big Cycle) / 2.5 (Stress-Testing) per § 9 Integration Points.
 
 | Sleeve | Weight | Instrument class | Primary environmental bias |
 |---|---|---|---|

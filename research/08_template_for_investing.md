@@ -12,7 +12,9 @@ Primary: **Dalio, "Engineering Targeted Returns and Risks," Bridgewater, Aug 201
 
 > **Dalio** — p. 3: "Betas are limited in number […] they are typically relatively correlated with each other, and their excess returns are relatively low compared to their excess risks, with Sharpe ratios typically ranging from 0.2 to 0.3."
 
-> **Dalio** — p. 3: "Alphas […] Sources of alpha are numerous and relatively uncorrelated with each other. However, their returns are unreliable, with risk-adjusted returns slightly negative on average […]." This is the alpha-IR precondition: Holy-Grail presupposes positive expected IR per stream.
+> **Dalio** — p. 3: "Alphas […] Sources of alpha are numerous and relatively uncorrelated with each other. However, their returns are unreliable, with risk-adjusted returns slightly negative on average […]."
+
+> **DERIVED (operational)** — Alpha-IR precondition: Holy-Grail presupposes positive expected IR per stream. The Dalio quote above ("slightly negative on average") establishes that 15 bad-IR streams do not produce a Holy-Grail; IR-filtering of streams is handed off to 2.3 (Alpha Generation) per § 9.
 
 > **Dalio** — p. 8: "create a well-diversified portfolio of uncorrelated return streams calibrated to balance each other and to deliver a targeted return."
 

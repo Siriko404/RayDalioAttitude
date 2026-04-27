@@ -40,6 +40,8 @@ Given a vol-parity / equal-risk-contribution portfolio with low unlevered σ: ho
 | `w_target_i` | Inverse-vol weights, normalized | % | derived (Qian 2005 / AFP 2012) | — | monthly | 5%–60% |
 | `w_current_i` | Current sleeve weights | % | custodian / OMS | IBKR `/portfolio/{id}/positions` | intraday | 0%–80% |
 
+> **DERIVED (data-gap note)** — MOVE index (ICE/BAML bond-vol gauge) is subscription-gated; FRED `BAMLCC0A0CMTRIV` is the ICE Corporate Index total return, not MOVE. Project uses `VIXCLS` (equity-vol) only as the public vol signal; bond-vol regime gauge is acknowledged as a known data gap until a public mirror is available.
+
 ## § 5 Computation / Transformations
 
 **Step A — vol estimate per sleeve.** $\sigma_i = \sqrt{252}\cdot\mathrm{stdev}(r_{i,t})$ over $t\in[T-63,T-1]$.
@@ -285,19 +287,23 @@ const option = {
 - **2.5 Stress-Testing** — owns the forced-deleverage scenario (2008 / 2022 co-crash).
 - **Execution / OMS** — consumes weights + L + margin buffer; trades on § 6 band breach.
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-**Open questions & limitations.**
+### Limitations / design choices
 
-1. **No precise Dalio L.** Engineering Targeted Returns (p. 11) gives only "around 2×"; the 1.0×–3.0× GREEN/AMBER/RED bands in § 6 are DERIVED, marked at point of use.
-2. **Vol lookback.** AFP 2012 uses 36-month monthly; 63-day daily is author-stipulated for live monitoring. Substitute 36-month if turnover is an issue.
-3. **Funding spread.** 25 / 50 / 100 bp brackets are illustrative; actual broker / futures-implied financing varies by cycle stage. Dalio does not quantify.
-4. **Covariance stability.** `L = σ_target / σ_p` uses historical σ_p. A correlation-breakdown shock (1998, 2008, 2022) raises realized σ_p overnight → forced deleveraging via § 6 RED. Owned by 2.5.
-5. **Rising-rate risk.** Dalio/Prince/Jensen (2015, p. 8): All-Weather 8.7% vs 60/40 7.6% across 1946–1981 yield upcycle; weigh against the 2022 co-crash.
-6. **Inverse-vol vs full ERC.** Inverse-vol = exact ERC only with equal correlations; true ERC needs Newton iteration on `w_i·(Σw)_i = σ_p²/N`. Gap is <2 pp for 4–6 sleeves; matters at 10+. Qian 2005 and AFP 2012 both use inverse-vol.
-7. **MOVE index unavailable on FRED.** ICE/BAML does not publish MOVE free; `BAMLCC0A0CMTRIV` is Corporate Index total return, not MOVE. § 4 uses `VIXCLS` only; a public bond-vol signal is absent.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15.
 
-**Sources (all public, URLs pre-flight-checked).**
+1. **Dalio anchors leverage at "around 2×"; project's 1.0×–3.0× GREEN/AMBER/RED bands are DERIVED.** Dalio cite at § 2 verbatim (Engineering Targeted Returns, p. 11). NON-DALIO support at § 5 (AFP 2012 + Qian 2005). Project bands closed by explicit DERIVED markers at § 5 (`L = target/unlevered` anchor) and § 6 (3.0× hard cap with rationale).
+2. **Vol lookback 63-day daily is project-stipulated.** Closure: NON-DALIO marker at § 5 documents AFP 2012's 36-month monthly convention; DERIVED marker at § 5 documents the project's 63-day choice as a responsiveness/turnover trade-off and notes the substitution path.
+3. **Funding-spread brackets (25 / 50 / 100 bp) are illustrative.** Dalio does not quantify cycle-stage funding. Closure: explicit DERIVED marker at § 5 / § 6 documenting the 100 bp threshold; brackets cited as illustrative working values.
+4. **Covariance stability handed off to 2.5.** Project's `L = σ_target / σ_p` uses historical σ_p; a correlation-breakdown shock (1998, 2008, 2022) raises realised σ_p overnight, triggering forced deleveraging via § 6 RED. § 9 routes the stress-tail to 2.5 (Stress-Testing).
+5. **Rising-rate risk — Dalio's own backtest evidence.** Cited at § 2 verbatim ("Our Thoughts about Risk Parity and All Weather", Sep 2015, p. 8): All-Weather 8.7% vs 60/40 7.6% across the 1946–1981 yield upcycle. Project documents this alongside the 2022 co-crash counter-example; both are part of the empirical record.
+6. **Inverse-vol vs full ERC trade-off.** Closure: explicit NON-DALIO marker at § 5 noting Qian 2005 and AFP 2012 both use inverse-vol; gap vs full ERC is <2 pp per weight for 4–6 sleeves and grows for 10+. Project's 4-sleeve construction stays within the inverse-vol regime; full Newton-iteration ERC is out-of-scope per the brief.
+7. **MOVE index unavailable on free FRED.** ICE/BAML does not publish MOVE without subscription; `BAMLCC0A0CMTRIV` is the Corporate Index total return, not MOVE. § 4 uses `VIXCLS` only; bond-vol gauge documented as a known data gap pending a public bond-vol signal.
+
+### Sources
+
+All sources publicly accessible; URLs pre-flight-checked.
 
 - Dalio, R. (Aug 2011), "Engineering Targeted Returns and Risks", Bridgewater: https://bridgewater.brightspotcdn.com/fa/e3/d09e72bd401a8414c5c0bdaf88bb/bridgewater-associates-engineering-targeted-returns-and-risks-aug-2011.pdf
 - Dalio R., Prince B., Jensen G. (Sep 16 2015), "Our Thoughts about Risk Parity and All Weather", Bridgewater Daily Observations: https://www.cmgwealth.com/wp-content/uploads/2015/10/Our-Thoughts-about-Risk-Parity-and-All-Weather-Bridgewater-Ray-Dalio-2015.pdf

@@ -295,21 +295,25 @@ Regime chips: `#00D08C` (`ON_TREND` / `LOW`), `#D4A373` (`MIXED` / `ELEVATED`), 
 
 Out of scope: cycle mechanism (→ 1.2, 1.3); policy response to high `R^{D/M}` (→ 1.4); CPI / breakeven tagging (→ 1.7).
 
-## § 10 Open Questions, Limitations, Sources
+## § 10 Limitations & Sources
 
-### Open questions and ambiguities
+### Limitations / design choices
 
-1. **Cycle ranges, not thresholds.** "5–8 years" (short) and "50–75 years" (long) are descriptive ranges from p. 5; Dalio publishes no numeric test for *which* cycle you are in (→ 1.2 / 1.3).
-2. **"A shade less than 2%"** (p. 5) is a historical fit, not a forward-looking threshold. The 1–3% p.a. flag band around Dalio's ~2% anchor is DERIVED (brackets typical decade realizations 0.2%–4.1% per Chart 1).
-3. **"Roughly 15 times"** debt-to-money (p. 7) is a 2012 snapshot using currency + reserves as money. Dalio does not specify the aggregate or a danger threshold; the `LOW / ELEVATED / HIGH` bucket edges are author-stipulated.
-4. **`credit_mix_regime` tertile cuts (0.66 / 0.33)** are DERIVED. Dalio supplies only the qualitative claim (p. 2) that Total $ changes drive the cycle more than Total Q; the cuts are a minimum-information split of [0,1].
-5. **Output-gap σ-band is not Dalio.** The ±1σ classification is DERIVED (operational); Hamilton 2018 supports regression-based detrending but does not itself prescribe a classification band (see §6).
-6. **Total Q at the economy level is an approximation.** Real GDP as aggregate Q treats composition changes as price changes in P; the identity applies more cleanly to single markets.
-7. **Dalio's "money" ≠ M2.** He uses currency + reserves; M2 is the practical public proxy. Worked example (step 6) reports both.
+Each entry below references the body location where the gap is closed via Dalio cite, NON-DALIO cite, or explicit `> **DERIVED (operational)**` marker per R5/R10/R15. § 10 documents the choices; the body carries the cites.
 
-### Sources (all publicly accessible, no login)
+1. **Cycle ranges, not point thresholds.** Dalio publishes "5–8 years" short and "50–75 years" long as ranges (HEMW p. 5; § 2 verbatim quote). Cycle-timing tests are forward-referenced to 1.2 / 1.3 per § 9 Integration Points.
+2. **Productivity flag band 1–3% p.a. is DERIVED** (§ 6 marker, line above the output table). Dalio anchors "~2%" (HEMW p. 5; § 2 verbatim); the band brackets historical decade realisations 0.2%–4.1% per Chart 1. No industry-standard band for this concept; Dalio gives a centre, not edges.
+3. **Debt/money bucket edges 10 / 15 are DERIVED** (§ 6 marker, second DERIVED block). Dalio's 2012 "roughly 15 times" (HEMW p. 7; § 2 verbatim) anchors `ELEVATED`; `LOW` / `HIGH` edges are author-stipulated. § 7 step 6 reports both M2-based and Dalio-narrow-money ratios for transparency.
+4. **`credit_mix_regime` tertile cuts (0.66 / 0.33) are DERIVED** (§ 6 marker, second DERIVED block). Dalio's qualitative claim that Total $ changes drive cycles more than Total Q (HEMW p. 2; § 5.2 verbatim) anchors the concept; tertile is a minimum-information split of [0,1].
+5. **Output-gap ±1σ band is DERIVED** (§ 6 marker, third DERIVED block). NON-DALIO support: Hamilton 2018 (NBER WP 23429) supports regression-based detrending used in § 5.3, but does NOT prescribe a classification band; that is project-author.
+6. **Aggregate-Q approximation.** Applying Dalio's identity at the economy level treats composition changes as price changes in P. Identity applies more cleanly to single markets. Project anchors `Q = GDP_real` per § 5.1 with this caveat noted at point of use.
+7. **Dalio's "money" ≠ M2 (proxy choice).** Dalio uses currency + reserves (HEMW p. 7; § 2 verbatim); M2 is the practical public proxy. § 5.5 + § 7 step 6 report both ratios; narrow-money is the Dalio-canonical aggregate.
 
-- **Primary, page-numbered.** Dalio, "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater, 2008/2012. Public mirror used for §2 page citations (pp. 1, 2, 4, 5, 7): https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf
+### Sources
+
+All sources publicly accessible, no login required.
+
+- **Primary, page-numbered.** Dalio, "How the Economic Machine Works — A Template for Understanding What is Happening Now," Bridgewater, 2008/2012. Public mirror used for § 2 page citations (pp. 1, 2, 4, 5, 7): https://orcamgroup.com/wp-content/uploads/2013/08/How-the-Economic-Machine-Works-A-Template-for-Understanding-What-is-Happening-Now-Ray-Dalio-Bridgewater.pdf
 - **Canonical landing page** (gated signup): https://www.economicprinciples.org/
 - **Compiled 2017 PDF (productivity appendix, pp. 24–33):** https://www.economicprinciples.org/downloads/ray_dalio__how_the_economic_machine_works__leveragings_and_deleveragings.pdf
 - **FRED API.** https://fred.stlouisfed.org/docs/api/fred/ — series `GDP`, `GDPC1`, `GDPDEF`, `A939RX0Q048SBEA`, `CNP16OV`, `M2SL`, `TCMDO`, `HOANBS`, `OPHNFB`.

@@ -29,8 +29,12 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 
 - [ ] **S4. Each section has the EXACT title prescribed by the prompt template's REQUIRED OUTPUT SCHEMA.**
   ```bash
-  grep -E "^## § (1 Executive Summary|2 Dalio|3 Decision Problem|4 Input Variables|5 Computation|6 Output Variables|7 Worked Numeric|8 Implementation|9 Integration|10 Open Questions)" research/<SEQ>_<slug>.md | wc -l
+  grep -E "^## § (1 Executive Summary|2 Dalio|3 Decision Problem|4 Input Variables|5 Computation|6 Output Variables|7 Worked Numeric|8 Implementation|9 Integration|10 (Limitations|Open Questions))" research/<SEQ>_<slug>.md | wc -l
   # Expect: 10
+  # NOTE 2026-04-27: § 10 title changed from "Open Questions, Limitations,
+  # Sources" to "Limitations & Sources" per spec fix. Regex accepts EITHER
+  # during Layer-3 transition; once all 12 files updated, drop "Open Questions"
+  # branch.
   ```
 
 - [ ] **S5. § 1 Executive Summary is ≤ 100 words.**
@@ -70,7 +74,13 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
   echo "narrative=$narrative  models=$models  ratio=$ratio (PASS if >= 5.67)"
   ```
 
-- [ ] **R5. Ambiguities explicitly flagged in § 10.** Read § 10. Expect at least one "Open Question" or "Limitation" bullet acknowledging what Dalio left vague. Generic disclaimers ("models are simplifications") don't count.
+- [ ] **R5. Ambiguities CLOSED, not just flagged.** Read § 10's `### Limitations / design choices` sub-section. Each entry MUST reference a body location (§ N) where the gap is closed via Dalio cite, NON-DALIO industry-standard cite, or explicit `> **DERIVED (operational)**` marker (per R5/R10/R15). § 10 documents the choice; the body carries the cite.
+  ```bash
+  # Forbidden sub-section: "Open questions and ambiguities" or equivalents
+  awk '/^## § 10/,0' research/<SEQ>_<slug>.md | \
+    grep -iE "^### .*open question|^\*\*ambiguities" && echo "FAIL: open-questions sub-section forbidden by R15" || echo "PASS: no open-questions sub-section"
+  ```
+  Generic disclaimers ("models are simplifications") = FAIL. Limitations sub-section listing UNCLOSED gaps = FAIL (must close in body per R5). Limitations sub-section listing closed-with-citation entries pointing to body locations = PASS.
 
 - [ ] **R6. No content belongs to another subsection.** Cross-check against the OUT-OF-SCOPE list in `research/_prompt_template.md`. Any violation = FAIL.
 
@@ -129,6 +139,18 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 
 - [ ] **C2. § 10 Sources subsection lists every source cited in the report, with full citations + public URLs.** Cross-reference R8's URL list against § 10's bibliography; every URL in the body must also appear in § 10.
 
+- [ ] **C4. § 10 contains EXACTLY two sub-sections in correct order** (per R15):
+  ```bash
+  awk '/^## § 10/,0' research/<SEQ>_<slug>.md | grep -E "^### " | head -5
+  # Expect (in order):
+  #   ### Limitations / design choices
+  #   ### Sources
+  # Any other sub-section heading = FAIL.
+  # NOTE 2026-04-27: Active for files updated post-Phase-3. Pre-update files
+  # may still carry "### Open questions and ambiguities" — flagged FAIL but
+  # gated by Layer-3 sweep schedule.
+  ```
+
 - [ ] **C3. Red-team audit file exists and verdict is PASS or PASS-with-patches.**
   The red-team audit is an INDEPENDENT adversarial check run by a fresh-context agent per `research/_redteam_prompt.md`. Its verdict gates wave acceptance: a report that has not been audited is not shipped.
   ```bash
@@ -144,7 +166,9 @@ Replace `<SEQ>_<slug>` in the commands below with the actual file, e.g. `01_econ
 
 ## Tally
 
-Total items: **21** (S1–S7, R1–R9, R7b, P1, C1–C3).
-`grep -c "^- \[ \]" research/_acceptance_criteria.md` → expect exactly 21.
+Total items: **22** (S1–S7, R1–R9, R7b, P1, C1–C4).
+`grep -c "^- \[ \]" research/_acceptance_criteria.md` → expect exactly 22.
 
-**Pass bar:** all 21 items marked PASS. Even one FAIL triggers rejection and (depending on root cause) either a targeted fix, a prompt refinement, or a full re-spawn.
+**Pass bar:** all 22 items marked PASS. Even one FAIL triggers rejection and (depending on root cause) either a targeted fix, a prompt refinement, or a full re-spawn.
+
+**Spec fix 2026-04-27:** Added R15 (no open-questions sub-section, body-cite required) + C4 (§ 10 sub-section structure check). R5 reworded: ambiguities must be CLOSED in body, not just flagged in § 10. § 10 schema title in template updated from "Open Questions, Limitations, Sources" to "Limitations & Sources". S4 grep accepts either during Layer-3 transition.

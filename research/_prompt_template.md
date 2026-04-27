@@ -78,8 +78,24 @@ HARD RULES
       (API endpoint or dataset ID). No "could be found somewhere."
   R4. Narrative theory gets <=15% of the word budget.
       Models, inputs, formulas, and worked examples get >=85%.
-  R5. If Dalio's writing is ambiguous on a numeric threshold, say so
-      explicitly in section 10 — do not paper over with a fabricated number.
+  R5. AMBIGUITY MUST BE CLOSED, NOT JUST ACKNOWLEDGED.
+      If Dalio's writing is ambiguous on a numeric threshold, the gap MUST
+      be closed by ONE of the following at the point of use:
+        (a) Dalio-search exhaustion → cite a Dalio source that DOES address
+            it (search BDC, HEMW, HCGB-1, CWO, Engineering, Paradigm Shifts,
+            "Our Thoughts", LinkedIn essays, Bridgewater Daily Observations);
+        (b) NON-DALIO industry-standard cite at point of use per R10
+            (BIS, IMF, NBER, Fed, CBO, Damodaran, Vanguard, Fama-French, etc.);
+        (c) explicit `> **DERIVED (operational)**` marker at point of use
+            stating WHY no industry standard applies and what the project
+            calibration is anchored to.
+      The body must carry the actual cite/marker. § 10 documents which
+      option was used and why; § 10 alone is INSUFFICIENT — § 10 documents,
+      the body cites.
+      An "Open questions" sub-section in § 10 listing UNRESOLVED gaps
+      (i.e., gaps that have NOT been closed via (a)/(b)/(c)) = research
+      failure. Generic disclaimers ("models are simplifications") are
+      always insufficient. See R15.
   R6. Do NOT cover material assigned to other subsections (see OUT-OF-SCOPE).
       If you find yourself writing about an out-of-scope topic, stop and
       summarize your content in ONE sentence with a pointer instead.
@@ -151,6 +167,22 @@ HARD RULES
       In § 4 Input Variables Table, the description column MUST
       paraphrase or quote the official series description, not a
       generic label.
+  R15. § 10 STRUCTURE (NO OPEN-QUESTIONS SUB-SECTION).
+      § 10 must contain EXACTLY two sub-sections, in this order:
+        ### Limitations / design choices
+        ### Sources
+      Limitations / design choices documents methodological choices,
+      data-proxy decisions, range disclosures, and any DERIVED markers
+      placed in the body. Each entry must reference the body location
+      (§ N or line context) where the closure cite/marker lives. An
+      "Open questions" / "Open questions and ambiguities" / "Ambiguities
+      (Rn)" sub-section is FORBIDDEN — every entry that would have lived
+      there must instead be (a) closed in the body per R5 and listed
+      under Limitations as a closed-with-citation entry, or (b) hand-
+      ed off to § 9 Integration Points if the entry is a forward-
+      reference scope handoff.
+      Sources sub-section follows existing convention: every URL cited
+      in body, full citation, public access (per R8/R11).
   R14. WORKED-EXAMPLE ARITHMETIC SELF-CHECK.
       Before finalizing § 7, re-execute each formula row-by-row and
       confirm that:
@@ -192,7 +224,11 @@ REQUIRED OUTPUT SCHEMA (exact section titles, exact order)
                 #00D08C (green-core), #7FFFD4 (green-glow),
                 #E5484D (signal-red), #D4A373 (warm-accent)
   ## § 9  Integration Points                  (upstream dependencies, downstream consumers)
-  ## § 10 Open Questions, Limitations, Sources
+  ## § 10 Limitations & Sources
+            ### Limitations / design choices    (per R15: closed-gap log,
+                                                 NOT an open-questions list)
+            ### Sources                          (every cited URL, full citation,
+                                                 public-access per R8/R11)
 
 TONE
   Crisp, declarative, zero hedging. Write for a PM, not a professor.

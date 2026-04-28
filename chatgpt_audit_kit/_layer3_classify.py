@@ -121,7 +121,11 @@ CLASSIFY: dict[tuple[str, int], dict] = {
               "tight central bank policy.' Project's claim 'no dating convention' is "
               "true — Dalio defines recession FUNCTIONALLY, not by dates. NBER provides "
               "dates compatible with that definition. Reclassify with explicit "
-              "'Dalio defines recession functionally; dating uses NBER for compatibility'.",
+              "'Dalio defines recession functionally; dating uses NBER for compatibility'. "
+              "Phase 3.5 spot-check 2026-04-27: WebSearch ('Ray Dalio recession dating "
+              "convention') returned only standard NBER convention + Dalio commentary on "
+              "current recession risk — no Dalio-published dating algorithm. SILENT in "
+              "expanded sources confirmed.",
     ),
     ("02_short_term_debt_cycle.md", 6): dict(
         cluster="F",
@@ -176,12 +180,9 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ),
     ("03_long_term_debt_cycle.md", 4): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="BDC deleveraging archetypes (debt-reduction averages); 119 hits in BDC need targeted re-search",
-        notes="EVIDENCE (Dalio-search 2026-04-27): grep on '50%' / '35 cases' returned "
-              "119 hits in BDC — too noisy for keyword approach. Need deeper targeted "
-              "read of BDC archetypes section. Provisional bucket reclassify-limitations "
-              "as Dalio's-stated-historical-mean pending precise BDC quote retrieval.",
+        bucket="reclassify-limitations",
+        search_target="HCGB-1 L114 + L427 + L581 (hcgb1.txt) — '35 Big Debt Cycle cases' + 'roughly 50%, give or take about 20%' both Dalio verbatim",
+        notes="EVIDENCE (Phase 3.5 spot-check 2026-04-27): both anchors verified in HCGB-1 (NOT BDC as initial Layer-3 search assumed). HCGB-1 L114 verbatim: 'Part 2 shows what has actually happened across 35 Big Debt Cycle cases'. HCGB-1 L581 verbatim: 'have played out over 35 cases'. HCGB-1 L427 verbatim: 'In a typical deleveraging the debt-to-income ratio has the be lowered by roughly 50%, give or take about 20%.' Project's framing (50%/20% as historical archetype across 35 cases, not forward target) is consistent with Dalio's own 'typical' / 'has the be lowered' language — backward-looking. BDC deeper read NOT REQUIRED. Reclassify-limitations.",
     ),
     ("03_long_term_debt_cycle.md", 5): dict(
         cluster="C",
@@ -412,9 +413,9 @@ CLASSIFY: dict[tuple[str, int], dict] = {
     ),
     ("08_template_for_investing.md", 4): dict(
         cluster="F",
-        bucket="dalio-search-pending",
-        search_target="Principles 2017 ~1000-streams anecdote",
-        notes="Dalio's own. Reclassify-limitations.",
+        bucket="reclassify-limitations",
+        search_target="Principles 2017 ~1000-streams anecdote (R9 fair-use only — not quoted)",
+        notes="EVIDENCE (Phase 3.5 spot-check 2026-04-27): expanded-source WebSearch ('what counts as a return stream' / 'stream definition' Dalio Bridgewater) returned no Dalio language defining stream granularity. Engineering 2011 math is scale-invariant; the practical Bridgewater ~1000-stream population is PM policy, not a framework parameter. Project's framing (PM-policy granularity, not Dalio-prescribed) confirmed silent. Reclassify-limitations.",
     ),
     ("08_template_for_investing.md", 5): dict(
         cluster="C",

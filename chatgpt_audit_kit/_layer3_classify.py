@@ -415,7 +415,7 @@ CLASSIFY: dict[tuple[str, int], dict] = {
         cluster="F",
         bucket="reclassify-limitations",
         search_target="Principles 2017 ~1000-streams anecdote (R9 fair-use only — not quoted)",
-        notes="EVIDENCE (Phase 3.5 spot-check 2026-04-27): expanded-source WebSearch ('what counts as a return stream' / 'stream definition' Dalio Bridgewater) returned no Dalio language defining stream granularity. Engineering 2011 math is scale-invariant; the practical Bridgewater ~1000-stream population is PM policy, not a framework parameter. Project's framing (PM-policy granularity, not Dalio-prescribed) confirmed silent. Reclassify-limitations.",
+        notes="EVIDENCE (Phase 3.5 spot-check 2026-04-27): local-cache grep on engineering.txt for stream/granular/slice/individual return/what counts returned 7 hits — all generic ('decide on a mix of return streams' L43; 'well-diversified portfolio of uncorrelated return streams' L386; 'each manager's alpha is viewed as a separate return stream' L394). Engineering 2011 explicitly leaves granularity OPEN at L406-407: 'either each manager diversifying his alphas OR using many managers' alphas...'. WebSearch supplemental ('what counts as a return stream' / 'stream definition' Dalio Bridgewater) also returned no Dalio prescription. Project's framing (Engineering math scale-invariant; granularity is PM policy not framework parameter) confirmed silent on BOTH local cache AND web. Reclassify-limitations.",
     ),
     ("08_template_for_investing.md", 5): dict(
         cluster="C",

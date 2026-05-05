@@ -1,8 +1,8 @@
-# Deep Research Prompt — 1.4 Deleveragings
+# Deep Research Prompt — 1.1 Economic Machine Template
 
 > **Purpose (for the human user, NOT for the prompt itself).**
 >
-> This file is the engineered prompt for ChatGPT Pro Deep Research producing `research_v2/04_deleveragings.md`. It is generated from `_deepresearch_prompt_template.md` + per-topic context in `_deepresearch_prompt_registry.py` via the generator script. Edit the template or registry, not this file (changes here are overwritten on regenerate).
+> This file is the engineered prompt for ChatGPT Pro Deep Research producing `research_v2/01_economic_machine.md`. It is generated from `_deepresearch_prompt_template.md` + per-topic context in `_deepresearch_prompt_registry.py` via the generator script. Edit the template or registry, not this file (changes here are overwritten on regenerate).
 >
 > **Hard requirement (do not violate).** This is a deep-research instruction document. The prompt block below states what must be researched and how the output must be structured. The prompt MUST NOT contain pre-filled content, sample answers, illustrative quotes from Dalio, or any text the deep-research model could copy as-if its own analysis. The prompt instructs; it does not author.
 
@@ -10,7 +10,7 @@
 
 ## Pilot context (for the human user, NOT included in the prompt)
 
-- **Topic:** 1.4 Deleveragings.
+- **Topic:** 1.1 Economic Machine Template.
 - **Project:** consolidates Ray Dalio's investment + macro frameworks into 3 operational artifacts (`README.md`, `dalio_dashboard.html`, `dalio_model.xlsx`) for portfolio managers. The 12 research files are the source material the artifacts are built from.
 - **Failure modes the prompt must prevent:** depth shortfall, hard-rule violation, framing/scope drift, hallucinated or weakly-sourced citations, surviving open questions in the output, abandoned framework components, paraphrase disguised as verbatim, manufactured words inside Dalio quote blocks.
 - **Outcome standard:** COMPLETE + CONCLUSIVE. Every threshold, formula, decision rule, and worked-example number cited at point of use, with zero unresolved gaps in the output. Every named framework component operationalized per R17.
@@ -32,10 +32,10 @@ ROLE
   open questions may survive in the output.
 
 SUBSECTION
-  ID:                1.4
-  TITLE:             Deleveragings
-  IN-SCOPE:          Beautiful vs ugly deleveraging; the four levers (austerity, debt defaults / restructurings, money printing / debt monetization, redistribution of wealth); deflationary vs inflationary deleveraging dynamics; archetype templates and how the four levers are applied in each archetype; conditions under which a deleveraging tips from beautiful to ugly; observable indicators that classify a current or historical deleveraging episode by type; transition between episode phases within the deleveraging itself.
-  OUT-OF-SCOPE:      Cycle detection itself — covered by 1.2 (Short-Term Debt Cycle) and 1.3 (Long-Term Debt Cycle); forward-looking paradigm-shift logic across decades — covered by 1.5; empire-scale 250-year reserve-currency cycle — covered by 1.6; inflation regime classification generic — covered by 1.7; portfolio construction — covered by Module 2.
+  ID:                1.1
+  TITLE:             Economic Machine Template
+  IN-SCOPE:          Transactions-based GDP identity (P × Q = M × V); productivity growth as linear trend; the concept of short + long debt cycles as overlays on productivity; money vs credit distinction; the three-driver framework (productivity, short-term debt cycle, long-term debt cycle) as Dalio's master macro model.
+  OUT-OF-SCOPE:      Mechanics of either debt cycle — covered by 1.2 and 1.3; deleveraging dynamics — covered by 1.4; inflation specifics — covered by 1.7.
 
 NAMED FRAMEWORK COMPONENTS (TOPIC-BOUND, R17 ENFORCEMENT)
   Dalio's framework for this subsection names the following distinct
@@ -44,35 +44,33 @@ NAMED FRAMEWORK COMPONENTS (TOPIC-BOUND, R17 ENFORCEMENT)
   worked-example column, and one §11 self-audit row per component).
   Failure to operationalize any named component below = rejection.
 
-  1. **four levers** — items: debt reduction (defaults / restructurings); austerity; wealth transfer (haves to have-nots); debt monetization (money printing)
-     Dalio anchor: An In-Depth Look at Deleveragings, 2012, p. 1: "the differences between deleveragings depend on the amounts and paces of 1) debt reduction, 2) austerity, 3) transferring wealth from the haves to the have-nots, and 4) debt monetization."
-     Operationalization required: §5 must define a per-lever pp-of-GDP contribution formula (one transform per lever, four total). §6 must emit a 4-vector lever-share output AND under-print / over-print balance flags. §7 must show one column per lever for each case row. §11 must row each lever with its Dalio source page.
-  2. **three deleveraging archetypes** — items: ugly deflationary deleveraging (UDEF); beautiful deleveraging (BDEL); ugly inflationary deleveraging (UINF)
-     Dalio anchor: An In-Depth Look at Deleveragings, 2012, p. 2-3
-     Operationalization required: §5 must define indicator transforms for each archetype's diagnostic conditions. §6 must emit a single regime tag from {UDEF, BDEL, UINF} plus an explicit truth table covering all sign-combinations. §7 must show one case per archetype, with the regime tag DERIVED from the row's numeric inputs (not asserted from narrative).
+  1. **three drivers** — items: productivity growth; short-term debt cycle; long-term debt cycle
+     Dalio anchor: HEMW (Economic Machine Works), 2012, p. 1-3
+     Operationalization required: §5 must define a transform per driver; §6 must emit a regime tag dimension per driver; §7 must show one case per driver state; §11 must row each driver.
+  2. **GDP identity components** — items: money; credit; transactions; goods/services
+     Dalio anchor: HEMW, 2012, p. 1-2
+     Operationalization required: §5 must define M, V, P, Q transforms; §11 must row each.
 
 EXPECTED HISTORICAL CASE SET (TOPIC-BOUND, R23 ENFORCEMENT)
   Dalio writes about the following historical cases for this subsection.
-  §7 worked example MUST cover at least 4 of the cases
+  §7 worked example MUST cover at least 3 of the cases
   in the allowlist below. Cases not in the allowlist may not be substituted
   unless §11 includes a row justifying the substitution with a Dalio cite
   pointing to the substituted case in his corpus.
 
   Case allowlist:
-    - US 1930-1932 (ugly deflationary)
-    - US 1933-1937 (beautiful, post-gold-devaluation)
-    - UK 1947-1969 (chronic / lever-mix specific)
-    - Japan 1990-present (ugly deflationary, chronic)
-    - US 2008-2014 (beautiful, post-QE)
-    - Spain 1977-1979 (chronic / lever-mix specific)
-    - Weimar Germany 1919-1923 (ugly inflationary)
+    - US 1929-1932 (productivity-up + debt-cycle-down)
+    - US 1990s (productivity-up + healthy expansion)
+    - Japan 1990-2010 (productivity-flat + long-cycle-deleverage)
+    - US 2008-2014 (post-crisis expansion)
+    - China 2010-2020 (mid-cycle expansion)
 
-  Minimum cases required in §7: 4
+  Minimum cases required in §7: 3
 
 EXPECTED DALIO TIER-1 SOURCE COVERAGE (TOPIC-BOUND, R20 ENFORCEMENT)
   The following Dalio public works are the Tier-1 sources for this
   subsection. R20 requires:
-   - Minimum 4 sources from the list below must be
+   - Minimum 3 sources from the list below must be
      searched and quoted from in §2 or §5.
    - Each searched source must yield ≥3 verbatim quotes in the output OR
      §11 must include a row with a verbatim Dalio passage from that source
@@ -81,12 +79,10 @@ EXPECTED DALIO TIER-1 SOURCE COVERAGE (TOPIC-BOUND, R20 ENFORCEMENT)
   per the SOURCE PRIORITY cascade below.
 
   Tier-1 source allowlist for this subsection:
-    - An In-Depth Look at Deleveragings, 2012
-    - Big Debt Crises (BDC), 2018, Part 1 archetype + Part 2 detailed cases + Part 3 48-case compendium
-    - Principles for Navigating Big Debt Cycles (HCGB-1), 2024-2025
-    - How the Economic Machine Works (HEMW), 2012
-    - CFA Institute, 'A Template for Understanding What Is Going On', 2009
-    - LinkedIn essays 2015-present on deleveraging dynamics
+    - How the Economic Machine Works (HEMW), 2012 paper + 30-min video
+    - Big Debt Crises (BDC), 2018, Part 1 archetype
+    - Principles for Navigating Big Debt Cycles (HCGB-1), 2024-2025, Ch 1
+    - LinkedIn long-form essays on the three drivers
 
 SOURCE PRIORITY (BLOCKING — failure to follow = rejection)
 
@@ -152,17 +148,17 @@ PUBLIC-ACCESS REQUIREMENT
 
 DELIVERABLE
   One Markdown file. Save the model's response in full to
-  research_v2/04_deleveragings.md. Document title (the H1 at the top of the
+  research_v2/01_economic_machine.md. Document title (the H1 at the top of the
   file) MUST be exactly:
 
-      # 1.4 Deleveragings
+      # 1.1 Economic Machine Template
 
   Floor 2000 words. No upper cap on length. Length must be whatever the
   COMPLETE + CONCLUSIVE standard requires — no padding, no trimming
   below the closure standard.
 
   ALSO produce an appendix file at
-  research_v2/04_deleveragings_quote_audit.md per R21.
+  research_v2/01_economic_machine_quote_audit.md per R21.
 
 HARD RULES (every rule binding; one violation = rejection)
   R1.  All 11 required sections below must be present, in order, with the
@@ -316,7 +312,7 @@ HARD RULES (every rule binding; one violation = rejection)
        same paragraph or table row as the value. Each value also
        requires a §11 row.
   R20. DALIO CORPUS BREADTH + SILENCE PROOF (BLOCKING). Minimum
-       4 sources from the TOPIC-BOUND Tier-1
+       3 sources from the TOPIC-BOUND Tier-1
        allowlist must be searched. Each searched source must yield
        ≥ 3 verbatim quotes in §2 or §5 OR §11 must include a row
        containing a verbatim Dalio passage from that source proving
@@ -324,10 +320,10 @@ HARD RULES (every rule binding; one violation = rejection)
        nothing" without a verbatim passage proving silence = rejection.
   R21. VERBATIM QUOTE AUDIT APPENDIX (BLOCKING). In addition to the
        main deliverable, produce a separate file
-       `research_v2/04_deleveragings_quote_audit.md` with this exact
+       `research_v2/01_economic_machine_quote_audit.md` with this exact
        structure:
 
-           # Quote Audit — 1.4 Deleveragings
+           # Quote Audit — 1.1 Economic Machine Template
 
            For each `> **Dalio**` block in the main deliverable, this
            appendix records the verbatim source text alongside the
@@ -363,7 +359,7 @@ HARD RULES (every rule binding; one violation = rejection)
        one series ID = rejection. Non-formula chart-bar names that
        are not defined variables = rejection.
   R23. WORKED-EXAMPLE CASE COVERAGE (BLOCKING). §7 must include
-       worked rows for at least 4 cases drawn from
+       worked rows for at least 3 cases drawn from
        the EXPECTED HISTORICAL CASE SET above. Each case row MUST
        compute every Boolean flag and every output variable from
        numeric inputs visible in the row itself. Asserting a tag from
@@ -408,7 +404,7 @@ REQUIRED OUTPUT SCHEMA (exact section titles, exact order; 11 sections)
   ## § 6  Output Variables & Decision Rules  (must include explicit
                                               truth table per R18)
   ## § 7  Worked Numeric Example             (must cover ≥
-                                              4 cases
+                                              3 cases
                                               per R23; arithmetic self-
                                               check per R14)
   ## § 8  Implementation Specs
@@ -467,14 +463,14 @@ REJECTION TRIGGERS (any one = rejected; re-run not retry)
   - Any §6 truth-table sign-combination not assigned to a regime tag
     (R18).
   - Any numeric value in §5/§6/§7 without inline provenance (R19).
-  - Fewer than 4 Tier-1 Dalio sources searched, or
+  - Fewer than 3 Tier-1 Dalio sources searched, or
     any searched Tier-1 source with fewer than 3 verbatim quotes AND
     no silence-proof row in §11 (R20).
   - Missing or non-byte-equal `_quote_audit.md` appendix (R21).
   - Variable referenced in §6/§7/§8 without §4/§5 definition (R22).
   - Three different URL forms for the same series ID across §4/§8/§10
     (R22).
-  - Fewer than 4 cases in §7 from the case
+  - Fewer than 3 cases in §7 from the case
     allowlist (R23).
   - §7 case where a Boolean flag or output tag is asserted from
     narrative rather than derived from row-visible numbers (R23).
@@ -488,7 +484,7 @@ REJECTION TRIGGERS (any one = rejected; re-run not retry)
 
 ## Verification chain (run after the model returns the file pair)
 
-After the model writes its main deliverable to `research_v2/04_deleveragings.md` and the quote-audit appendix to `research_v2/04_deleveragings_quote_audit.md`, run these checks IN ORDER:
+After the model writes its main deliverable to `research_v2/01_economic_machine.md` and the quote-audit appendix to `research_v2/01_economic_machine_quote_audit.md`, run these checks IN ORDER:
 
 1. **Schema + R1-R16 gates.** Existing acceptance-criteria checks plus R16 self-audit row-count.
 2. **R17 component-coverage check.** Verify every named component in the registry has §5/§6/§7/§11 presence.
@@ -500,7 +496,7 @@ After the model writes its main deliverable to `research_v2/04_deleveragings.md`
 8. **R23 case-coverage check.** Verify ≥ minimum cases from registry; verify each case derives flags from row data.
 9. **R24 autoformat scan.** Grep for smart quotes inside `> **Dalio**` blocks.
 10. **R25 book-attribution scan.** Cross-check every cite against the Tier-1 taxonomy strings.
-11. **Side-by-side diff.** Compare structurally + substantively against `research/04_deleveragings.md` (existing version).
+11. **Side-by-side diff.** Compare structurally + substantively against `research/01_economic_machine.md` (existing version).
 12. **User decision.** Approve / reject / refine prompt + re-run.
 
 ---
@@ -511,30 +507,26 @@ The generator script `_deepresearch_prompt_generator.py` substitutes the followi
 
 | Slot | Source | Format |
 |---|---|---|
-| `1.4` | registry entry `id` | string, e.g. `1.4` |
-| `Deleveragings` | registry entry `title` | string |
-| `04` | registry entry `seq` | string, e.g. `04` |
-| `deleveragings` | registry entry `slug` | string |
-| `Beautiful vs ugly deleveraging; the four levers (austerity, debt defaults / restructurings, money printing / debt monetization, redistribution of wealth); deflationary vs inflationary deleveraging dynamics; archetype templates and how the four levers are applied in each archetype; conditions under which a deleveraging tips from beautiful to ugly; observable indicators that classify a current or historical deleveraging episode by type; transition between episode phases within the deleveraging itself.` | registry entry `scope_in` | prose paragraph |
-| `Cycle detection itself — covered by 1.2 (Short-Term Debt Cycle) and 1.3 (Long-Term Debt Cycle); forward-looking paradigm-shift logic across decades — covered by 1.5; empire-scale 250-year reserve-currency cycle — covered by 1.6; inflation regime classification generic — covered by 1.7; portfolio construction — covered by Module 2.` | registry entry `scope_out` | prose paragraph |
-| `  1. **four levers** — items: debt reduction (defaults / restructurings); austerity; wealth transfer (haves to have-nots); debt monetization (money printing)
-     Dalio anchor: An In-Depth Look at Deleveragings, 2012, p. 1: "the differences between deleveragings depend on the amounts and paces of 1) debt reduction, 2) austerity, 3) transferring wealth from the haves to the have-nots, and 4) debt monetization."
-     Operationalization required: §5 must define a per-lever pp-of-GDP contribution formula (one transform per lever, four total). §6 must emit a 4-vector lever-share output AND under-print / over-print balance flags. §7 must show one column per lever for each case row. §11 must row each lever with its Dalio source page.
-  2. **three deleveraging archetypes** — items: ugly deflationary deleveraging (UDEF); beautiful deleveraging (BDEL); ugly inflationary deleveraging (UINF)
-     Dalio anchor: An In-Depth Look at Deleveragings, 2012, p. 2-3
-     Operationalization required: §5 must define indicator transforms for each archetype's diagnostic conditions. §6 must emit a single regime tag from {UDEF, BDEL, UINF} plus an explicit truth table covering all sign-combinations. §7 must show one case per archetype, with the regime tag DERIVED from the row's numeric inputs (not asserted from narrative).` | registry entry `named_components` | bulleted list (one bullet per component, each with name + Dalio source page) |
-| `    - US 1930-1932 (ugly deflationary)
-    - US 1933-1937 (beautiful, post-gold-devaluation)
-    - UK 1947-1969 (chronic / lever-mix specific)
-    - Japan 1990-present (ugly deflationary, chronic)
-    - US 2008-2014 (beautiful, post-QE)
-    - Spain 1977-1979 (chronic / lever-mix specific)
-    - Weimar Germany 1919-1923 (ugly inflationary)` | registry entry `expected_cases.allowlist` | bulleted list (one bullet per case) |
-| `4` | registry entry `expected_cases.min` | integer literal |
-| `    - An In-Depth Look at Deleveragings, 2012
-    - Big Debt Crises (BDC), 2018, Part 1 archetype + Part 2 detailed cases + Part 3 48-case compendium
-    - Principles for Navigating Big Debt Cycles (HCGB-1), 2024-2025
-    - How the Economic Machine Works (HEMW), 2012
-    - CFA Institute, 'A Template for Understanding What Is Going On', 2009
-    - LinkedIn essays 2015-present on deleveraging dynamics` | registry entry `tier1_sources.allowlist` | bulleted list (one bullet per source) |
-| `4` | registry entry `tier1_sources.min` | integer literal |
+| `1.1` | registry entry `id` | string, e.g. `1.4` |
+| `Economic Machine Template` | registry entry `title` | string |
+| `01` | registry entry `seq` | string, e.g. `04` |
+| `economic_machine` | registry entry `slug` | string |
+| `Transactions-based GDP identity (P × Q = M × V); productivity growth as linear trend; the concept of short + long debt cycles as overlays on productivity; money vs credit distinction; the three-driver framework (productivity, short-term debt cycle, long-term debt cycle) as Dalio's master macro model.` | registry entry `scope_in` | prose paragraph |
+| `Mechanics of either debt cycle — covered by 1.2 and 1.3; deleveraging dynamics — covered by 1.4; inflation specifics — covered by 1.7.` | registry entry `scope_out` | prose paragraph |
+| `  1. **three drivers** — items: productivity growth; short-term debt cycle; long-term debt cycle
+     Dalio anchor: HEMW (Economic Machine Works), 2012, p. 1-3
+     Operationalization required: §5 must define a transform per driver; §6 must emit a regime tag dimension per driver; §7 must show one case per driver state; §11 must row each driver.
+  2. **GDP identity components** — items: money; credit; transactions; goods/services
+     Dalio anchor: HEMW, 2012, p. 1-2
+     Operationalization required: §5 must define M, V, P, Q transforms; §11 must row each.` | registry entry `named_components` | bulleted list (one bullet per component, each with name + Dalio source page) |
+| `    - US 1929-1932 (productivity-up + debt-cycle-down)
+    - US 1990s (productivity-up + healthy expansion)
+    - Japan 1990-2010 (productivity-flat + long-cycle-deleverage)
+    - US 2008-2014 (post-crisis expansion)
+    - China 2010-2020 (mid-cycle expansion)` | registry entry `expected_cases.allowlist` | bulleted list (one bullet per case) |
+| `3` | registry entry `expected_cases.min` | integer literal |
+| `    - How the Economic Machine Works (HEMW), 2012 paper + 30-min video
+    - Big Debt Crises (BDC), 2018, Part 1 archetype
+    - Principles for Navigating Big Debt Cycles (HCGB-1), 2024-2025, Ch 1
+    - LinkedIn long-form essays on the three drivers` | registry entry `tier1_sources.allowlist` | bulleted list (one bullet per source) |
+| `3` | registry entry `tier1_sources.min` | integer literal |

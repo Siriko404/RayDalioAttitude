@@ -170,10 +170,17 @@ HARD RULES (every rule binding; one violation = rejection)
        (institution name + dataset/series identifier + API endpoint or
        URL). Generic phrases ("could be obtained from a data vendor") are
        rejection-grade.
-  R4.  Word ratio: the combined word count of §§4-8 (inputs / formulas /
-       decision rules / worked example / implementation specs) must be
-       at least 5.67 times the combined word count of §§2-3 (verbatim
-       Dalio + decision-problem framing). Less than 5.67 = rejection.
+  R4.  WORD RATIO + §11 CAP. The combined word count of §§4-8
+       (inputs / formulas / decision rules / worked example /
+       implementation specs) must be at least 5.67 times the combined
+       word count of §§2-3 (verbatim Dalio + decision-problem
+       framing). Less than 5.67 = rejection.
+
+       Additionally, §11 word count MUST NOT exceed 30% of the §§4-8
+       combined word count. §11 over 30% of §§4-8 = rejection.
+       (Prevents §11 inflation from gaming the §§4-8 vs §§2-3 ratio
+       — a long §11 self-audit cannot substitute for thin §§4-8
+       operational content.)
   R5.  AMBIGUITY MUST BE CLOSED, NOT JUST ACKNOWLEDGED. If Dalio's
        writing leaves a numeric threshold or rule ambiguous, the gap
        MUST be closed at the point of use by ONE of:
@@ -202,7 +209,19 @@ HARD RULES (every rule binding; one violation = rejection)
            > **DERIVED (operational)** — <why this calibration; what
            > Dalio anchor it derives from; what the project chose>.
 
-       Mixing the three without markers = rejection.
+       Citation-format selection (BLOCKING; pagination dictates form):
+         - PAGINATED PDFs (BDC, CWO, In-Depth Look, Engineering 2011,
+           HEMW, etc.): cite by PRINTED page number visible in the
+           document footer. NEVER cite by PDF-viewer page counter.
+         - LINKEDIN / WEB ESSAYS without printed pagination: cite by
+           full canonical URL of the post.
+         - UNPAGINATED PDFs (some Bridgewater research, All-Weather
+           Story): cite by section heading, e.g.,
+           `source: <title>, "<heading>"`.
+         - Inventing a page number for an unpaginated source =
+           rejection.
+
+       Mixing the three forms without markers = rejection.
   R8.  PUBLIC URL only. NBER / SSRN / Levy / FRB-xx free working-paper
        version of any Tier-5 paper. Citing a paywalled URL without a
        free mirror = rejection.
@@ -308,13 +327,29 @@ HARD RULES (every rule binding; one violation = rejection)
        does not satisfy R19. Inline provenance must appear within the
        same paragraph or table row as the value. Each value also
        requires a §11 row.
-  R20. DALIO CORPUS BREADTH + SILENCE PROOF (BLOCKING). Minimum
+  R20. DALIO CORPUS BREADTH + SEARCH TRACE (BLOCKING). Minimum
        3 sources from the TOPIC-BOUND Tier-1
        allowlist must be searched. Each searched source must yield
-       ≥ 3 verbatim quotes in §2 or §5 OR §11 must include a row
-       containing a verbatim Dalio passage from that source proving
-       silence on the specific gap. Generic "I searched X, found
-       nothing" without a verbatim passage proving silence = rejection.
+       EITHER:
+         (a) ≥ 3 verbatim quotes in §2 or §5 (substantive coverage); OR
+         (b) a §11 search-trace row containing ALL FOUR fields below:
+             (i)   `Source:` <title> + page-range searched (or whole
+                   document if unpaginated);
+             (ii)  `Keywords tried:` an explicit list of the exact
+                   keywords / phrases / regexes tried with the
+                   source's text-search facility (≥ 3 distinct
+                   queries per source);
+             (iii) `Hit counts:` the result count from each query
+                   (e.g., "0 / 0 / 2 — see §5 line 47 for the 2 hits");
+             (iv)  `Silence claim:` for searches yielding 0 hits, the
+                   row asserts the source is silent on the gap and
+                   names which other Tier-1 source closed it.
+       Generic "I searched X, found nothing" without ALL FOUR
+       search-trace fields = rejection. A verbatim passage is
+       NOT REQUIRED for silence rows — proving absence with a
+       single verbatim quote is incoherent and is no longer accepted
+       (corrected in this revision; previous "verbatim Dalio passage
+       proving silence" wording was unsatisfiable).
   R21. VERBATIM QUOTE AUDIT APPENDIX (BLOCKING). In addition to the
        main deliverable, produce a separate file
        `research_v2/02_short_term_debt_cycle_quote_audit.md` with this exact
@@ -367,12 +402,25 @@ HARD RULES (every rule binding; one violation = rejection)
        explicitly and add a §11 row noting which §6 conditions cannot
        be evaluated for that case.
   R24. AUTOFORMAT CONTAMINATION REJECTION (BLOCKING). The body of
-       every `> **Dalio**` quote block MUST use plain ASCII straight
-       quotes (`"`), not curly/smart quotes (`"`/`"`). The body must
-       not contain emoji, em-dash variants inside quote blocks (use
-       `--` or `...` only inside verbatim blocks), or rendering
-       artifacts from chat-style auto-formatting. Smart-quote
-       contamination inside a `> **Dalio**` block = rejection.
+       every `> **Dalio**` quote block MUST be byte-equal to the
+       verbatim source bytes per R12. R24 prohibits AUTOFORMAT
+       CONTAMINATION introduced by the deep-research model itself,
+       NOT source-faithful typography:
+         - Source uses plain ASCII straight quotes; model "improves"
+           to curly quotes (U+201C/U+201D) → rejection.
+         - Source uses plain `--`; model converts to em-dash (U+2014)
+           → rejection.
+         - Model introduces emoji, non-text Unicode, or chat-style
+           formatting artifacts not present in source → rejection.
+         - Source uses curly quotes / em-dashes / en-dashes; model
+           silently NORMALIZES to ASCII → rejection (this preserves
+           R12 verbatim fidelity; the source bytes win).
+       The test: every `> **Dalio**` body character MUST match the
+       source PDF byte-for-byte. The R21 byte-equal audit MUST
+       compare against UN-NORMALIZED source bytes. If the source
+       legitimately contains typographic characters, preserve them
+       and the audit passes. Any divergence (model added or stripped
+       a character) = rejection.
   R25. BOOK-ATTRIBUTION SANITY CHECK (BLOCKING; extends R12). Every
        Dalio cite MUST match the prompt's Tier-1 source taxonomy by
        exact title. The following are DIFFERENT works and must not
@@ -495,32 +543,3 @@ After the model writes its main deliverable to `research_v2/02_short_term_debt_c
 10. **R25 book-attribution scan.** Cross-check every cite against the Tier-1 taxonomy strings.
 11. **Side-by-side diff.** Compare structurally + substantively against `research/02_short_term_debt_cycle.md` (existing version).
 12. **User decision.** Approve / reject / refine prompt + re-run.
-
----
-
-## Slot reference (for the generator)
-
-The generator script `_deepresearch_prompt_generator.py` substitutes the following slots:
-
-| Slot | Source | Format |
-|---|---|---|
-| `1.2` | registry entry `id` | string, e.g. `1.4` |
-| `Short-Term Debt Cycle` | registry entry `title` | string |
-| `02` | registry entry `seq` | string, e.g. `04` |
-| `short_term_debt_cycle` | registry entry `slug` | string |
-| `5-10 year business cycle; central-bank-driven credit expansion and contraction; yield-curve indicators; recession indicators; late-cycle vs mid-cycle detection; six-phase cycle template.` | registry entry `scope_in` | prose paragraph |
-| `Long-term debt cycle — covered by 1.3; deleveraging levers — covered by 1.4; productivity trend — covered by 1.1.` | registry entry `scope_out` | prose paragraph |
-| `  1. **six cycle phases** — items: early cycle; mid cycle; late cycle; recession early; recession late; transitional
-     Dalio anchor: HEMW, 2012, p. 18-19
-     Operationalization required: §5 must define a phase-classifier transform; §6 must emit phase tag; §7 must show ≥3 cases at different phases; §11 must row each phase boundary.` | registry entry `named_components` | bulleted list (one bullet per component, each with name + Dalio source page) |
-| `    - US 1990s expansion
-    - US 2007 late-cycle / 2008 recession
-    - US 2014-2019 mid-cycle
-    - Japan 1990s recession
-    - Eurozone 2011 recession` | registry entry `expected_cases.allowlist` | bulleted list (one bullet per case) |
-| `3` | registry entry `expected_cases.min` | integer literal |
-| `    - How the Economic Machine Works (HEMW), 2012
-    - Big Debt Crises (BDC), 2018, Part 1
-    - Principles for Navigating Big Debt Cycles (HCGB-1), 2024-2025
-    - LinkedIn essays on cycle detection` | registry entry `tier1_sources.allowlist` | bulleted list (one bullet per source) |
-| `3` | registry entry `tier1_sources.min` | integer literal |

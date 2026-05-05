@@ -177,10 +177,17 @@ HARD RULES (every rule binding; one violation = rejection)
        (institution name + dataset/series identifier + API endpoint or
        URL). Generic phrases ("could be obtained from a data vendor") are
        rejection-grade.
-  R4.  Word ratio: the combined word count of §§4-8 (inputs / formulas /
-       decision rules / worked example / implementation specs) must be
-       at least 5.67 times the combined word count of §§2-3 (verbatim
-       Dalio + decision-problem framing). Less than 5.67 = rejection.
+  R4.  WORD RATIO + §11 CAP. The combined word count of §§4-8
+       (inputs / formulas / decision rules / worked example /
+       implementation specs) must be at least 5.67 times the combined
+       word count of §§2-3 (verbatim Dalio + decision-problem
+       framing). Less than 5.67 = rejection.
+
+       Additionally, §11 word count MUST NOT exceed 30% of the §§4-8
+       combined word count. §11 over 30% of §§4-8 = rejection.
+       (Prevents §11 inflation from gaming the §§4-8 vs §§2-3 ratio
+       — a long §11 self-audit cannot substitute for thin §§4-8
+       operational content.)
   R5.  AMBIGUITY MUST BE CLOSED, NOT JUST ACKNOWLEDGED. If Dalio's
        writing leaves a numeric threshold or rule ambiguous, the gap
        MUST be closed at the point of use by ONE of:
@@ -209,7 +216,19 @@ HARD RULES (every rule binding; one violation = rejection)
            > **DERIVED (operational)** — <why this calibration; what
            > Dalio anchor it derives from; what the project chose>.
 
-       Mixing the three without markers = rejection.
+       Citation-format selection (BLOCKING; pagination dictates form):
+         - PAGINATED PDFs (BDC, CWO, In-Depth Look, Engineering 2011,
+           HEMW, etc.): cite by PRINTED page number visible in the
+           document footer. NEVER cite by PDF-viewer page counter.
+         - LINKEDIN / WEB ESSAYS without printed pagination: cite by
+           full canonical URL of the post.
+         - UNPAGINATED PDFs (some Bridgewater research, All-Weather
+           Story): cite by section heading, e.g.,
+           `source: <title>, "<heading>"`.
+         - Inventing a page number for an unpaginated source =
+           rejection.
+
+       Mixing the three forms without markers = rejection.
   R8.  PUBLIC URL only. NBER / SSRN / Levy / FRB-xx free working-paper
        version of any Tier-5 paper. Citing a paywalled URL without a
        free mirror = rejection.
@@ -315,13 +334,29 @@ HARD RULES (every rule binding; one violation = rejection)
        does not satisfy R19. Inline provenance must appear within the
        same paragraph or table row as the value. Each value also
        requires a §11 row.
-  R20. DALIO CORPUS BREADTH + SILENCE PROOF (BLOCKING). Minimum
+  R20. DALIO CORPUS BREADTH + SEARCH TRACE (BLOCKING). Minimum
        4 sources from the TOPIC-BOUND Tier-1
        allowlist must be searched. Each searched source must yield
-       ≥ 3 verbatim quotes in §2 or §5 OR §11 must include a row
-       containing a verbatim Dalio passage from that source proving
-       silence on the specific gap. Generic "I searched X, found
-       nothing" without a verbatim passage proving silence = rejection.
+       EITHER:
+         (a) ≥ 3 verbatim quotes in §2 or §5 (substantive coverage); OR
+         (b) a §11 search-trace row containing ALL FOUR fields below:
+             (i)   `Source:` <title> + page-range searched (or whole
+                   document if unpaginated);
+             (ii)  `Keywords tried:` an explicit list of the exact
+                   keywords / phrases / regexes tried with the
+                   source's text-search facility (≥ 3 distinct
+                   queries per source);
+             (iii) `Hit counts:` the result count from each query
+                   (e.g., "0 / 0 / 2 — see §5 line 47 for the 2 hits");
+             (iv)  `Silence claim:` for searches yielding 0 hits, the
+                   row asserts the source is silent on the gap and
+                   names which other Tier-1 source closed it.
+       Generic "I searched X, found nothing" without ALL FOUR
+       search-trace fields = rejection. A verbatim passage is
+       NOT REQUIRED for silence rows — proving absence with a
+       single verbatim quote is incoherent and is no longer accepted
+       (corrected in this revision; previous "verbatim Dalio passage
+       proving silence" wording was unsatisfiable).
   R21. VERBATIM QUOTE AUDIT APPENDIX (BLOCKING). In addition to the
        main deliverable, produce a separate file
        `research_v2/04_deleveragings_quote_audit.md` with this exact
@@ -374,12 +409,25 @@ HARD RULES (every rule binding; one violation = rejection)
        explicitly and add a §11 row noting which §6 conditions cannot
        be evaluated for that case.
   R24. AUTOFORMAT CONTAMINATION REJECTION (BLOCKING). The body of
-       every `> **Dalio**` quote block MUST use plain ASCII straight
-       quotes (`"`), not curly/smart quotes (`"`/`"`). The body must
-       not contain emoji, em-dash variants inside quote blocks (use
-       `--` or `...` only inside verbatim blocks), or rendering
-       artifacts from chat-style auto-formatting. Smart-quote
-       contamination inside a `> **Dalio**` block = rejection.
+       every `> **Dalio**` quote block MUST be byte-equal to the
+       verbatim source bytes per R12. R24 prohibits AUTOFORMAT
+       CONTAMINATION introduced by the deep-research model itself,
+       NOT source-faithful typography:
+         - Source uses plain ASCII straight quotes; model "improves"
+           to curly quotes (U+201C/U+201D) → rejection.
+         - Source uses plain `--`; model converts to em-dash (U+2014)
+           → rejection.
+         - Model introduces emoji, non-text Unicode, or chat-style
+           formatting artifacts not present in source → rejection.
+         - Source uses curly quotes / em-dashes / en-dashes; model
+           silently NORMALIZES to ASCII → rejection (this preserves
+           R12 verbatim fidelity; the source bytes win).
+       The test: every `> **Dalio**` body character MUST match the
+       source PDF byte-for-byte. The R21 byte-equal audit MUST
+       compare against UN-NORMALIZED source bytes. If the source
+       legitimately contains typographic characters, preserve them
+       and the audit passes. Any divergence (model added or stripped
+       a character) = rejection.
   R25. BOOK-ATTRIBUTION SANITY CHECK (BLOCKING; extends R12). Every
        Dalio cite MUST match the prompt's Tier-1 source taxonomy by
        exact title. The following are DIFFERENT works and must not
@@ -502,39 +550,3 @@ After the model writes its main deliverable to `research_v2/04_deleveragings.md`
 10. **R25 book-attribution scan.** Cross-check every cite against the Tier-1 taxonomy strings.
 11. **Side-by-side diff.** Compare structurally + substantively against `research/04_deleveragings.md` (existing version).
 12. **User decision.** Approve / reject / refine prompt + re-run.
-
----
-
-## Slot reference (for the generator)
-
-The generator script `_deepresearch_prompt_generator.py` substitutes the following slots:
-
-| Slot | Source | Format |
-|---|---|---|
-| `1.4` | registry entry `id` | string, e.g. `1.4` |
-| `Deleveragings` | registry entry `title` | string |
-| `04` | registry entry `seq` | string, e.g. `04` |
-| `deleveragings` | registry entry `slug` | string |
-| `Beautiful vs ugly deleveraging; the four levers (austerity, debt defaults / restructurings, money printing / debt monetization, redistribution of wealth); deflationary vs inflationary deleveraging dynamics; archetype templates and how the four levers are applied in each archetype; conditions under which a deleveraging tips from beautiful to ugly; observable indicators that classify a current or historical deleveraging episode by type; transition between episode phases within the deleveraging itself.` | registry entry `scope_in` | prose paragraph |
-| `Cycle detection itself — covered by 1.2 (Short-Term Debt Cycle) and 1.3 (Long-Term Debt Cycle); forward-looking paradigm-shift logic across decades — covered by 1.5; empire-scale 250-year reserve-currency cycle — covered by 1.6; inflation regime classification generic — covered by 1.7; portfolio construction — covered by Module 2.` | registry entry `scope_out` | prose paragraph |
-| `  1. **four levers** — items: debt reduction (defaults / restructurings); austerity; wealth transfer (haves to have-nots); debt monetization (money printing)
-     Dalio anchor: An In-Depth Look at Deleveragings, 2012, p. 1: "the differences between deleveragings depend on the amounts and paces of 1) debt reduction, 2) austerity, 3) transferring wealth from the haves to the have-nots, and 4) debt monetization."
-     Operationalization required: §5 must define a per-lever pp-of-GDP contribution formula (one transform per lever, four total). §6 must emit a 4-vector lever-share output AND under-print / over-print balance flags. §7 must show one column per lever for each case row. §11 must row each lever with its Dalio source page.
-  2. **three deleveraging archetypes** — items: ugly deflationary deleveraging (UDEF); beautiful deleveraging (BDEL); ugly inflationary deleveraging (UINF)
-     Dalio anchor: An In-Depth Look at Deleveragings, 2012, p. 2-3
-     Operationalization required: §5 must define indicator transforms for each archetype's diagnostic conditions. §6 must emit a single regime tag from {UDEF, BDEL, UINF} plus an explicit truth table covering all sign-combinations. §7 must show one case per archetype, with the regime tag DERIVED from the row's numeric inputs (not asserted from narrative).` | registry entry `named_components` | bulleted list (one bullet per component, each with name + Dalio source page) |
-| `    - US 1930-1932 (ugly deflationary)
-    - US 1933-1937 (beautiful, post-gold-devaluation)
-    - UK 1947-1969 (chronic / lever-mix specific)
-    - Japan 1990-present (ugly deflationary, chronic)
-    - US 2008-2014 (beautiful, post-QE)
-    - Spain 1977-1979 (chronic / lever-mix specific)
-    - Weimar Germany 1919-1923 (ugly inflationary)` | registry entry `expected_cases.allowlist` | bulleted list (one bullet per case) |
-| `4` | registry entry `expected_cases.min` | integer literal |
-| `    - An In-Depth Look at Deleveragings, 2012
-    - Big Debt Crises (BDC), 2018, Part 1 archetype + Part 2 detailed cases + Part 3 48-case compendium
-    - Principles for Navigating Big Debt Cycles (HCGB-1), 2024-2025
-    - How the Economic Machine Works (HEMW), 2012
-    - CFA Institute, 'A Template for Understanding What Is Going On', 2009
-    - LinkedIn essays 2015-present on deleveraging dynamics` | registry entry `tier1_sources.allowlist` | bulleted list (one bullet per source) |
-| `4` | registry entry `tier1_sources.min` | integer literal |

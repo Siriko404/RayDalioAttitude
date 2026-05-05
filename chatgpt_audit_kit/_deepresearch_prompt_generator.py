@@ -9,14 +9,23 @@ Run:
 If `seq` is omitted, generates all 12. If given (e.g., `04`), generates
 that topic only.
 
-Slot syntax in the template:
-    {ID}, {TITLE}, {SEQ}, {slug}, {SCOPE_IN}, {SCOPE_OUT},
-    {NAMED_COMPONENTS_BLOCK}, {EXPECTED_CASES_BLOCK}, {EXPECTED_CASES_MIN},
-    {TIER1_SOURCES_BLOCK}, {TIER1_SOURCES_MIN}.
+Slot syntax in the template (chosen as `<<<NAME>>>` to avoid collision
+with the curly-brace `{NAME}` mentions in instruction prose):
+    <<<ID>>>, <<<TITLE>>>, <<<SEQ>>>, <<<slug>>>,
+    <<<SCOPE_IN>>>, <<<SCOPE_OUT>>>,
+    <<<NAMED_COMPONENTS_BLOCK>>>,
+    <<<EXPECTED_CASES_BLOCK>>>, <<<EXPECTED_CASES_MIN>>>,
+    <<<TIER1_SOURCES_BLOCK>>>, <<<TIER1_SOURCES_MIN>>>.
 
-The `{...BLOCK}` slots are formatted as Markdown bulleted lists by this
-generator from the registry's structured fields. All other slots are
-plain string substitutions.
+The `<<<...BLOCK>>>` slots are formatted as Markdown bulleted lists by
+this generator from the registry's structured fields. All other slots
+are plain string substitutions.
+
+The template's `## Slot reference (for the generator)` section
+documents these slots with literal `<<<NAME>>>` tokens; this section is
+STRIPPED before substitution so its documentation tokens are not
+clobbered (and not copied into generated files, which would be
+overwritten on regenerate anyway).
 """
 
 from __future__ import annotations
@@ -89,10 +98,43 @@ def _build_pilot_context_block(entry: dict) -> str:
     )
 
 
+SLOT_REFERENCE_MARKER = "## Slot reference (for the generator)"
+
+
+def _strip_slot_reference_section(template_text: str) -> str:
+    """Strip the trailing `## Slot reference (for the generator)`
+    section before slot substitution. The slot-reference section
+    documents the slots themselves using LITERAL `<<<NAME>>>` tokens
+    (e.g., a Markdown table cell `` `<<<ID>>>` ``); a global
+    str.replace would clobber those documentation tokens.
+
+    The slot-reference section is for template-editors only; generated
+    files do not need it (they are auto-overwritten on regenerate).
+    Removing it from the substitution input also keeps generated files
+    cleaner."""
+    if SLOT_REFERENCE_MARKER not in template_text:
+        return template_text
+    head = template_text.split(SLOT_REFERENCE_MARKER, 1)[0]
+    head = head.rstrip()
+    # Trim a single trailing horizontal rule that would have separated
+    # the slot-reference section from the rest of the document.
+    if head.endswith("---"):
+        head = head[:-3].rstrip()
+    return head + "\n"
+
+
 def _substitute_slots(template_text: str, entry: dict) -> str:
     """Apply all slot substitutions for a single topic. Slot syntax is
     `<<<NAME>>>` (chosen to avoid collision with example uses of `{ID}`
-    and similar inside instruction prose)."""
+    and similar inside instruction prose).
+
+    The template's `## Slot reference (for the generator)` section is
+    stripped FIRST so that the literal `<<<NAME>>>` tokens it uses to
+    document the slot syntax are not themselves substituted (which
+    would corrupt the table). Generated files do not retain the slot
+    reference (it is template-editor documentation only)."""
+    template_text = _strip_slot_reference_section(template_text)
+
     named_block = _format_named_components(entry["named_components"])
     cases_block = _format_cases(entry["expected_cases"]["allowlist"])
     sources_block = _format_sources(entry["tier1_sources"]["allowlist"])

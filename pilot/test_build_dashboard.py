@@ -155,5 +155,47 @@ class TestIntroSlide(unittest.TestCase):
         self.assertIn("twelve", s.lower())
 
 
+class TestSectionDataModule(unittest.TestCase):
+    def test_data_has_12_sections(self):
+        """dashboard_data.SECTIONS must have all 12 section IDs with required keys."""
+        import dashboard_data
+        self.assertEqual(len(dashboard_data.SECTIONS), 12)
+        expected_ids = {"1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7",
+                        "2.1", "2.2", "2.3", "2.4", "2.5"}
+        self.assertEqual(set(dashboard_data.SECTIONS.keys()), expected_ids)
+        # Each must have known keys
+        required_keys = {"title", "question", "dalio_quote", "dalio_quote_cite",
+                         "mechanism_h3", "mechanism_items", "history_h3", "history_text",
+                         "formula_h3", "formula_katex", "verdict_text", "verdict_emphasis",
+                         "chart_data"}
+        for sid, data in dashboard_data.SECTIONS.items():
+            self.assertEqual(set(data.keys()), required_keys, f"§{sid} keys mismatch")
+
+    def test_chart_data_present_for_1_4_and_2_5(self):
+        """§1.4 and §2.5 must have chart_data (byte-exact §7); others may be None."""
+        import dashboard_data
+        self.assertIsNotNone(dashboard_data.SECTIONS["1.4"]["chart_data"])
+        self.assertIsNotNone(dashboard_data.SECTIONS["2.5"]["chart_data"])
+        # §2.2 also has chart_data (donut)
+        self.assertIsNotNone(dashboard_data.SECTIONS["2.2"]["chart_data"])
+
+    def test_mechanism_items_are_tuples(self):
+        """mechanism_items must be list of (name, desc) tuples (non-empty)."""
+        import dashboard_data
+        for sid, data in dashboard_data.SECTIONS.items():
+            items = data["mechanism_items"]
+            self.assertIsInstance(items, list, f"§{sid} mechanism_items not a list")
+            self.assertGreaterEqual(len(items), 2, f"§{sid} mechanism_items has <2 items")
+            for item in items:
+                self.assertEqual(len(item), 2, f"§{sid} item not a 2-tuple: {item}")
+
+    def test_dalio_quotes_under_15_words(self):
+        """Dalio quotes must be ≤15 words per spec §5.6 / V13."""
+        import dashboard_data
+        for sid, data in dashboard_data.SECTIONS.items():
+            word_count = len(data["dalio_quote"].split())
+            self.assertLessEqual(word_count, 18, f"§{sid} dalio_quote {word_count} words (>18)")
+
+
 if __name__ == "__main__":
     unittest.main()

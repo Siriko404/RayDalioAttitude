@@ -43,3 +43,4 @@ data_cache/
 .tmp_*
 research/_tmp_*
 *.tmp.txt
+.commit_msg.tmp

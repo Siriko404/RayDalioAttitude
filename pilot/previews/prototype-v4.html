@@ -289,11 +289,12 @@ h3::before {
    AF TEXT REVEAL — char block-fill IN / OUT
    ============================================================= */
 .reveal-ch {
-  display: inline-block;
+  display: inline;          /* was inline-block — caused mid-word wraps */
   transition: background 0.18s ease-out, color 0.18s ease-out;
 }
 .reveal-target { visibility: hidden; }
 .reveal-target.reveal-armed { visibility: visible; }
+.reveal-target { text-wrap: balance; }   /* prevent ragged short tails */
 
 .fade-target {
   opacity: 0;
@@ -582,22 +583,20 @@ nav.minimap a.active {
 .toc {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0;
+  column-gap: 36px;
+  row-gap: 0;
   margin-top: 36px;
-  border-top: 1px solid currentColor;
 }
 .toc-item {
-  padding: 14px 14px 14px 0;
-  border-bottom: 1px solid currentColor;
-  border-right: 1px solid currentColor;
+  padding: 14px 0;
+  border-top: 1px solid currentColor;       /* hairlines only on top of each row */
   display: flex;
   flex-direction: column;
   gap: 4px;
   opacity: 0.85;
-  transition: opacity 220ms;
+  transition: opacity 220ms, padding-left 220ms;
 }
-.toc-item:hover { opacity: 1; }
-.toc-item:nth-child(4n) { border-right: none; padding-right: 0; }
+.toc-item:hover { opacity: 1; padding-left: 6px; }
 .toc-item .num {
   font-family: 'DM Mono', ui-monospace, monospace;
   font-weight: 500;
@@ -649,9 +648,7 @@ footer a {
   nav.minimap { display: none; }
   .lever { grid-template-columns: 36px 1fr; gap: 16px; }
   .lever .effect { grid-column: 2; padding-top: 6px; }
-  .toc { grid-template-columns: repeat(2, 1fr); }
-  .toc-item:nth-child(4n) { border-right: 1px solid currentColor; }
-  .toc-item:nth-child(2n) { border-right: none; }
+  .toc { grid-template-columns: repeat(2, 1fr); column-gap: 24px; }
   h1 { font-size: clamp(56px, 14vw, 96px); }
   h2 { font-size: clamp(40px, 11vw, 72px); }
   .display-italic { font-size: clamp(32px, 9vw, 64px); }

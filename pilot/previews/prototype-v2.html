@@ -983,12 +983,17 @@ function initCharts() {
         splitLine: { lineStyle: { color: BORDER } },
       },
       series: [
-        // Initial values are 0; mix-target values are stored on series.targetData
-        { name: 'austerity',      type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: TEXT_3 }, animation: false },
-        { name: 'defaults',       type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: BAD }, animation: false },
-        { name: 'printing',       type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: GOLD }, animation: false },
-        { name: 'redistribution', type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: WARN }, animation: false },
+        // Init at 0; ScrollTrigger fires setOption with faithful research/04 §7 data
+        // when stage-C enters viewport — bars grow ONCE to faithful scale, then stay
+        // static (matches stage-D chart-gap behavior; faithful, not scroll-bound)
+        { name: 'austerity',      type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: TEXT_3 } },
+        { name: 'defaults',       type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: BAD } },
+        { name: 'printing',       type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: GOLD } },
+        { name: 'redistribution', type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: WARN } },
       ],
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDelay: function (idx) { return idx * 60; },  // staggered grow per archetype
     });
     charts.mix = c;
     charts.mixTargets = {
@@ -1080,22 +1085,17 @@ function initScrolly() {
         var bar = document.getElementById('progress-bar');
         if (bar) bar.style.setProperty('--p', pct + '%');
 
-        // Stage-C chart morph: data grows from 0% to target between progress 0.5 and 0.78
-        var c = charts.mix;
-        if (c && charts.mixTargets) {
-          var p = st.progress;
-          var t;
-          if (p < 0.50) t = 0;
-          else if (p > 0.78) t = 1;
-          else t = (p - 0.50) / 0.28;
-          // ease (smoothstep)
-          t = t * t * (3 - 2 * t);
-          c.setOption({
+        // Stage-C chart load: trigger ECharts default bar-grow ONCE when stage-C
+        // enters territory (~40% of pin progress). Bars stay faithful after.
+        // No data tied to scroll progress — viz remains still per user feedback.
+        if (st.progress > 0.40 && !charts.mixLoaded && charts.mix && charts.mixTargets) {
+          charts.mixLoaded = true;
+          charts.mix.setOption({
             series: [
-              { name: 'austerity',      data: charts.mixTargets.austerity.map(function (v) { return +(v*t).toFixed(2); }) },
-              { name: 'defaults',       data: charts.mixTargets.defaults.map(function (v) { return +(v*t).toFixed(2); }) },
-              { name: 'printing',       data: charts.mixTargets.printing.map(function (v) { return +(v*t).toFixed(2); }) },
-              { name: 'redistribution', data: charts.mixTargets.redistribution.map(function (v) { return +(v*t).toFixed(2); }) },
+              { name: 'austerity',      data: charts.mixTargets.austerity },
+              { name: 'defaults',       data: charts.mixTargets.defaults },
+              { name: 'printing',       data: charts.mixTargets.printing },
+              { name: 'redistribution', data: charts.mixTargets.redistribution },
             ],
           });
         }
@@ -1214,12 +1214,72 @@ function initKatex() {
 }
 
 // =============================================================================
+// SMOOTH ANCHOR SCROLL — single roll-up, ease-out-expo
+// (high speed at start, striking deceleration at end — matches user spec)
+// =============================================================================
+function easeOutExpo(t) {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
+function smoothScrollTo(targetY, duration) {
+  duration = duration || 1200;
+  var startY = window.scrollY || window.pageYOffset;
+  var maxY   = (document.documentElement.scrollHeight - window.innerHeight);
+  targetY    = Math.max(0, Math.min(targetY, maxY));
+  var distance = targetY - startY;
+  if (Math.abs(distance) < 1) return;
+
+  var startTime = performance.now();
+  var aborted = false;
+
+  // If user scrolls manually mid-animation, abort (preserve user agency)
+  function onWheel() { aborted = true; cleanup(); }
+  function cleanup() {
+    window.removeEventListener('wheel', onWheel, { passive: true });
+    window.removeEventListener('touchmove', onWheel, { passive: true });
+  }
+  window.addEventListener('wheel', onWheel, { passive: true });
+  window.addEventListener('touchmove', onWheel, { passive: true });
+
+  function step(now) {
+    if (aborted) return;
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    var eased = easeOutExpo(t);
+    window.scrollTo(0, startY + distance * eased);
+    if (t < 1) {
+      requestAnimationFrame(step);
+    } else {
+      cleanup();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function initSmoothAnchors() {
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var href = a.getAttribute('href');
+      if (!href || href === '#') return;
+      var target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      // Section's offsetTop = top of section; lands flush with viewport top.
+      // Pin-wrapper is 500vh — landing at its top puts user at start of stage A.
+      smoothScrollTo(target.offsetTop, 1200);
+      if (history.replaceState) history.replaceState(null, '', href);
+    });
+  });
+}
+
+// =============================================================================
 // BOOT
 // =============================================================================
 window.addEventListener('DOMContentLoaded', function () {
   initCharts();
   initMinimap();
   initRefresh();
+  initSmoothAnchors();
 
   // Hero AF reveal — runs immediately on load
   setTimeout(function () {

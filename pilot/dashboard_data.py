@@ -362,7 +362,7 @@ SECTIONS = {
         "formula_h3": "Contribution identity.",
         "formula_katex": r"C_{i,e} \;=\; w_i \cdot S_{i,e}",
         "verdict_text": "All-Weather expected return by archetype: −8.13%, −26.00%, −3.05%, +11.83%.",
-        "verdict_emphasis": "ugly inflationary worst",
+        "verdict_emphasis": "−26.00%",
         # §7 Table 7.1 Sum row — byte-exact from research/12_stress_testing.md.
         # Defl. = −8.125 (rounded to −8.13), Infl. = −26.000, Stag. = −3.050, Refl. = +11.825 (+11.83).
         "chart_data": {

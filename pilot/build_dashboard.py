@@ -916,6 +916,36 @@ def build_section_c_slide(section_id: str, data: dict) -> str:
     )
 
 
+def build_section_d_slide(section_id: str, data: dict) -> str:
+    """Section D slide — Formula + Verdict + KaTeX. data-bg=light.
+
+    Renders KaTeX display formula + verdict block with emphasis substitution.
+    """
+    sid_dashed = section_id.replace(".", "-")
+    # Substitute verdict_emphasis with <em>...</em> in verdict_text (first occurrence only)
+    verdict_html = data["verdict_text"].replace(
+        data["verdict_emphasis"],
+        f'<em>{data["verdict_emphasis"]}</em>',
+        1,
+    )
+    return (
+        f'<div class="slide" data-slide="{sid_dashed}-D" data-bg="light">\n'
+        f'  <div class="section-tag fade-target"><span class="num">§ {section_id}</span> &nbsp; {data["title"].upper()}</div>\n'
+        f'  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>\n'
+        f'  <div class="slide-inner">\n'
+        f'    <h3 class="reveal-target" data-text="{html_escape(data["formula_h3"])}"></h3>\n'
+        f'    <div class="fade-target" style="margin-top: 4px;">\n'
+        f'      <div class="math-line">$${data["formula_katex"]}$$</div>\n'
+        f'    </div>\n'
+        f'    <div class="verdict fade-target">\n'
+        f'      <div class="verdict-label">Regime</div>\n'
+        f'      <div class="verdict-text">{verdict_html}</div>\n'
+        f'    </div>\n'
+        f'  </div>\n'
+        f'</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

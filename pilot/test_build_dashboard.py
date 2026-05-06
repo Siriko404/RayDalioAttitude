@@ -314,5 +314,52 @@ class TestSectionCSlide(unittest.TestCase):
         self.assertIn('id="chart-2-5"', s)
 
 
+class TestSectionDSlide(unittest.TestCase):
+    def test_section_d_for_1_4(self):
+        """§1.4-D contains KaTeX formula + verdict block with emphasis substituted."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["1.4"]
+        s = build_dashboard.build_section_d_slide("1.4", data)
+        self.assertIn('data-slide="1-4-D"', s)
+        self.assertIn('data-bg="light"', s)
+        # KaTeX delimited
+        self.assertIn("$$", s)
+        self.assertIn(data["formula_katex"], s)
+        # Verdict block
+        self.assertIn('class="verdict', s)
+        self.assertIn('class="verdict-text"', s)
+        self.assertIn(data["verdict_emphasis"], s)
+        # Emphasis substituted into <em>
+        self.assertIn(f'<em>{data["verdict_emphasis"]}</em>', s)
+        # Stage counter
+        self.assertIn("STAGE&nbsp;04 / 04", s)
+
+    def test_section_d_for_2_5(self):
+        """§2.5-D works (different formula, different verdict_emphasis)."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["2.5"]
+        s = build_dashboard.build_section_d_slide("2.5", data)
+        self.assertIn('data-slide="2-5-D"', s)
+        self.assertIn(data["formula_katex"], s)
+        self.assertIn(f'<em>{data["verdict_emphasis"]}</em>', s)
+
+    def test_section_d_emphasis_substituted_only_once(self):
+        """If verdict_emphasis appears multiple times in verdict_text, only first becomes <em>."""
+        import build_dashboard
+        # Use synthetic data
+        data = {
+            "title": "Test",
+            "formula_h3": "h3",
+            "formula_katex": r"x = y",
+            "verdict_text": "foo bar foo",
+            "verdict_emphasis": "foo",
+        }
+        s = build_dashboard.build_section_d_slide("9.9", data)
+        # First "foo" becomes <em>foo</em>, second remains plain
+        self.assertEqual(s.count("<em>foo</em>"), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

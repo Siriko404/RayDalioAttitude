@@ -244,5 +244,39 @@ class TestHtmlEscape(unittest.TestCase):
         self.assertEqual(build_dashboard.html_escape('"&"'), '&quot;&amp;&quot;')
 
 
+class TestSectionBSlide(unittest.TestCase):
+    def test_section_b_renders_lever_list(self):
+        """Section B renders all mechanism_items as numbered .lever rows."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["1.4"]
+        s = build_dashboard.build_section_b_slide("1.4", data)
+        self.assertIn('data-slide="1-4-B"', s)
+        self.assertIn('data-bg="light"', s)
+        # h3 with reveal-target
+        self.assertIn('class="reveal-target"', s)
+        # Section §1.4 has 4 mechanism_items per dashboard_data
+        self.assertEqual(s.count('class="lever"'), len(data["mechanism_items"]))
+        # Each item has .num, .body, .name, .desc
+        for i, (name, desc) in enumerate(data["mechanism_items"], start=1):
+            self.assertIn(f'<span class="num">{i:02d}</span>', s)
+            self.assertIn(f'<span class="name">{name}</span>', s)
+            self.assertIn(f'<span class="desc">{desc}</span>', s)
+        # Stage counter
+        self.assertIn("STAGE&nbsp;02 / 04", s)
+        # No third .effect column (skipped in build vs prototype)
+        self.assertNotIn('class="effect"', s)
+
+    def test_section_b_works_for_2_2(self):
+        """§2.2 has different mechanism (4-quadrant balance, not levers). Default generator handles."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["2.2"]
+        s = build_dashboard.build_section_b_slide("2.2", data)
+        self.assertIn('data-slide="2-2-B"', s)
+        # Should have 4 items per dashboard_data
+        self.assertEqual(s.count('class="lever"'), len(data["mechanism_items"]))
+
+
 if __name__ == "__main__":
     unittest.main()

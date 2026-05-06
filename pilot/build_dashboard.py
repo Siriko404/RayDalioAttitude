@@ -855,6 +855,38 @@ def build_section_a_slide(section_id: str, data: dict) -> str:
     )
 
 
+def build_section_b_slide(section_id: str, data: dict) -> str:
+    """Section B slide — Mechanism (typographic list, no boxes). data-bg=light.
+
+    Renders mechanism_items as numbered .lever rows.
+    """
+    sid_dashed = section_id.replace(".", "-")
+    items_html = []
+    for i, (name, desc) in enumerate(data["mechanism_items"], start=1):
+        items_html.append(
+            f'      <div class="lever">\n'
+            f'        <span class="num">{i:02d}</span>\n'
+            f'        <div class="body">\n'
+            f'          <span class="name">{name}</span>\n'
+            f'          <span class="desc">{desc}</span>\n'
+            f'        </div>\n'
+            f'      </div>'
+        )
+    items_block = "\n".join(items_html)
+    return (
+        f'<div class="slide" data-slide="{sid_dashed}-B" data-bg="light">\n'
+        f'  <div class="section-tag fade-target"><span class="num">§ {section_id}</span> &nbsp; {data["title"].upper()}</div>\n'
+        f'  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>\n'
+        f'  <div class="slide-inner">\n'
+        f'    <h3 class="reveal-target" data-text="{html_escape(data["mechanism_h3"])}"></h3>\n'
+        f'    <div class="levers fade-target">\n'
+        f'{items_block}\n'
+        f'    </div>\n'
+        f'  </div>\n'
+        f'</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

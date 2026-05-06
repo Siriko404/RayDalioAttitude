@@ -93,11 +93,10 @@ SECTIONS = {
             "and which mix produces a 'beautiful' vs 'ugly' deleveraging?"
         ),
         # Verbatim: Dalio, "An In-Depth Look at Deleveragings," Bridgewater 2012.
-        # Full: "the differences between deleveragings depend on the amounts and paces of
-        #        1) debt reduction, 2) austerity, 3) transferring wealth from the haves to
-        #        the have-nots, and 4) debt monetization."
-        # Shortened to ≤15 words from opening of that sentence:
-        "dalio_quote": "the differences between deleveragings depend on the amounts and paces of debt reduction, austerity.",
+        # Full: "Each one of these four paths reduces debt/income ratios, but they have different
+        #        effects on inflation and growth."
+        # Clean verbatim sub-string (9 words):
+        "dalio_quote": "Each one of these four paths reduces debt/income ratios.",
         "dalio_quote_cite": "Dalio · An In-Depth Look at Deleveragings · Bridgewater 2012",
         "mechanism_h3": "Four policy levers, four archetypes.",
         "mechanism_items": [
@@ -221,13 +220,11 @@ SECTIONS = {
     "2.1": {
         "title": "Template for investing",
         "question": "What is the four-step process for choosing an investment policy?",
-        # Verbatim: Dalio, "Engineering Targeted Returns and Risks," Bridgewater Aug 2011, p.8.
-        # Full: "create a well-diversified portfolio of uncorrelated return streams calibrated to
-        #        balance each other and to deliver a targeted return."
-        # = 18 words exactly. Trim to 14: "create a well-diversified portfolio of uncorrelated
-        #   return streams calibrated to deliver a targeted return."
-        "dalio_quote": "create a well-diversified portfolio of uncorrelated return streams calibrated to deliver a targeted return.",
-        "dalio_quote_cite": "Dalio · Engineering Targeted Returns and Risks · Bridgewater Aug 2011 · p.8",
+        # Verbatim: Dalio LinkedIn slug (cited in research/08 §2).
+        # Full: "My mantra of investing is fifteen good uncorrelated return streams, risk balanced."
+        # = 12 words. Clean verbatim.
+        "dalio_quote": "My mantra of investing is fifteen good uncorrelated return streams, risk balanced.",
+        "dalio_quote_cite": "Dalio · LinkedIn · My mantra of investing",
         "mechanism_h3": "Four steps.",
         "mechanism_items": [
             ("Goals", "Returns target, risk tolerance, liquidity needs."),

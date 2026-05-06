@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dalio Dashboard · prototype v2 · Apple-style scrollytelling</title>
+<meta name="theme-color" content="#0a0a0a">
+<meta name="color-scheme" content="dark">
+<title>Dalio · Economic Framework</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0a0a'/><text x='16' y='23' font-family='Georgia,serif' font-weight='900' font-size='22' fill='%23c9a14a' text-anchor='middle'>D</text></svg>">
 
 <!-- Fonts: Source Serif 4 broad-weight + DM Mono -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,9 +56,27 @@
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.5;
   }
+  /* Native smooth scroll — anchor clicks animate via the browser engine.
+     Replaces the v2.2/v2.3 JS snap-scroll system (overengineered per user). */
+  html { scroll-behavior: smooth; }
   body { overflow-x: hidden; }
 
   ::selection { background: var(--gold); color: var(--bg); }
+
+  /* ---- Custom scrollbar — gold-tinted to match theme ---- */
+  /* Firefox */
+  * { scrollbar-width: thin; scrollbar-color: var(--gold-low) var(--bg); }
+  /* Webkit / Chromium / Edge / Safari */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold-low);
+    border: 2px solid var(--bg);
+    border-radius: 0;
+    transition: background 220ms ease;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+  ::-webkit-scrollbar-corner { background: var(--bg); }
 
   /* =============================================================
      TYPOGRAPHY — Source Serif 4 broad weight
@@ -1214,212 +1235,15 @@ function initKatex() {
 }
 
 // =============================================================================
-// SNAP-SCROLL — every wheel/arrow/touch lands on a waypoint, never mid-way
-// (per user feedback: "it can remin mid way! it shoudlnt be liek that")
+// SCROLL — native via CSS `html { scroll-behavior: smooth }`
+// (v2.4 simplification: replaces v2.2/v2.3 JS snap system per user request —
+// "overengineered. replace with simple elegant smooth scroll. compatible
+// friendly bug free smooth scrolling.")
 //
-// Waypoints:
-//   - hero (scrollY=0)
-//   - intro
-//   - §1.4 stage-A     (pin-wrapper top, ScrollTrigger progress=0)
-//   - §1.4 stage-B     (pin-wrapper top + pinDur*1/3, progress≈0.33)
-//   - §1.4 stage-C     (pin-wrapper top + pinDur*2/3, progress≈0.67)
-//   - §1.4 stage-D     (pin-wrapper top + pinDur,     progress=1.00)
-//   - more
-//
-// Easing: easeOutExpo (1 − 2^(−10t)) — high speed start, striking decel end.
-// Lockout swallows trackpad inertia / wheel-burst so each gesture = one snap.
+// Anchor clicks `<a href="#section">` smooth-scroll natively via the browser.
+// Wheel / arrow / touch use native browser scroll — full user agency, zero
+// JS interception. ScrollTrigger reads scroll events and works unchanged.
 // =============================================================================
-function easeOutExpo(t) {
-  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-}
-
-// Per user feedback v2.2 → v2.3: easeOutExpo's tail covers near-zero ground
-// but the lockout still blocked the next gesture, leaving the page feeling
-// sluggish at the end. v2.3 trims aggressively:
-//   - duration 1000 → 500ms (motion visually done by ~250ms with expo)
-//   - cooldown 280 → 80ms  (just enough to debounce a double-fire)
-//   - early-exit if remaining distance ≤ 2px past t=0.7
-// Net: max lockout 580ms (was 1280ms) — striking decel, no dead tail.
-var SNAP_DURATION     = 500;   // ms per snap (was 1000)
-var SNAP_SETTLE       = 80;    // ms cooldown (was 280)
-var SNAP_BURST_EXTEND = 140;   // ms extension during continued wheel/inertia (was 200)
-var ANCHOR_DURATION   = 700;   // ms anchor click — multi-section jump (was 1300)
-var EARLY_EXIT_T      = 0.70;  // past this t, check for px-tolerance exit
-var EARLY_EXIT_PX     = 2;     // px tolerance — if remaining distance ≤ this, snap to target
-
-var snapWaypoints = [];
-var snapLockUntil = 0;
-
-function rebuildSnapWaypoints() {
-  var pts = [];
-  var hero  = document.getElementById('hero');
-  var intro = document.getElementById('intro');
-  var pin   = document.getElementById('sec-1-4');
-  var more  = document.getElementById('more');
-
-  if (hero)  pts.push(0);
-  if (intro) pts.push(intro.offsetTop);
-
-  if (pin) {
-    var pinStart = pin.offsetTop;
-    // pin-wrapper is 500vh; ScrollTrigger pins from start='top top' to
-    // end='bottom bottom' → progress 0..1 maps to scrollY traversal of
-    // (pinHeight - viewportHeight). Four stage-fully-visible points:
-    var pinDur = pin.offsetHeight - window.innerHeight;
-    pts.push(pinStart);
-    pts.push(pinStart + Math.round(pinDur / 3));
-    pts.push(pinStart + Math.round(pinDur * 2 / 3));
-    pts.push(pinStart + pinDur);
-  }
-
-  if (more) pts.push(more.offsetTop);
-
-  pts.sort(function (a, b) { return a - b; });
-  // De-dupe within 4px
-  var deduped = [];
-  pts.forEach(function (p) {
-    if (deduped.length === 0 || p - deduped[deduped.length - 1] > 4) deduped.push(p);
-  });
-  snapWaypoints = deduped;
-}
-
-function findNextSnap(direction) {
-  var cur = window.scrollY || window.pageYOffset;
-  var EPS = 4;
-  if (direction > 0) {
-    for (var i = 0; i < snapWaypoints.length; i++) {
-      if (snapWaypoints[i] > cur + EPS) return snapWaypoints[i];
-    }
-  } else {
-    for (var j = snapWaypoints.length - 1; j >= 0; j--) {
-      if (snapWaypoints[j] < cur - EPS) return snapWaypoints[j];
-    }
-  }
-  return null;
-}
-
-function snapAnimateTo(targetY, duration) {
-  duration = duration || SNAP_DURATION;
-  var startY = window.scrollY || window.pageYOffset;
-  var maxY = document.documentElement.scrollHeight - window.innerHeight;
-  targetY = Math.max(0, Math.min(targetY, maxY));
-  var distance = targetY - startY;
-  if (Math.abs(distance) < 1) return;
-  var startTime = performance.now();
-
-  function step(now) {
-    var t = Math.min((now - startTime) / duration, 1);
-    var eased = easeOutExpo(t);
-    var current = startY + distance * eased;
-    window.scrollTo(0, current);
-
-    if (t >= 1) {
-      window.scrollTo(0, targetY);
-      return;
-    }
-
-    // Early-exit: easeOutExpo(0.70) ≈ 99.2% — past this the user perceives
-    // "stopped" but the lockout would still hold. Snap to target and TIGHTEN
-    // the lockout so the next gesture can fire immediately on visual settle.
-    if (t >= EARLY_EXIT_T && Math.abs(targetY - current) <= EARLY_EXIT_PX) {
-      window.scrollTo(0, targetY);
-      snapLockUntil = now + SNAP_SETTLE;
-      return;
-    }
-
-    requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function snapInDirection(direction) {
-  if (performance.now() < snapLockUntil) return;
-  var target = findNextSnap(direction);
-  if (target === null) return;
-  snapLockUntil = performance.now() + SNAP_DURATION + SNAP_SETTLE;
-  snapAnimateTo(target, SNAP_DURATION);
-}
-
-function initSnapScroll() {
-  rebuildSnapWaypoints();
-  window.addEventListener('resize', rebuildSnapWaypoints);
-  window.addEventListener('load', rebuildSnapWaypoints);
-
-  // ---- Wheel ----
-  // preventDefault on wheel so native scroll never fires; we own scroll position.
-  // Lockout swallows trackpad inertia / mouse wheel-burst → one gesture = one snap.
-  window.addEventListener('wheel', function (e) {
-    e.preventDefault();
-    if (performance.now() < snapLockUntil) {
-      snapLockUntil = Math.max(snapLockUntil, performance.now() + SNAP_BURST_EXTEND);
-      return;
-    }
-    snapInDirection(e.deltaY > 0 ? 1 : -1);
-  }, { passive: false });
-
-  // ---- Keyboard ----
-  window.addEventListener('keydown', function (e) {
-    // Only intercept navigation keys; let typing in form fields / inputs through
-    var tag = (e.target && e.target.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-
-    var dir = 0, special = null;
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') dir = 1;
-    else if (e.key === 'ArrowUp' || e.key === 'PageUp') dir = -1;
-    else if (e.key === 'Home') special = 'first';
-    else if (e.key === 'End')  special = 'last';
-    else return;
-
-    e.preventDefault();
-    if (performance.now() < snapLockUntil) return;
-
-    if (special === 'first') {
-      snapLockUntil = performance.now() + SNAP_DURATION + SNAP_SETTLE;
-      snapAnimateTo(snapWaypoints[0] || 0, SNAP_DURATION);
-    } else if (special === 'last') {
-      snapLockUntil = performance.now() + SNAP_DURATION + SNAP_SETTLE;
-      snapAnimateTo(snapWaypoints[snapWaypoints.length - 1] || 0, SNAP_DURATION);
-    } else {
-      snapInDirection(dir);
-    }
-  });
-
-  // ---- Touch (mobile) ----
-  var touchStartY = null;
-  window.addEventListener('touchstart', function (e) {
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-  // Block native touch-scroll during animation
-  window.addEventListener('touchmove', function (e) {
-    if (performance.now() < snapLockUntil) e.preventDefault();
-  }, { passive: false });
-  window.addEventListener('touchend', function (e) {
-    if (touchStartY === null) return;
-    var endY = e.changedTouches[0].clientY;
-    var delta = touchStartY - endY;
-    touchStartY = null;
-    if (Math.abs(delta) < 32) return;     // tap, not swipe
-    snapInDirection(delta > 0 ? 1 : -1);
-  }, { passive: true });
-}
-
-// Anchor clicks (mini-map dots, etc.) jump to specific waypoint with longer
-// duration since the journey may span multiple sections.
-function initSmoothAnchors() {
-  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-    a.addEventListener('click', function (e) {
-      var href = a.getAttribute('href');
-      if (!href || href === '#') return;
-      var target = document.querySelector(href);
-      if (!target) return;
-      e.preventDefault();
-      if (performance.now() < snapLockUntil) return;
-      snapLockUntil = performance.now() + ANCHOR_DURATION + SNAP_SETTLE;
-      snapAnimateTo(target.offsetTop, ANCHOR_DURATION);
-      if (history.replaceState) history.replaceState(null, '', href);
-    });
-  });
-}
 
 // =============================================================================
 // BOOT
@@ -1428,8 +1252,7 @@ window.addEventListener('DOMContentLoaded', function () {
   initCharts();
   initMinimap();
   initRefresh();
-  initSnapScroll();       // wheel/key/touch snap to waypoint
-  initSmoothAnchors();    // mini-map clicks → ease-out-expo to waypoint
+  // Scroll behavior is now CSS-native — no JS hooks needed (v2.4).
 
   // Hero AF reveal — runs immediately on load
   setTimeout(function () {

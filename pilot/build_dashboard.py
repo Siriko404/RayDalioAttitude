@@ -803,6 +803,27 @@ def build_hero_slide() -> str:
     )
 
 
+def build_intro_slide() -> str:
+    """Return the INTRO slide HTML block — chrome, light bg, second slide (no .active).
+
+    Structure mirrors prototype-v4.html lines 701-709 but adapted to the full
+    12-framework corpus framing instead of §1.4-specific content:
+    - Outer div: class="slide" data-slide="intro" data-bg="light"
+    - slide-inner: eyebrow + h2 (AF reveal-target, content in data-text) + 2 body paragraphs
+    - No .active class — only hero has it
+    """
+    return (
+        '<div class="slide" data-slide="intro" data-bg="light">\n'
+        '  <div class="slide-inner">\n'
+        '    <div class="eyebrow fade-target">FRAMEWORK CORPUS &nbsp;·&nbsp; TWELVE IDENTITIES</div>\n'
+        '    <h2 class="reveal-target" data-text="An economic mind, decomposed into twelve identities — each cited, each worked, each falsifiable."></h2>\n'
+        '    <p class="body-text fade-target">The first seven frameworks describe <em>how the economy works</em>: credit cycles short and long, deleveragings, paradigm shifts, the changing world order, inflation and currency. The remaining five describe <em>how to invest within</em>: a four-step decision template, the All-Weather portfolio, alpha and portable alpha, risk parity with leverage, and stress-testing for tails.</p>\n'
+        '    <p class="body-text fade-target">Each framework rendered with its decision question, mechanism, historical archetype, and worked-example formula — <em>verbatim from Dalio\'s writings, byte-exact reconciled</em>.</p>\n'
+        '  </div>\n'
+        '</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

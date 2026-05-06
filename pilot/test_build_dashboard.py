@@ -131,5 +131,29 @@ class TestHeroSlide(unittest.TestCase):
         self.assertIn("SCROLL", s)
 
 
+class TestIntroSlide(unittest.TestCase):
+    def test_intro_structure(self):
+        """Intro slide is second (no .active), data-bg=light, h2 reveal-target + 2 body paragraphs."""
+        import build_dashboard
+        s = build_dashboard.build_intro_slide()
+        self.assertIn('data-slide="intro"', s)
+        self.assertIn('data-bg="light"', s)
+        # NOT initially active (only hero has .active)
+        # The outer div should be 'class="slide"' (not 'class="slide active"')
+        self.assertIn('<div class="slide"', s)
+        self.assertNotIn('class="slide active"', s)
+        # h2 with reveal-target + data-text
+        self.assertIn("<h2", s)
+        self.assertIn('class="reveal-target"', s)
+        self.assertIn('data-text=', s)
+        # 2 body paragraphs with em emphasis
+        self.assertEqual(s.count('class="body-text fade-target"'), 2)
+        self.assertIn("<em>", s)
+        # Eyebrow
+        self.assertIn('class="eyebrow', s)
+        # Topic markers
+        self.assertIn("twelve", s.lower())
+
+
 if __name__ == "__main__":
     unittest.main()

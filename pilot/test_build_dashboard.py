@@ -361,5 +361,25 @@ class TestSectionDSlide(unittest.TestCase):
         self.assertEqual(s.count("<em>foo</em>"), 1)
 
 
+class TestMoreSlide(unittest.TestCase):
+    def test_more_has_12_toc_items(self):
+        """More/TOC slide has 12 toc-items (one per section) with title + section number."""
+        import build_dashboard
+        import dashboard_data
+        s = build_dashboard.build_more_slide(dashboard_data.SECTIONS)
+        self.assertIn('data-slide="more"', s)
+        self.assertIn('data-bg="dark"', s)
+        # 12 toc-items
+        self.assertEqual(s.count('class="toc-item"'), 12)
+        # Each section title present
+        for sid, data in dashboard_data.SECTIONS.items():
+            self.assertIn(f'§ {sid}', s)
+            self.assertIn(data["title"], s)
+        # Eyebrow + h2
+        self.assertIn('class="eyebrow eyebrow--center', s)
+        self.assertIn("<h2", s)
+        self.assertIn('class="reveal-target"', s)
+
+
 if __name__ == "__main__":
     unittest.main()

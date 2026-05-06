@@ -946,6 +946,32 @@ def build_section_d_slide(section_id: str, data: dict) -> str:
     )
 
 
+def build_more_slide(sections: dict) -> str:
+    """More/TOC slide — 12-framework grid (4×3 with top-hairline rows per CSS). data-bg=dark.
+
+    Iterates sections dict in insertion order (Python 3.7+ guarantees this).
+    """
+    items = []
+    for sid, data in sections.items():
+        items.append(
+            f'      <div class="toc-item">'
+            f'<span class="num">§ {sid}</span>'
+            f'<span class="ttl">{data["title"]}</span></div>'
+        )
+    items_html = "\n".join(items)
+    return (
+        f'<div class="slide" data-slide="more" data-bg="dark">\n'
+        f'  <div class="slide-inner">\n'
+        f'    <div class="eyebrow eyebrow--center fade-target">CONTINUATION</div>\n'
+        f'    <h2 class="reveal-target" data-text="Twelve frameworks, the corpus complete." style="text-align: center;"></h2>\n'
+        f'    <div class="toc fade-target">\n'
+        f'{items_html}\n'
+        f'    </div>\n'
+        f'  </div>\n'
+        f'</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

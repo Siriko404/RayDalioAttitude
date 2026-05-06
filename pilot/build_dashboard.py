@@ -725,7 +725,8 @@ def all_slide_ids() -> list[str]:
         for stage in STAGES:
             ids.append(f"{section_dashed}-{stage}")
     ids.append("more")
-    assert len(ids) == 51, f"expected 51 slide IDs, got {len(ids)}"
+    if len(ids) != 51:
+        raise ValueError(f"expected 51 slide IDs, got {len(ids)}")
     return ids
 
 
@@ -760,8 +761,8 @@ def build_minimap(slide_ids: list[str]) -> str:
     for i, sid in enumerate(slide_ids):
         active_class = ' class="active"' if i == 0 else ''
         dots.append(
-            f'  <a href="#slot-{sid}" data-label="{label_for(sid)}" '
-            f'data-slide="{sid}"{active_class}></a>'
+            f'  <a href="#slot-{sid}" data-slide="{sid}" '
+            f'data-label="{label_for(sid)}"{active_class}></a>'
         )
     dots_html = "\n".join(dots)
     return f'<nav class="minimap" aria-label="page navigation">\n{dots_html}\n</nav>\n'

@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dalio Dashboard · prototype v2 · Apple-style scrollytelling</title>
+
+<!-- Fonts: Source Serif 4 broad-weight + DM Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- KaTeX for math rendering -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+<!-- ECharts for charts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+<!-- GSAP + ScrollTrigger for Apple-style pin+scrub -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+<style>
+  /* =============================================================
+     PALETTE — locked: black + cream + gold (NOT emerald)
+     ============================================================= */
+  :root {
+    --bg:        #0a0a0a;
+    --bg-panel: #0e0e0e;
+    --border:   #1a1a1a;
+    --border-2: #262626;
+    --text-1:   #e8e6df;   /* cream */
+    --text-2:   #8a8a82;   /* secondary */
+    --text-3:   #5a5a52;   /* tertiary */
+    --text-4:   #3a3a32;   /* quaternary, lines */
+    --gold:     #c9a14a;   /* primary accent */
+    --gold-low: #4a3b1d;   /* dim version for hairlines */
+    --gold-glow: rgba(201,161,74,0.45);
+    --bad:      #8b2e2e;
+    --warn:     #a87a3d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: 'Source Serif 4', 'Times New Roman', Times, serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+  body { overflow-x: hidden; }
+
+  ::selection { background: var(--gold); color: var(--bg); }
+
+  /* =============================================================
+     TYPOGRAPHY — Source Serif 4 broad weight
+     ============================================================= */
+  .mono { font-family: 'DM Mono', ui-monospace, Menlo, monospace; }
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-3);
+    text-transform: uppercase;
+  }
+  .gold { color: var(--gold); }
+  em { font-style: italic; font-weight: 400; color: var(--gold); }
+
+  h1, h2, h3 { font-family: 'Source Serif 4', serif; line-height: 0.96; letter-spacing: -1.5px; }
+  h1 { font-weight: 900; font-size: clamp(64px, 10vw, 140px); }
+  h2 { font-weight: 800; font-size: clamp(40px, 6vw, 84px); }
+  h3 { font-weight: 700; font-size: clamp(22px, 2.4vw, 32px); letter-spacing: -0.4px; }
+
+  /* =============================================================
+     AF-STYLE TEXT REVEAL — char-by-char block-fill
+     ============================================================= */
+  .reveal-ch {
+    display: inline-block;
+    transition: background 0.18s ease-out, color 0.18s ease-out;
+  }
+
+  /* =============================================================
+     HEADER — fixed top bar
+     ============================================================= */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 18px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(10,10,10,0.96) 0%, rgba(10,10,10,0.80) 70%, rgba(10,10,10,0) 100%);
+    backdrop-filter: blur(8px);
+  }
+  header .brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-2);
+  }
+  header .brand .gold { color: var(--gold); }
+  header .refresh-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  header .refresh-pill::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 6px var(--gold-glow);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
+
+  /* =============================================================
+     MINI-MAP NAV — right edge dots
+     ============================================================= */
+  .minimap {
+    position: fixed;
+    top: 50%;
+    right: 22px;
+    transform: translateY(-50%);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .minimap a {
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--gold-low);
+    border-radius: 50%;
+    position: relative;
+    transition: background 220ms, border-color 220ms, transform 220ms;
+    text-decoration: none;
+  }
+  .minimap a::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-2);
+    opacity: 0;
+    transition: opacity 220ms;
+    pointer-events: none;
+    text-transform: uppercase;
+  }
+  .minimap a:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    transform: scale(1.4);
+  }
+  .minimap a:hover::after, .minimap a.active::after {
+    opacity: 1;
+    color: var(--gold);
+  }
+  .minimap a.active {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* =============================================================
+     HERO
+     ============================================================= */
+  .hero {
+    min-height: 100vh;
+    padding: 0 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--text-2);
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  .hero .eyebrow .sep { color: var(--gold-low); margin: 0 12px; }
+  .hero h1 {
+    max-width: 1200px;
+    margin-bottom: 36px;
+  }
+  .hero .sub {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(18px, 1.8vw, 22px);
+    line-height: 1.5;
+    color: var(--text-2);
+    max-width: 720px;
+  }
+  .hero .meta {
+    position: absolute;
+    bottom: 36px;
+    left: 36px;
+    right: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-3);
+  }
+  .hero .meta .scroll-cue::after {
+    content: ' ↓';
+    color: var(--gold);
+    margin-left: 6px;
+  }
+
+  /* Hairline separator */
+  .hero::after {
+    content: '';
+    position: absolute;
+    left: 36px; right: 36px;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold) 0%, transparent 60%);
+  }
+
+  /* =============================================================
+     INTRO SECTION (between hero and pinned 1.4)
+     ============================================================= */
+  .intro {
+    padding: 200px 36px 200px;
+    max-width: 1100px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .intro .label { margin-bottom: 28px; }
+  .intro h2 { margin-bottom: 36px; }
+  .intro .body {
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--text-1);
+    max-width: 760px;
+  }
+  .intro .body p + p { margin-top: 22px; }
+  .intro .body em { color: var(--gold); }
+
+  /* =============================================================
+     APPLE-STYLE SCROLLYTELLING — pin + scrub
+     ============================================================= */
+  .pin-wrapper {
+    /* the outer wrapper provides scroll budget; ScrollTrigger pins .pin-stage */
+    height: 500vh;   /* 5x viewport heights = pin duration */
+    position: relative;
+  }
+  .pin-stage {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .pin-left {
+    padding: 80px 48px 48px 48px;
+    border-right: 1px solid var(--border);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .pin-right {
+    padding: 80px 48px 48px 48px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .pin-section-tag {
+    position: absolute;
+    top: 30px;
+    left: 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-3);
+  }
+  .pin-section-tag .gold { color: var(--gold); }
+  .pin-progress {
+    position: absolute;
+    top: 30px;
+    right: 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-3);
+  }
+  .pin-progress-bar {
+    position: absolute;
+    top: 56px;
+    right: 48px;
+    width: 140px;
+    height: 1px;
+    background: var(--border-2);
+    overflow: hidden;
+  }
+  .pin-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: var(--p, 0%);
+    background: var(--gold);
+    transition: width 60ms linear;
+  }
+
+  /* Stages — stacked, only one visible at a time, crossfade tied to scroll */
+  .stage {
+    position: absolute;
+    inset: 80px 48px 48px 48px;
+    opacity: 0;
+    transform: translateY(40px);
+    will-change: opacity, transform;
+  }
+  .pin-left .stage { display: flex; flex-direction: column; justify-content: center; }
+
+  .stage h2 { margin-bottom: 24px; }
+  .stage .body {
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--text-1);
+    max-width: 520px;
+  }
+  .stage .body em { color: var(--gold); font-style: italic; font-weight: 400; }
+  .stage .body p + p { margin-top: 18px; }
+
+  /* Stage-A — opening framing question */
+  .stage-a .question {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(28px, 4vw, 48px);
+    line-height: 1.18;
+    color: var(--text-1);
+    margin-bottom: 32px;
+  }
+  .stage-a .question em { color: var(--gold); font-weight: 400; }
+  .stage-a .anchor {
+    border-left: 2px solid var(--gold);
+    padding-left: 18px;
+    margin-top: 28px;
+    color: var(--text-2);
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .stage-a .anchor cite {
+    display: block;
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-style: normal;
+    color: var(--text-3);
+    letter-spacing: 1.5px;
+  }
+
+  /* Stage-B — four levers, each appears */
+  .levers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 28px;
+  }
+  .lever {
+    border: 1px solid var(--border-2);
+    padding: 18px 20px;
+    background: var(--bg-panel);
+    position: relative;
+    transition: border-color 320ms, transform 320ms;
+  }
+  .lever .num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .lever .name {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--text-1);
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .lever .desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+  .lever .effect {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-3);
+  }
+  .lever .effect.deflationary { color: var(--bad); opacity: 0.85; }
+  .lever .effect.inflationary { color: var(--gold); }
+
+  /* Stage-C — chart full pane on right */
+  .stage-c-chart {
+    width: 100%;
+    height: 100%;
+  }
+  .chart-shell {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .chart-shell .echart {
+    position: absolute;
+    inset: 0;
+  }
+  .chart-shell .chart-caption {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-3);
+    text-align: center;
+  }
+  .chart-shell .chart-caption .gold { color: var(--gold); }
+
+  /* Stage-D — math + worked example */
+  .math-block {
+    background: var(--bg-panel);
+    border-left: 3px solid var(--gold);
+    padding: 22px 26px;
+    margin: 22px 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .math-block .label-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .math-block .step {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    padding: 6px 0;
+  }
+  .math-block .step .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-3);
+    flex-shrink: 0;
+    letter-spacing: 1.5px;
+  }
+  .math-block .step .step-text {
+    color: var(--text-1);
+    font-size: 15px;
+  }
+  .verdict {
+    border: 1px solid var(--gold);
+    padding: 18px 22px;
+    margin-top: 22px;
+    background: rgba(201,161,74,0.04);
+  }
+  .verdict .verdict-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .verdict .verdict-text {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--text-1);
+    letter-spacing: -0.5px;
+  }
+  .verdict .verdict-text em { color: var(--gold); font-weight: 400; }
+
+  /* =============================================================
+     PLACEHOLDER CONTINUATION SECTION
+     ============================================================= */
+  .more {
+    padding: 180px 36px;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .more .label { margin-bottom: 24px; }
+  .more h2 {
+    font-weight: 200;
+    font-size: clamp(36px, 5vw, 64px);
+    color: var(--text-2);
+    letter-spacing: -1px;
+    margin-bottom: 28px;
+  }
+  .more h2 em { color: var(--gold); font-weight: 200; }
+  .more .toc {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 48px;
+    text-align: left;
+  }
+  .more .toc-item {
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    transition: border-color 220ms;
+  }
+  .more .toc-item:hover { border-color: var(--gold-low); }
+  .more .toc-item .num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+  }
+  .more .toc-item .ttl {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-1);
+    margin-top: 4px;
+  }
+
+  /* =============================================================
+     FOOTER
+     ============================================================= */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 36px 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 1.5px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer a {
+    color: var(--text-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-2);
+    transition: color 220ms, border-color 220ms;
+  }
+  footer a:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .pin-stage { grid-template-columns: 1fr; }
+    .pin-left { border-right: none; border-bottom: 1px solid var(--border); }
+    .stage { padding: 0; }
+    .more .toc { grid-template-columns: repeat(2, 1fr); }
+    .minimap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="gold">DALIO</span> · ECONOMIC FRAMEWORK · v0.2-prototype</div>
+  <div class="refresh-pill" id="refresh-pill"><span>live · refreshed 0s ago</span></div>
+</header>
+
+<!-- Mini-map nav -->
+<nav class="minimap" aria-label="section navigation">
+  <a href="#hero" data-label="HERO" data-section="hero" class="active"></a>
+  <a href="#intro" data-label="INTRO" data-section="intro"></a>
+  <a href="#sec-1-4" data-label="1.4 DELEVERAGINGS" data-section="sec-1-4"></a>
+  <a href="#more" data-label="MORE" data-section="more"></a>
+</nav>
+
+<!-- ========================================================
+     HERO
+     ======================================================== -->
+<section class="hero" id="hero">
+  <div class="eyebrow">RAY DALIO <span class="sep">·</span> THE TEMPLATE <span class="sep">·</span> 12 FRAMEWORKS, ONE PAGE</div>
+  <h1 id="hero-h1" data-text="How he sees the &lt;em&gt;economy&lt;/em&gt;."></h1>
+  <p class="sub" id="hero-sub" data-text="Twelve interlocking models — debt cycles, deleveragings, all-weather, stress tests — assembled from primary Bridgewater sources, parameterized, and rendered live.">Twelve interlocking models — debt cycles, deleveragings, all-weather, stress tests — assembled from primary Bridgewater sources, parameterized, and rendered live.</p>
+
+  <div class="meta">
+    <div>SOURCES: NowAndFutures · LinkedIn essays · Principles for Dealing with the Changing World Order</div>
+    <div class="scroll-cue">SCROLL</div>
+  </div>
+</section>
+
+<!-- ========================================================
+     INTRO — between hero and pinned 1.4
+     ======================================================== -->
+<section class="intro" id="intro">
+  <div class="label">§ 1.4 · IN CONTEXT</div>
+  <h2>Twelve frameworks, three regimes, four levers.</h2>
+  <div class="body">
+    <p>Dalio's economic engine produces three classical outcomes when a long-term debt cycle tops: <em>ugly deflationary</em>, <em>beautiful</em>, or <em>ugly inflationary</em>. The path that obtains depends on how policymakers mix four levers — <em>debt reduction</em>, <em>austerity</em>, <em>wealth transfer</em>, <em>debt monetization</em>.</p>
+    <p>This page renders all twelve of his frameworks. We start with the deleveragings sub-model — the moment where the regime branches.</p>
+  </div>
+</section>
+
+<!-- ========================================================
+     SECTION 1.4 DELEVERAGINGS — Apple-style pin + scrub
+     ======================================================== -->
+<div class="pin-wrapper" id="sec-1-4">
+  <div class="pin-stage">
+    <div class="pin-section-tag"><span class="gold">§ 1.4</span> DELEVERAGINGS</div>
+    <div class="pin-progress mono"><span id="progress-pct">00%</span></div>
+    <div class="pin-progress-bar" id="progress-bar"></div>
+
+    <!-- LEFT pane: text content stages -->
+    <div class="pin-left">
+
+      <!-- STAGE A — opening question -->
+      <div class="stage stage-a" id="stage-a">
+        <div class="label" style="margin-bottom: 18px;">STAGE 01 · THE QUESTION</div>
+        <div class="question" id="stage-a-q" data-text="When debt tops out, who bears the &lt;em&gt;loss&lt;/em&gt;?"></div>
+        <div class="anchor">
+          "The differences between deleveragings depend on the amounts and paces of (1) debt reduction, (2) austerity, (3) transferring wealth from the haves to the have-nots, and (4) debt monetization."
+          <cite>RAY DALIO · IN-DEPTH LOOK AT DELEVERAGINGS · 2012</cite>
+        </div>
+      </div>
+
+      <!-- STAGE B — four levers grid -->
+      <div class="stage stage-b" id="stage-b">
+        <div class="label" style="margin-bottom: 18px;">STAGE 02 · THE FOUR LEVERS</div>
+        <h3 style="margin-bottom: 14px;">Each lever shrinks debt-to-income — but with different side effects.</h3>
+        <div class="levers">
+          <div class="lever">
+            <div class="num">01</div>
+            <div class="name">Debt reduction</div>
+            <div class="desc">Defaults, restructurings, write-downs. Investors absorb the loss.</div>
+            <div class="effect deflationary">DEFLATIONARY · DEPRESSING</div>
+          </div>
+          <div class="lever">
+            <div class="num">02</div>
+            <div class="name">Austerity</div>
+            <div class="desc">Cut spending. Households + governments reduce consumption.</div>
+            <div class="effect deflationary">DEFLATIONARY · DEPRESSING</div>
+          </div>
+          <div class="lever">
+            <div class="num">03</div>
+            <div class="name">Wealth transfer</div>
+            <div class="desc">Tax the haves; redistribute to the have-nots. Dalio: rare in scale.</div>
+            <div class="effect">NEUTRAL · POLITICAL</div>
+          </div>
+          <div class="lever">
+            <div class="num">04</div>
+            <div class="name">Debt monetization</div>
+            <div class="desc">Central bank prints money, buys debt. Currency dilutes.</div>
+            <div class="effect inflationary">INFLATIONARY · STIMULATIVE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE C — historical decomposition explainer (chart on right) -->
+      <div class="stage stage-c" id="stage-c">
+        <div class="label" style="margin-bottom: 18px;">STAGE 03 · THE HISTORICAL DECOMPOSITION</div>
+        <h3 style="margin-bottom: 14px;">Same four levers — radically different mixes.</h3>
+        <div class="body">
+          <p>The 1930–32 Great Depression was <em>ugly deflationary</em>: defaults dominated, printing stayed near zero. Hoover-era austerity squeezed further.</p>
+          <p>Then in 1933 Roosevelt devalued gold and printing rose to ~2% of GDP. Same country, same debt — but a <em>beautiful</em> reflation followed.</p>
+          <p>Japan 1990+ <em>looks</em> like 1933 on paper, but printing stayed at 0.8% — too small to overcome the deflation. Chronic <em>ugly deflationary</em>.</p>
+        </div>
+      </div>
+
+      <!-- STAGE D — math + worked example -->
+      <div class="stage stage-d" id="stage-d">
+        <div class="label" style="margin-bottom: 18px;">STAGE 04 · THE FORMULA</div>
+        <h3 style="margin-bottom: 14px;">The beautiful gate: nominal growth must exceed nominal interest.</h3>
+
+        <div class="math-block">
+          <div class="label-tag">CORE IDENTITY</div>
+          <div>$$G_t \;=\; \mathrm{NGDP}_{yoy,t} \;-\; r_t$$</div>
+          <div style="margin-top: 8px; color: var(--text-2); font-size: 13px; line-height: 1.5;">If $G_t > 0$ and $\Delta D_t < 0$, the deleveraging is <em>beautiful</em>. If $G_t < 0$ and $\Delta D_t > 0$, it's <em>ugly deflationary</em>.</div>
+        </div>
+
+        <div class="math-block">
+          <div class="label-tag">U.S. 1930–32 · WORKED</div>
+          <div class="step"><span class="step-num">1</span><span class="step-text">$G = -17.0\% - 3.4\% = -20.4\mathrm{pp}$</span></div>
+          <div class="step"><span class="step-num">2</span><span class="step-text">$\Delta D = +97\mathrm{pp}$ (DebtGDP $155\% \to 252\%$)</span></div>
+          <div class="step"><span class="step-num">3</span><span class="step-text">$\pi = 0.4\% + 0.4\% = 0.8\%$ — print intensity stayed low</span></div>
+        </div>
+
+        <div class="verdict">
+          <div class="verdict-label">REGIME · DEFLATIONARY</div>
+          <div class="verdict-text">G &lt; 0 and ΔD &gt; 0 ⇒ <em>ugly deflationary</em>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT pane: chart-by-stage panels -->
+    <div class="pin-right">
+      <!-- Stage-A right: framing visualization -->
+      <div class="stage stage-a-r" id="stage-a-r">
+        <div class="chart-shell">
+          <div id="chart-tax" class="echart"></div>
+          <div class="chart-caption">DALIO · <span class="gold">3 REGIME OUTCOMES</span> when a long-term debt cycle tops</div>
+        </div>
+      </div>
+
+      <!-- Stage-B right: four-lever effect cross-plot -->
+      <div class="stage stage-b-r" id="stage-b-r">
+        <div class="chart-shell">
+          <div id="chart-effect" class="echart"></div>
+          <div class="chart-caption">EACH LEVER · effect on <span class="gold">growth</span> vs <span class="gold">inflation</span></div>
+        </div>
+      </div>
+
+      <!-- Stage-C right: lever-mix bar chart, scrub-grown -->
+      <div class="stage stage-c-r" id="stage-c-r">
+        <div class="chart-shell">
+          <div id="chart-mix" class="echart"></div>
+          <div class="chart-caption">FOUR-LEVER MIX · 1930–32 vs 1933–37 vs JAPAN 90+ <span class="gold">(byte-exact, research/04 §7)</span></div>
+        </div>
+      </div>
+
+      <!-- Stage-D right: G_t over time + regime labels -->
+      <div class="stage stage-d-r" id="stage-d-r">
+        <div class="chart-shell">
+          <div id="chart-gap" class="echart"></div>
+          <div class="chart-caption">G<sub>t</sub> = NGDP<sub>yoy</sub> − r<sub>t</sub> · <span class="gold">positive zone = beautiful gate</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========================================================
+     PLACEHOLDER FOR REMAINING 11 SECTIONS
+     ======================================================== -->
+<section class="more" id="more">
+  <div class="label">CONTINUATION</div>
+  <h2>Eleven more frameworks <em>follow this pattern</em>.</h2>
+  <div class="toc">
+    <div class="toc-item"><div class="num">§ 1.1</div><div class="ttl">Economic Machine</div></div>
+    <div class="toc-item"><div class="num">§ 1.2</div><div class="ttl">Short-Term Debt Cycle</div></div>
+    <div class="toc-item"><div class="num">§ 1.3</div><div class="ttl">Long-Term Debt Cycle</div></div>
+    <div class="toc-item"><div class="num">§ 1.4</div><div class="ttl gold">Deleveragings · shown above</div></div>
+    <div class="toc-item"><div class="num">§ 1.5</div><div class="ttl">Paradigm Shifts</div></div>
+    <div class="toc-item"><div class="num">§ 1.6</div><div class="ttl">Changing World Order</div></div>
+    <div class="toc-item"><div class="num">§ 1.7</div><div class="ttl">Inflation & Currency</div></div>
+    <div class="toc-item"><div class="num">§ 2.1</div><div class="ttl">Template for Investing</div></div>
+    <div class="toc-item"><div class="num">§ 2.2</div><div class="ttl">All-Weather</div></div>
+    <div class="toc-item"><div class="num">§ 2.3</div><div class="ttl">Alpha / Portable Alpha</div></div>
+    <div class="toc-item"><div class="num">§ 2.4</div><div class="ttl">Risk Parity Leverage</div></div>
+    <div class="toc-item"><div class="num">§ 2.5</div><div class="ttl">Stress Testing</div></div>
+  </div>
+</section>
+
+<footer>
+  <div>DALIO ECONOMIC FRAMEWORK · BUILT FROM 12 RESEARCH FILES · GITHUB: <a href="#">/raydalioattitude</a></div>
+  <div>v0.2 PROTOTYPE · 2026-05</div>
+</footer>
+
+<script>
+'use strict';
+
+// =============================================================================
+// AIR FORCE TEXT REVEAL (faithful re-impl from airforce.com)
+// =============================================================================
+function airForceReveal(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.5;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.83;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.18;
+
+  var raw = el.dataset.text || el.innerHTML;
+  el.dataset.text = raw;
+
+  var decoder = document.createElement('textarea');
+  decoder.innerHTML = raw;
+  var decoded = decoder.value;
+
+  var temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  var html = '';
+  function processNode(node, italic) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (c === ' ') {
+          html += '&nbsp;';
+        } else {
+          html += '<span class="reveal-ch"' + (italic ? ' style="font-style:italic"' : '') + '>' + c + '</span>';
+        }
+      }
+    } else if (node.nodeType === 1) {
+      var isEm = node.tagName === 'EM' || node.tagName === 'I';
+      var newItalic = italic || isEm;
+      var openTag = '<' + node.tagName.toLowerCase();
+      if (node.className) openTag += ' class="' + node.className + '"';
+      openTag += '>';
+      html += openTag;
+      Array.from(node.childNodes).forEach(function (n) { processNode(n, newItalic); });
+      html += '</' + node.tagName.toLowerCase() + '>';
+    }
+  }
+  Array.from(temp.childNodes).forEach(function (n) { processNode(n, false); });
+  el.innerHTML = html;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var charColor = getComputedStyle(span).color;
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { color: 'transparent' }, 0);
+    local.set(span, { background: charColor }, delay);
+    local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+// =============================================================================
+// PALETTE (mirrors CSS vars for ECharts)
+// =============================================================================
+var GOLD     = '#c9a14a';
+var GOLD_LOW = '#4a3b1d';
+var TEXT_1   = '#e8e6df';
+var TEXT_2   = '#8a8a82';
+var TEXT_3   = '#5a5a52';
+var BORDER   = '#1a1a1a';
+var BG_PANEL = '#0e0e0e';
+var BAD      = '#8b2e2e';
+var WARN     = '#a87a3d';
+
+// =============================================================================
+// CHART INIT
+// =============================================================================
+var charts = {};
+
+function initCharts() {
+  // --- Chart for Stage A: 3 regime outcomes ---
+  var taxEl = document.getElementById('chart-tax');
+  if (taxEl) {
+    var c = echarts.init(taxEl, null, { renderer: 'canvas' });
+    c.setOption({
+      backgroundColor: 'transparent',
+      title: {
+        text: 'WHEN A DEBT CYCLE TOPS',
+        left: 'center', top: 24,
+        textStyle: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 'normal', letterSpacing: 2 },
+      },
+      series: [{
+        type: 'tree',
+        data: [{
+          name: 'TOP',
+          children: [
+            { name: 'UGLY DEFLATIONARY', value: 'G<0, ΔD>0' },
+            { name: 'BEAUTIFUL', value: 'G>0, ΔD<0' },
+            { name: 'UGLY INFLATIONARY', value: 'G>0, π>>0' },
+          ],
+        }],
+        top: 64, left: 80, right: 80, bottom: 60,
+        symbol: 'emptyCircle', symbolSize: 12,
+        orient: 'vertical',
+        initialTreeDepth: -1,
+        lineStyle: { color: GOLD_LOW, width: 1 },
+        label: {
+          color: TEXT_1, fontFamily: 'Source Serif 4, serif', fontSize: 14,
+          position: 'top', distance: 14, fontWeight: 600,
+        },
+        leaves: {
+          label: {
+            color: GOLD, position: 'bottom', distance: 14,
+            fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: 1,
+          },
+        },
+        itemStyle: { color: GOLD, borderColor: GOLD },
+        emphasis: { focus: 'descendant' },
+      }],
+    });
+    charts.tax = c;
+  }
+
+  // --- Chart for Stage B: 4-lever effect cross-plot ---
+  var effEl = document.getElementById('chart-effect');
+  if (effEl) {
+    var c = echarts.init(effEl, null, { renderer: 'canvas' });
+    c.setOption({
+      backgroundColor: 'transparent',
+      grid: { top: 56, left: 88, right: 56, bottom: 60 },
+      xAxis: {
+        type: 'value', min: -1, max: 1,
+        name: 'effect on growth →',
+        nameGap: 28, nameLocation: 'middle',
+        nameTextStyle: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: 1 },
+        axisLine: { lineStyle: { color: BORDER } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'value', min: -1, max: 1,
+        name: 'effect on inflation ↑',
+        nameGap: 30, nameLocation: 'middle', nameRotate: 90,
+        nameTextStyle: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: 1 },
+        axisLine: { lineStyle: { color: BORDER } },
+        axisLabel: { show: false },
+        splitLine: { show: false },
+      },
+      series: [{
+        type: 'scatter',
+        data: [
+          { value: [-0.7, -0.6], name: 'debt reduction',  itemStyle: { color: BAD } },
+          { value: [-0.6, -0.4], name: 'austerity',       itemStyle: { color: TEXT_3 } },
+          { value: [+0.1, +0.1], name: 'wealth transfer', itemStyle: { color: WARN } },
+          { value: [+0.7, +0.7], name: 'monetization',    itemStyle: { color: GOLD } },
+        ],
+        symbolSize: 28,
+        label: {
+          show: true, formatter: '{b}', position: 'top', distance: 10,
+          color: TEXT_1, fontFamily: 'Source Serif 4, serif', fontSize: 13, fontWeight: 600,
+        },
+        markLine: {
+          symbol: 'none',
+          lineStyle: { color: BORDER, width: 1, type: 'solid' },
+          data: [{ xAxis: 0 }, { yAxis: 0 }],
+        },
+      }],
+    });
+    charts.eff = c;
+  }
+
+  // --- Chart for Stage C: lever-mix stacked bars (data scrubbed) ---
+  var mixEl = document.getElementById('chart-mix');
+  if (mixEl) {
+    var c = echarts.init(mixEl, null, { renderer: 'canvas' });
+    c.setOption({
+      backgroundColor: 'transparent',
+      legend: {
+        textStyle: { color: TEXT_2, fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: 1 },
+        top: 24, itemWidth: 14, itemHeight: 8,
+        data: ['austerity', 'defaults', 'printing', 'redistribution'],
+      },
+      grid: { left: 96, right: 36, top: 64, bottom: 64 },
+      xAxis: {
+        type: 'category',
+        data: ['US 1930–32', 'US 1933–37', 'JAPAN 90+'],
+        axisLine: { lineStyle: { color: BORDER } },
+        axisLabel: { color: TEXT_1, fontFamily: 'DM Mono, monospace', fontSize: 11, letterSpacing: 1.5 },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value', max: 100,
+        axisLine: { lineStyle: { color: BORDER } },
+        axisLabel: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 9, formatter: '{value}%' },
+        splitLine: { lineStyle: { color: BORDER } },
+      },
+      series: [
+        // Initial values are 0; mix-target values are stored on series.targetData
+        { name: 'austerity',      type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: TEXT_3 }, animation: false },
+        { name: 'defaults',       type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: BAD }, animation: false },
+        { name: 'printing',       type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: GOLD }, animation: false },
+        { name: 'redistribution', type: 'bar', stack: 'levers', data: [0, 0, 0], itemStyle: { color: WARN }, animation: false },
+      ],
+    });
+    charts.mix = c;
+    charts.mixTargets = {
+      austerity:      [35, 15, 30],
+      defaults:       [55, 40, 55],
+      printing:       [10, 40, 10],
+      redistribution: [ 0,  5,  5],
+    };
+  }
+
+  // --- Chart for Stage D: G_t over historical periods ---
+  var gapEl = document.getElementById('chart-gap');
+  if (gapEl) {
+    var c = echarts.init(gapEl, null, { renderer: 'canvas' });
+    c.setOption({
+      backgroundColor: 'transparent',
+      grid: { left: 80, right: 36, top: 56, bottom: 56 },
+      xAxis: {
+        type: 'category',
+        data: ['1930–32\nUS', '1933–37\nUS', '1990+\nJapan'],
+        axisLine: { lineStyle: { color: BORDER } },
+        axisLabel: { color: TEXT_1, fontFamily: 'DM Mono, monospace', fontSize: 10, lineHeight: 14 },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value', min: -25, max: 10,
+        name: 'G = NGDPyoy − r  (pp)',
+        nameLocation: 'middle', nameGap: 50,
+        nameTextStyle: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: 1 },
+        axisLine: { lineStyle: { color: BORDER } },
+        axisLabel: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 9, formatter: '{value}' },
+        splitLine: { lineStyle: { color: BORDER } },
+      },
+      series: [{
+        type: 'bar',
+        data: [
+          { value: -20.4, itemStyle: { color: BAD }   },
+          { value:  +6.3, itemStyle: { color: GOLD } },
+          { value:  -2.0, itemStyle: { color: WARN } },
+        ],
+        barWidth: 50,
+        label: {
+          show: true, color: TEXT_1, position: 'top',
+          fontFamily: 'DM Mono, monospace', fontSize: 12,
+          formatter: function (p) { return (p.value >= 0 ? '+' : '') + p.value + 'pp'; },
+        },
+        markLine: {
+          symbol: 'none',
+          lineStyle: { color: GOLD, type: 'dashed', width: 1, opacity: 0.6 },
+          data: [{ yAxis: 0, label: { formatter: 'BEAUTIFUL GATE', color: GOLD, fontFamily: 'DM Mono, monospace', fontSize: 10 } }],
+        },
+      }],
+    });
+    charts.gap = c;
+  }
+}
+
+// =============================================================================
+// APPLE-STYLE PIN + SCRUB SCROLLYTELLING
+// =============================================================================
+gsap.registerPlugin(ScrollTrigger);
+
+function initScrolly() {
+  var pinWrapper = document.getElementById('sec-1-4');
+  if (!pinWrapper) return;
+
+  // 4 stages, each gets ~25% of pinned scroll budget
+  // Use timeline keyframes at 0, 1, 2, 3 (one per stage transition)
+  var leftStages  = ['#stage-a',   '#stage-b',   '#stage-c',   '#stage-d'].map(document.querySelector.bind(document));
+  var rightStages = ['#stage-a-r', '#stage-b-r', '#stage-c-r', '#stage-d-r'].map(document.querySelector.bind(document));
+
+  // initial state: only stage 0 visible
+  gsap.set([leftStages[0], rightStages[0]], { opacity: 1, y: 0 });
+  gsap.set([leftStages[1], leftStages[2], leftStages[3], rightStages[1], rightStages[2], rightStages[3]],
+           { opacity: 0, y: 40 });
+
+  var tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: pinWrapper,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.4,
+      pin: '.pin-stage',
+      anticipatePin: 1,
+      onUpdate: function (st) {
+        var pct = Math.round(st.progress * 100);
+        var pctEl = document.getElementById('progress-pct');
+        if (pctEl) pctEl.textContent = (pct < 10 ? '0' : '') + pct + '%';
+        var bar = document.getElementById('progress-bar');
+        if (bar) bar.style.setProperty('--p', pct + '%');
+
+        // Stage-C chart morph: data grows from 0% to target between progress 0.5 and 0.78
+        var c = charts.mix;
+        if (c && charts.mixTargets) {
+          var p = st.progress;
+          var t;
+          if (p < 0.50) t = 0;
+          else if (p > 0.78) t = 1;
+          else t = (p - 0.50) / 0.28;
+          // ease (smoothstep)
+          t = t * t * (3 - 2 * t);
+          c.setOption({
+            series: [
+              { name: 'austerity',      data: charts.mixTargets.austerity.map(function (v) { return +(v*t).toFixed(2); }) },
+              { name: 'defaults',       data: charts.mixTargets.defaults.map(function (v) { return +(v*t).toFixed(2); }) },
+              { name: 'printing',       data: charts.mixTargets.printing.map(function (v) { return +(v*t).toFixed(2); }) },
+              { name: 'redistribution', data: charts.mixTargets.redistribution.map(function (v) { return +(v*t).toFixed(2); }) },
+            ],
+          });
+        }
+      },
+    },
+  });
+
+  // Keyframe transitions, evenly spaced 0..3
+  // Stage A → B at t=0..1
+  tl.to(leftStages[0],  { opacity: 0, y: -40 }, 0)
+    .to(rightStages[0], { opacity: 0, y: -40 }, 0)
+    .fromTo(leftStages[1],  { opacity: 0, y: 40 }, { opacity: 1, y: 0 }, 0.5)
+    .fromTo(rightStages[1], { opacity: 0, y: 40 }, { opacity: 1, y: 0 }, 0.5)
+    // Stage B → C at t=1..2
+    .to(leftStages[1],  { opacity: 0, y: -40 }, 1)
+    .to(rightStages[1], { opacity: 0, y: -40 }, 1)
+    .fromTo(leftStages[2],  { opacity: 0, y: 40 }, { opacity: 1, y: 0 }, 1.5)
+    .fromTo(rightStages[2], { opacity: 0, y: 40 }, { opacity: 1, y: 0 }, 1.5)
+    // Stage C → D at t=2..3
+    .to(leftStages[2],  { opacity: 0, y: -40 }, 2)
+    .to(rightStages[2], { opacity: 0, y: -40 }, 2)
+    .fromTo(leftStages[3],  { opacity: 0, y: 40 }, { opacity: 1, y: 0 }, 2.5)
+    .fromTo(rightStages[3], { opacity: 0, y: 40 }, { opacity: 1, y: 0 }, 2.5);
+
+  // Trigger AF reveal on stage A enter
+  ScrollTrigger.create({
+    trigger: pinWrapper,
+    start: 'top 80%',
+    once: true,
+    onEnter: function () {
+      airForceReveal(document.getElementById('stage-a-q'));
+    },
+  });
+
+  // Trigger AF reveal on stage B enter (lever names)
+  ScrollTrigger.create({
+    trigger: pinWrapper,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: function (st) {
+      // Re-trigger D reveal of formula on entering stage D (>0.75)
+      if (st.progress > 0.78 && !pinWrapper.dataset.dRevealed) {
+        pinWrapper.dataset.dRevealed = '1';
+        // KaTeX is already rendered; nothing to reveal char-by-char (math-block has $...$ already processed)
+      }
+    },
+  });
+}
+
+// =============================================================================
+// MINI-MAP NAV — active section tracking
+// =============================================================================
+function initMinimap() {
+  var mmLinks = document.querySelectorAll('.minimap a');
+  var sections = ['hero', 'intro', 'sec-1-4', 'more'].map(function (id) { return document.getElementById(id); });
+  function setActive() {
+    var fromTop = window.scrollY + window.innerHeight * 0.4;
+    var active = 'hero';
+    sections.forEach(function (s) {
+      if (s && s.offsetTop <= fromTop) active = s.id;
+    });
+    mmLinks.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + active);
+    });
+  }
+  window.addEventListener('scroll', setActive, { passive: true });
+  setActive();
+}
+
+// =============================================================================
+// REFRESH PILL — count-up + halo every 30s in preview (5min in prod)
+// =============================================================================
+function initRefresh() {
+  var pill = document.getElementById('refresh-pill');
+  if (!pill) return;
+  var lastTs = Date.now();
+
+  function update() {
+    var sec = Math.floor((Date.now() - lastTs) / 1000);
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    var txt = (m > 0 ? m + 'm ' : '') + s + 's';
+    pill.querySelector('span').textContent = 'live · refreshed ' + txt + ' ago';
+  }
+  setInterval(update, 1000);
+  update();
+
+  // Halo pulse — gold ring on each chart-shell
+  function pulse() {
+    document.querySelectorAll('.chart-shell .echart').forEach(function (el) {
+      el.style.boxShadow = '0 0 0 2px rgba(201,161,74,0.55), 0 0 24px rgba(201,161,74,0.35)';
+      setTimeout(function () { el.style.boxShadow = ''; }, 1600);
+    });
+    lastTs = Date.now();
+    update();
+  }
+  setInterval(pulse, 30000);
+  setTimeout(pulse, 5000); // first pulse 5s in for visibility
+}
+
+// =============================================================================
+// KATEX AUTO-RENDER
+// =============================================================================
+function initKatex() {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+}
+
+// =============================================================================
+// BOOT
+// =============================================================================
+window.addEventListener('DOMContentLoaded', function () {
+  initCharts();
+  initMinimap();
+  initRefresh();
+
+  // Hero AF reveal — runs immediately on load
+  setTimeout(function () {
+    airForceReveal(document.getElementById('hero-h1'));
+  }, 200);
+  setTimeout(function () {
+    airForceReveal(document.getElementById('hero-sub'));
+  }, 1100);
+
+  // KaTeX after fonts settle
+  setTimeout(function () {
+    initKatex();
+    // Init scrolly only after KaTeX has measured math elements
+    setTimeout(initScrolly, 200);
+  }, 400);
+
+  // Resize handler for ECharts
+  window.addEventListener('resize', function () {
+    Object.values(charts).forEach(function (c) {
+      if (c && typeof c.resize === 'function') c.resize();
+    });
+  });
+});
+</script>
+</body>
+</html>

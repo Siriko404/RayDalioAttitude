@@ -381,5 +381,96 @@ class TestMoreSlide(unittest.TestCase):
         self.assertIn('class="reveal-target"', s)
 
 
+class TestInlineJs(unittest.TestCase):
+    def test_af_reveal_present(self):
+        """build_inline_js contains airForceReveal IN with correct timings."""
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("function airForceReveal(", js)
+        # Reveal IN timings per spec V13: 0.25-0.42 random, 0.09 hold
+        self.assertIn("0.25", js)
+        self.assertIn("0.42", js)
+        self.assertIn("0.09", js)
+        self.assertIn("getComputedStyle", js)
+        self.assertIn("color:transparent", js.replace(" ", "").replace("'", "").replace('"', ''))
+
+    def test_af_reveal_out_present(self):
+        """build_inline_js contains airForceRevealOut with timings."""
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("function airForceRevealOut(", js)
+        # Reveal OUT timings per spec V14: 0-0.14 random, 0.07 hold
+        self.assertIn("0.14", js)
+        self.assertIn("0.07", js)
+
+    def test_arm_disarm_slide_present(self):
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("function armSlide(", js)
+        self.assertIn("function disarmSlide(", js)
+
+    def test_transition_to_present(self):
+        """transitionTo with sequential phases — t=230ms swap."""
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("function transitionTo(", js)
+        self.assertIn("230", js)
+        self.assertIn("requestAnimationFrame", js)
+        self.assertIn("bg-light", js)
+
+    def test_intersection_observer_present(self):
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("IntersectionObserver", js)
+
+    def test_minimap_init_present(self):
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("function initMinimap(", js)
+
+    def test_charts_init_for_3_sections(self):
+        """initChart handles §1.4, §2.2, §2.5 (three chart-bearing sections)."""
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("chart-1-4", js)
+        self.assertIn("chart-2-2", js)
+        self.assertIn("chart-2-5", js)
+        # decal pattern catalog
+        self.assertIn("'diagonal'", js)
+        self.assertIn("'vertical'", js)
+        self.assertIn("'solid'", js)
+        self.assertIn("'dot'", js)
+
+    def test_chart_data_baked_in(self):
+        """CHART_DATA object literal contains §1.4 archetype + lever data."""
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("var CHART_DATA", js)
+        # §1.4 has archetypes
+        d14 = dashboard_data.SECTIONS["1.4"]["chart_data"]
+        for archetype in d14["archetypes"]:
+            self.assertIn(archetype, js)
+        # §2.5 has the 4 contribution values
+        d25 = dashboard_data.SECTIONS["2.5"]["chart_data"]
+        for v in d25["contributions"]:
+            self.assertIn(str(v), js)
+
+    def test_katex_init_present(self):
+        import build_dashboard
+        import dashboard_data
+        js = build_dashboard.build_inline_js(dashboard_data.SECTIONS)
+        self.assertIn("renderMathInElement", js)
+        self.assertIn("throwOnError", js)
+        self.assertIn("$$", js)
+
+
 if __name__ == "__main__":
     unittest.main()

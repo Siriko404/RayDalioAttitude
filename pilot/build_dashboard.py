@@ -10,6 +10,7 @@ Run:    python pilot/build_dashboard.py
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -970,6 +971,436 @@ def build_more_slide(sections: dict) -> str:
         f'  </div>\n'
         f'</div>\n'
     )
+
+
+def build_inline_js(sections: dict) -> str:
+    """Returns inline JS for the dashboard.
+
+    Verbatim copy of prototype-v4.html lines 850-1192 EXCEPT initChart(), which
+    is replaced with a 3-section variant (§1.4 + §2.2 + §2.5).
+
+    Bakes CHART_DATA from sections dict's chart_data fields as a JS object literal
+    at the top of the block (after 'use strict').
+    """
+    chart_data = {
+        sid: data["chart_data"]
+        for sid, data in sections.items()
+        if data.get("chart_data")
+    }
+    chart_data_js = "var CHART_DATA = " + json.dumps(chart_data, indent=2, ensure_ascii=False) + ";"
+
+    # All runtime JS — verbatim from prototype-v4.html lines 850-1192 EXCEPT:
+    # - initChart() replaced with 3-section variant
+    # - armSlide() chart-init gate updated: use .chart-shell presence (handles all 3 chart slides)
+    # - 'use strict' placed first; CHART_DATA injected immediately after
+    js_body = r"""'use strict';
+
+""" + chart_data_js + r"""
+
+// =====================================================================
+// AF TEXT REVEAL — IN (block-fill char appears)
+// =====================================================================
+function airForceReveal(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.25;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.42;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.09;
+
+  // Capture parent text color BEFORE we mutate innerHTML.  Once spans are
+  // wrapped with inline color:transparent the computed style would be wrong.
+  var parentColor = getComputedStyle(el).color;
+
+  var raw = el.dataset.text || el.innerHTML;
+  el.dataset.text = raw;
+
+  var decoder = document.createElement('textarea');
+  decoder.innerHTML = raw;
+  var decoded = decoder.value;
+
+  var temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  var html = '';
+  function processNode(node, italic) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (c === ' ') {
+          html += '&nbsp;';
+        } else {
+          // Pre-set inline color:transparent so chars are NEVER painted at
+          // their default color before GSAP runs (fixes flash bug 1).
+          var styleAttr = ' style="color:transparent' + (italic ? ';font-style:italic' : '') + '"';
+          html += '<span class="reveal-ch"' + styleAttr + '>' + escapeHtml(c) + '</span>';
+        }
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName.toLowerCase();
+      if (tag === 'br') { html += '<br>'; return; }
+      var isEm = tag === 'em' || tag === 'i';
+      var newItalic = italic || isEm;
+      var openTag = '<' + tag;
+      if (node.className) openTag += ' class="' + node.className + '"';
+      openTag += '>';
+      html += openTag;
+      Array.from(node.childNodes).forEach(function (n) { processNode(n, newItalic); });
+      html += '</' + tag + '>';
+    }
+  }
+  Array.from(temp.childNodes).forEach(function (n) { processNode(n, false); });
+  el.innerHTML = html;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    // Block-fill phase: bg = captured parent color, briefly visible block
+    local.set(span, { background: parentColor }, delay);
+    // Resolve phase: bg transparent + clearProps lets parent color show
+    local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+// =====================================================================
+// AF TEXT REVEAL — OUT (block-fill char disappears) · faster
+// =====================================================================
+function airForceRevealOut(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.0;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.14;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.07;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  if (!spans.length) return null;
+
+  // Capture color from element itself (parent of spans) — chars are currently
+  // visible at this color so use it for the block-fill out
+  var parentColor = getComputedStyle(el).color;
+
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { background: parentColor, color: 'transparent' }, delay);
+    local.set(span, { background: 'transparent' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// =====================================================================
+// SLIDE ARM / DISARM
+// =====================================================================
+function armSlide(slide) {
+  slide.querySelectorAll('.reveal-target').forEach(function (el) {
+    el.classList.add('reveal-armed');
+    airForceReveal(el);
+  });
+  slide.querySelectorAll('.fade-target').forEach(function (el, idx) {
+    el.classList.remove('fade-disarmed');
+    var delay = Math.min(idx * 40, 240);
+    setTimeout(function () { el.classList.add('fade-armed'); }, delay);
+  });
+  // Lazy-init chart on first activation of any chart-bearing C slide
+  if (slide.querySelector('.chart-shell') && !window._chartInited) {
+    window._chartInited = true;
+    initChart();
+  }
+}
+
+function disarmSlide(slide) {
+  slide.querySelectorAll('.reveal-target').forEach(function (el) {
+    airForceRevealOut(el);
+  });
+  slide.querySelectorAll('.fade-target').forEach(function (el) {
+    el.classList.remove('fade-armed');
+    el.classList.add('fade-disarmed');
+  });
+}
+
+// =====================================================================
+// SLIDE TRANSITION — coordinates AF out → bg roll → AF in
+// Content remains still; only bg + char animations move.
+// =====================================================================
+var currentSlide = 'hero';
+
+function transitionTo(slideId) {
+  if (slideId === currentSlide) return;
+
+  var oldEl = document.querySelector('.slide.active');
+  var newEl = document.querySelector('.slide[data-slide="' + slideId + '"]');
+  if (!oldEl || !newEl) return;
+
+  var stage = document.getElementById('stage');
+  var newBg = newEl.dataset.bg;
+
+  // Mark synchronously so duplicate observer fires no-op
+  currentSlide = slideId;
+
+  // PHASE 1 — AF reveal-OUT fully runs to completion on outgoing chars
+  disarmSlide(oldEl);
+
+  // PHASE 2 — only AFTER OUT is done: swap slides + roll bg + start IN
+  setTimeout(function () {
+    // Hide old (now fully invisible from AF out)
+    oldEl.classList.remove('active');
+    // Show new — chars are already inline color:transparent so no flash
+    newEl.classList.add('active');
+    // Roll bg color (CSS 350ms transition)
+    if (newBg === 'light') stage.classList.add('bg-light');
+    else stage.classList.remove('bg-light');
+    // Defer AF in by one frame so layout settles + bg roll has started
+    requestAnimationFrame(function () {
+      armSlide(newEl);
+    });
+  }, 230);  // 210 AF-out duration + 20ms safety (was 460, halved per user)
+}
+
+// =====================================================================
+// INTERSECTION OBSERVERS — slot detection + minimap
+// =====================================================================
+function initObserver() {
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var slideId = entry.target.dataset.slide;
+        transitionTo(slideId);
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.slot').forEach(function (s) { observer.observe(s); });
+}
+
+function initMinimap() {
+  var dots = document.querySelectorAll('nav.minimap a');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var slideId = entry.target.dataset.slide;
+        dots.forEach(function (a) {
+          a.classList.toggle('active', a.dataset.slide === slideId);
+        });
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.slot').forEach(function (s) { observer.observe(s); });
+}
+
+// =====================================================================
+// CHART — §1.4 + §2.2 + §2.5 (three chart-bearing sections)
+// Pure white-opacity scale with decal pattern differentiation, no color.
+// =====================================================================
+function initChart() {
+  initChart_1_4();
+  initChart_2_2();
+  initChart_2_5();
+}
+
+function initChart_1_4() {
+  var el = document.getElementById('chart-1-4');
+  if (!el || el.dataset.initialized) return;
+  if (!window.echarts) return;
+  if (!CHART_DATA['1.4']) return;
+  var d = CHART_DATA['1.4'];
+  var chart = echarts.init(el);
+  chart.setOption({
+    animation: true,
+    animationDuration: 550,
+    backgroundColor: 'transparent',
+    grid: { left: 60, right: 30, top: 24, bottom: 56 },
+    legend: {
+      data: d.levers,
+      textStyle: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 11 },
+      bottom: 0
+    },
+    xAxis: {
+      type: 'category', data: d.archetypes,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value', max: 100,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10 },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+    },
+    series: [
+      { name: d.levers[0], type: 'bar', stack: 'levers', data: d.values[d.levers[0]],
+        itemStyle: { color: 'rgba(255,255,255,0.06)', decal: decalPattern('diagonal', 0.55) } },
+      { name: d.levers[1], type: 'bar', stack: 'levers', data: d.values[d.levers[1]],
+        itemStyle: { color: 'rgba(255,255,255,0.06)', decal: decalPattern('vertical', 0.78) } },
+      { name: d.levers[2], type: 'bar', stack: 'levers', data: d.values[d.levers[2]],
+        itemStyle: { color: 'rgba(255,255,255,1.0)' } },
+      { name: d.levers[3], type: 'bar', stack: 'levers', data: d.values[d.levers[3]],
+        itemStyle: { color: 'rgba(255,255,255,0.06)', decal: decalPattern('dot', 0.7) } }
+    ]
+  });
+  window.addEventListener('resize', function () { chart.resize(); });
+  el.dataset.initialized = '1';
+}
+
+function initChart_2_2() {
+  var el = document.getElementById('chart-2-2');
+  if (!el || el.dataset.initialized) return;
+  if (!window.echarts) return;
+  if (!CHART_DATA['2.2']) return;
+  var d = CHART_DATA['2.2'];
+  var patterns = ['diagonal', 'vertical', 'solid', 'dot', 'diagonal'];
+  var opacities = [0.55, 0.78, 1.0, 0.7, 0.4];
+  var chart = echarts.init(el);
+  chart.setOption({
+    animation: true,
+    animationDuration: 550,
+    backgroundColor: 'transparent',
+    series: [{
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      label: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 11, formatter: '{b}\n{c}%' },
+      labelLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      data: d.labels.map(function(label, i) {
+        var p = patterns[i % patterns.length];
+        var o = opacities[i % opacities.length];
+        return {
+          name: label, value: d.weights[i],
+          itemStyle: {
+            color: p === 'solid' ? 'rgba(255,255,255,1.0)' : 'rgba(255,255,255,0.06)',
+            decal: decalPattern(p, o)
+          }
+        };
+      })
+    }]
+  });
+  window.addEventListener('resize', function () { chart.resize(); });
+  el.dataset.initialized = '1';
+}
+
+function initChart_2_5() {
+  var el = document.getElementById('chart-2-5');
+  if (!el || el.dataset.initialized) return;
+  if (!window.echarts) return;
+  if (!CHART_DATA['2.5']) return;
+  var d = CHART_DATA['2.5'];
+  var chart = echarts.init(el);
+  chart.setOption({
+    animation: true,
+    animationDuration: 550,
+    backgroundColor: 'transparent',
+    grid: { left: 70, right: 30, top: 24, bottom: 80 },
+    xAxis: {
+      type: 'category', data: d.archetypes,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10, interval: 0, rotate: 20 }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+    },
+    series: [{
+      type: 'bar',
+      data: d.contributions.map(function(v) {
+        return {
+          value: v,
+          itemStyle: {
+            color: v < 0 ? 'rgba(255,255,255,0.78)' : 'rgba(255,255,255,1.0)',
+            decal: v < 0 ? decalPattern('vertical', 0.78) : null
+          }
+        };
+      })
+    }]
+  });
+  window.addEventListener('resize', function () { chart.resize(); });
+  el.dataset.initialized = '1';
+}
+
+// decalPattern helper (per spec §6.5)
+function decalPattern(kind, opacity) {
+  opacity = opacity || 0.7;
+  if (kind === 'solid') return null;
+  if (kind === 'diagonal') {
+    return { symbol: 'rect', color: 'rgba(255,255,255,' + opacity + ')',
+             rotation: -Math.PI / 4, dashArrayX: [1, 7], dashArrayY: [4, 0], symbolSize: 1 };
+  }
+  if (kind === 'vertical') {
+    return { symbol: 'rect', color: 'rgba(255,255,255,' + opacity + ')',
+             rotation: 0, dashArrayX: [1, 4], dashArrayY: [1, 0], symbolSize: 1 };
+  }
+  if (kind === 'dot') {
+    return { symbol: 'circle', color: 'rgba(255,255,255,' + opacity + ')',
+             dashArrayX: [4, 4], dashArrayY: [4, 4], symbolSize: 0.45 };
+  }
+  return null;
+}
+
+// =====================================================================
+// REFRESH PILL — count-up timer
+// =====================================================================
+function initRefresh() {
+  var pill = document.getElementById('refresh-pill');
+  if (!pill) return;
+  var lastTs = Date.now();
+  function update() {
+    var sec = Math.floor((Date.now() - lastTs) / 1000);
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    var txt = (m > 0 ? m + 'm ' : '') + s + 's';
+    pill.querySelector('span').textContent = 'live · refreshed ' + txt + ' ago';
+  }
+  setInterval(update, 1000);
+  update();
+  setInterval(function () { lastTs = Date.now(); update(); }, 30000);
+}
+
+// =====================================================================
+// KATEX
+// =====================================================================
+function initKatex() {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+}
+
+// =====================================================================
+// BOOT
+// =====================================================================
+window.addEventListener('DOMContentLoaded', function () {
+  initRefresh();
+  // Render KaTeX BEFORE arming hero (so math is ready when §1.4-D activates later)
+  setTimeout(function () {
+    initKatex();
+  }, 100);
+  // Arm hero (initial active slide)
+  setTimeout(function () {
+    var hero = document.querySelector('.slide[data-slide="hero"]');
+    if (hero) armSlide(hero);
+  }, 200);
+  // Observers wired after fonts settle
+  setTimeout(function () {
+    initObserver();
+    initMinimap();
+  }, 300);
+});
+"""
+
+    return js_body
 
 
 def main() -> None:

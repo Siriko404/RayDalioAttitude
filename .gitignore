@@ -44,3 +44,6 @@ data_cache/
 research/_tmp_*
 *.tmp.txt
 .commit_msg.tmp
+
+# Brainstorming visual companion
+.superpowers/

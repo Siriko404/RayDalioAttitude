@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dalio · 12 Frameworks — Prototype v1 (locked direction)</title>
+
+<!--
+  Locked direction prototype combining everything chosen so far:
+    · Architectural composition (emerald hairlines top/bottom, mono labels)
+    · Source Serif 4 broad-weight (200-900)
+    · Black #0c0c0c + emerald #10B981
+    · Cyberpunk subtle animations (decrypt text, scan line, number ticker, caret blink)
+    · Apple-product-page scrollytelling (sticky chart + text steps scrolling past)
+    · Mini-map nav (right edge dots)
+    · KaTeX math
+    · Halo refresh every 5 min (sped to 30s in preview)
+-->
+
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;0,8..60,800;0,8..60,900;1,8..60,300;1,8..60,400;1,8..60,500;1,8..60,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+<style>
+  :root {
+    --accent:       #10B981;
+    --accent-low:   #064e3b;
+    --accent-glow:  rgba(16, 185, 129, 0.30);
+    --bg-page:      #0c0c0c;
+    --bg-panel:     #0d0d0d;
+    --border:       #1a1a1a;
+    --text-1:       #e8e6df;
+    --text-2:       #8a8a82;
+    --text-3:       #5a5a52;
+    --bad:          #8b2e2e;
+    --warn:         #a87a3d;
+    --serif: 'Source Serif 4', 'Times New Roman', Times, serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg-page);
+    color: var(--text-1);
+    font-family: var(--serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+  img, svg, canvas { display: block; max-width: 100%; }
+
+  /* ============================================================
+     MINI-MAP NAV (right edge dots)
+     ============================================================ */
+  .minimap {
+    position: fixed; top: 50%; right: 24px; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 9px; z-index: 100;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+  }
+  .minimap a {
+    width: 8px; height: 8px; border: 1px solid var(--accent-low);
+    background: transparent; border-radius: 50%; position: relative;
+    transition: background 200ms, border-color 200ms, transform 200ms;
+    text-decoration: none;
+  }
+  .minimap a:hover, .minimap a.active {
+    background: var(--accent); border-color: var(--accent); transform: scale(1.4);
+  }
+  .minimap a::after {
+    content: attr(data-label); position: absolute; right: 18px; top: 50%;
+    transform: translateY(-50%); white-space: nowrap; color: var(--accent);
+    opacity: 0; transition: opacity 200ms; pointer-events: none;
+    font-size: 9px;
+  }
+  .minimap a:hover::after { opacity: 1; }
+
+  /* ============================================================
+     CYBERPUNK SUBTLE ANIMATIONS
+     ============================================================ */
+
+  /* Decrypt text reveal — applied via JS to elements with .decrypt */
+  .decrypt { display: inline-block; }
+  .decrypt .ch {
+    display: inline-block;
+    transition: color 80ms;
+  }
+  .decrypt .ch.scrambling { color: var(--accent); }
+
+  /* Scan line — passes once on section entry (.scan-fired) */
+  .scan-host { position: relative; overflow: hidden; }
+  .scan-host::before {
+    content: ''; position: absolute; left: 0; right: 0; top: -2px;
+    height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    transform: translateY(0); opacity: 0; pointer-events: none;
+    z-index: 5;
+  }
+  .scan-host.scan-fired::before {
+    animation: scanLine 1100ms ease-out forwards;
+  }
+  @keyframes scanLine {
+    0%   { transform: translateY(0);     opacity: 0; }
+    8%   { opacity: 0.9; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* Halo refresh pulse */
+  @keyframes haloPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0); }
+    18%  { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.40), 0 0 28px rgba(16, 185, 129, 0.32); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0); }
+  }
+  .halo-target.halo-active { animation: haloPulse 2.4s ease-out; }
+
+  /* Caret blink — next to "live" pill */
+  @keyframes caretBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  .caret {
+    display: inline-block; width: 7px; height: 11px;
+    background: var(--accent); margin-left: 4px; vertical-align: -1px;
+    animation: caretBlink 1.05s steps(1) infinite;
+  }
+
+  /* Number ticker — value flickers on refresh */
+  .ticker { display: inline-block; transition: color 200ms; }
+  .ticker.flash { color: var(--accent); }
+
+  /* Fade-up reveal — applied to scroll-step items */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 600ms ease, transform 600ms ease; }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; }
+  .hero-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 56px; border-bottom: 1px solid var(--accent);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--accent);
+  }
+  .hero-mid {
+    flex: 1; padding: 0 56px; display: flex; flex-direction: column;
+    justify-content: center; max-width: 1200px; margin: 0 auto; width: 100%;
+  }
+  .hero-mid h1 {
+    font-family: var(--serif); font-weight: 900;
+    font-size: clamp(64px, 11vw, 152px);
+    line-height: 0.94; letter-spacing: -3.5px; color: var(--text-1);
+  }
+  .hero-mid h1 em { font-style: italic; font-weight: 300; }
+  .hero-mid h1 .accent { color: var(--accent); font-weight: 900; }
+  .hero-mid .lede {
+    margin-top: 32px; font-family: var(--serif); font-weight: 400;
+    font-size: 20px; line-height: 1.55; color: var(--text-2); max-width: 640px;
+  }
+  .hero-mid .lede strong { color: var(--text-1); font-weight: 700; }
+  .hero-mid .lede em { color: var(--text-1); font-style: italic; }
+  .hero-mid .lede::first-letter {
+    font-size: 1.7em; font-weight: 800; color: var(--accent);
+    margin-right: 2px; line-height: 1;
+  }
+  .hero-bar.bottom {
+    border-bottom: none; border-top: 1px solid var(--accent); color: var(--text-3);
+  }
+
+  /* ============================================================
+     APPLE-STYLE STICKY-CHART SCROLLYTELLING
+     ============================================================ */
+  .scrolly {
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .scrolly-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 56px; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 3px; color: var(--accent); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10; background: var(--bg-page);
+  }
+  .scrolly-grid {
+    display: grid; grid-template-columns: 1fr 1.4fr;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .scrolly-text {
+    padding: 56px 56px 56px;
+  }
+  .scrolly-text .step {
+    min-height: 70vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 36px 0;
+  }
+  .scrolly-text h2 {
+    font-family: var(--serif); font-weight: 800;
+    font-size: clamp(38px, 5.4vw, 64px); line-height: 1;
+    letter-spacing: -1.5px; color: var(--text-1); margin-bottom: 22px;
+  }
+  .scrolly-text h2 em { font-style: italic; font-weight: 300; }
+  .scrolly-text h2 .accent { color: var(--accent); font-weight: 800; }
+  .scrolly-text .step p {
+    font-family: var(--serif); font-weight: 400;
+    font-size: 18px; line-height: 1.65; color: var(--text-2); max-width: 480px;
+  }
+  .scrolly-text .step p strong { color: var(--text-1); font-weight: 600; }
+  .scrolly-text .step p em { color: var(--text-1); font-style: italic; }
+  .scrolly-text .step .seq {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+    color: var(--accent); margin-bottom: 14px;
+  }
+
+  .scrolly-chart-wrap {
+    position: relative;
+    padding: 56px 56px 56px 0;
+  }
+  .scrolly-chart {
+    position: sticky; top: 80px;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 4px; padding: 28px;
+  }
+  .scrolly-chart .meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 2px; color: var(--text-3);
+  }
+  .scrolly-chart .echart { width: 100%; height: 380px; }
+  .prov-block {
+    margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  .prov-marker {
+    display: inline-block; font-family: var(--mono); font-size: 9px;
+    font-weight: 600; letter-spacing: 1.6px; padding: 2px 7px;
+    border-radius: 2px; margin-right: 10px; vertical-align: middle;
+    text-transform: uppercase;
+  }
+  .prov-marker.dalio { background: var(--accent); color: #0c0c0c; }
+  .prov-marker.derived { background: transparent; border: 1px solid #6a6a62; color: #a3a39c; }
+  .prov-line {
+    font-family: var(--serif); font-size: 14px; line-height: 1.6;
+    color: var(--text-2); margin-bottom: 6px;
+  }
+  .prov-line em { color: var(--text-1); font-style: italic; }
+
+  /* Refresh pill */
+  .refresh-pill {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px;
+    color: var(--accent); display: inline-flex; align-items: center; gap: 6px;
+  }
+  .refresh-pill::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer {
+    border-top: 1px solid var(--border); padding: 36px 48px;
+    font-family: var(--mono); font-size: 10px; color: var(--text-3);
+    letter-spacing: 1.5px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  footer a { color: var(--text-2); text-decoration: none; border-bottom: 1px solid var(--border); }
+  footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .scrolly-grid { grid-template-columns: 1fr; }
+    .scrolly-chart-wrap { padding: 0 24px 36px; }
+    .scrolly-chart { position: relative; top: 0; }
+    .minimap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="minimap" aria-label="Section navigator">
+  <a href="#sec-hero" data-label="overview"></a>
+  <a href="#sec-1-1" data-label="1.1 economic machine"></a>
+  <a href="#sec-1-2" data-label="1.2 short-term debt"></a>
+  <a href="#sec-1-3" data-label="1.3 long-term debt"></a>
+  <a href="#sec-1-4" data-label="1.4 deleveragings"></a>
+  <a href="#sec-1-5" data-label="1.5 paradigm shifts"></a>
+  <a href="#sec-1-6" data-label="1.6 changing world order"></a>
+  <a href="#sec-1-7" data-label="1.7 inflation & currency"></a>
+  <a href="#sec-2-1" data-label="2.1 template"></a>
+  <a href="#sec-2-2" data-label="2.2 all-weather"></a>
+  <a href="#sec-2-3" data-label="2.3 alpha"></a>
+  <a href="#sec-2-4" data-label="2.4 risk parity"></a>
+  <a href="#sec-2-5" data-label="2.5 stress testing"></a>
+</nav>
+
+<section id="sec-hero" class="hero scan-host">
+  <div class="hero-bar">
+    <span>R · DALIO</span>
+    <span>012 / FRAMEWORKS</span>
+    <span class="refresh-pill"><span class="label" id="hero-pill">live · refreshed —</span><span class="caret"></span></span>
+  </div>
+  <div class="hero-mid">
+    <h1><span class="decrypt" data-text="How he sees">How he sees</span><br><span class="decrypt" data-text="the&nbsp;">the&nbsp;</span><span class="accent decrypt" data-text="economy" data-italic="1"><em>economy</em></span><span class="decrypt" data-text=".">.</span></h1>
+    <p class="lede reveal">A portfolio model assembled from <strong>Bridgewater research</strong> and <strong>Ray Dalio's books</strong> — <em>Big Debt Crises</em>, <em>Principles for Dealing with the Changing World Order</em>. Every claim cited. Every threshold sourced. The page refreshes itself, every five minutes.</p>
+  </div>
+  <div class="hero-bar bottom">
+    <span>SCROLL ↓</span>
+    <span>FRED · BIS · WB</span>
+    <span>2026</span>
+  </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 1.4 — APPLE-STYLE STICKY CHART + SCROLLING TEXT
+     ===================================================================== -->
+<section id="sec-1-4" class="scrolly scan-host">
+  <div class="scrolly-bar">
+    <span>1.4 / DELEVERAGINGS</span>
+    <span class="refresh-pill"><span class="label">live · refreshed —</span><span class="caret"></span></span>
+  </div>
+  <div class="scrolly-grid">
+    <div class="scrolly-text">
+      <div class="step reveal" data-step="0">
+        <div class="seq">1.4.1 / TAXONOMY</div>
+        <h2>Three paths through a&nbsp;<span class="accent"><em>debt collapse</em></span>.</h2>
+        <p>Dalio's three-category taxonomy — <strong>ugly deflationary</strong>, <em>beautiful</em>, <strong>ugly inflationary</strong> — emerges from how policymakers wield four levers.</p>
+      </div>
+      <div class="step reveal" data-step="1">
+        <div class="seq">1.4.2 / FOUR LEVERS</div>
+        <h2>Austerity, defaults,<br>printing,&nbsp;<span class="accent"><em>redistribution</em></span>.</h2>
+        <p>Each Dalio-cited deleveraging is decomposed into the share each lever contributed. <strong>US 1930–32</strong> shows defaults dominant + austerity active + printing held low — the under-printing classic.</p>
+      </div>
+      <div class="step reveal" data-step="2">
+        <div class="seq">1.4.3 / THE GAP</div>
+        <h2>Growth above<br>the&nbsp;<span class="accent"><em>interest rate</em></span>.</h2>
+        <p>The <strong>growth-rate gap</strong> $G_t = \mathrm{NGDP}_{yoy} - r_t$ is the beautiful-condition core. Positive but moderate gap, falling debt-to-GDP, moderate printing → BEAUTIFUL.</p>
+      </div>
+    </div>
+    <div class="scrolly-chart-wrap">
+      <div class="scrolly-chart halo-target" id="card-1-4">
+        <div class="meta">
+          <span>FOUR-LEVER DECOMPOSITION · LEVER SHARES (%)</span>
+          <span class="refresh-pill"><span class="label">live · refreshed —</span></span>
+        </div>
+        <div id="chart-1-4" class="echart"></div>
+        <div class="prov-block">
+          <p class="prov-line"><span class="prov-marker dalio">Dalio</span><em>$G_t$</em> per case from research/04 §7. <em>An In-Depth Look at Deleveragings</em>.</p>
+          <p class="prov-line"><span class="prov-marker derived">Derived</span>Lever-share splits stylized from Dalio narrative.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 2.5 — APPLE-STYLE STICKY CHART + SCROLLING TEXT
+     ===================================================================== -->
+<section id="sec-2-5" class="scrolly scan-host">
+  <div class="scrolly-bar">
+    <span>2.5 / STRESS TESTING</span>
+    <span class="refresh-pill"><span class="label">live · refreshed —</span><span class="caret"></span></span>
+  </div>
+  <div class="scrolly-grid">
+    <div class="scrolly-text">
+      <div class="step reveal" data-step="0">
+        <div class="seq">2.5.1 / FOUR ARCHETYPES</div>
+        <h2>The all-weather under&nbsp;<span class="accent"><em>four scenarios</em></span>.</h2>
+        <p>Dalio's archetype taxonomy — <strong>deflationary</strong>, <strong>inflationary</strong>, <strong>stagflation</strong>, <strong>reflation</strong> — defines the corners of the stress space.</p>
+      </div>
+      <div class="step reveal" data-step="1">
+        <div class="seq">2.5.2 / THE WEIGHTS</div>
+        <h2>Robbins<br><span class="accent"><em>30·40·15·7.5·7.5</em></span>.</h2>
+        <p>Tony Robbins (2014) recipe of Dalio's All-Weather: $w = (0.30, 0.40, 0.15, 0.075, 0.075)$ across stocks, long Treasuries, intermediate, gold, commodities.</p>
+      </div>
+      <div class="step reveal" data-step="2">
+        <div class="seq">2.5.3 / THE IMPACT</div>
+        <h2>Inflationary depression<br>is the&nbsp;<span class="accent"><em>red band</em></span>.</h2>
+        <p>$R^{port}_e = \sum_i w_i \cdot S_{i,e}$ → the inflationary case prints <strong>−26%</strong>. The 8× asymmetry vs stagflation is what justifies the institutional <em>ILB</em> sleeve and leverage overlay.</p>
+      </div>
+    </div>
+    <div class="scrolly-chart-wrap">
+      <div class="scrolly-chart halo-target" id="card-2-5">
+        <div class="meta">
+          <span>PORTFOLIO RETURN BY ARCHETYPE · UNLEVERAGED ROBBINS</span>
+          <span class="refresh-pill"><span class="label">live · refreshed —</span></span>
+        </div>
+        <div id="chart-2-5" class="echart"></div>
+        <div class="prov-block">
+          <p class="prov-line"><span class="prov-marker dalio">Dalio</span>Taxonomy per <em>Big Debt Crises</em> Part 1, p. 14 + p. 32.</p>
+          <p class="prov-line"><span class="prov-marker derived">Derived</span>Returns byte-exact from research/12 §7 Table 7.1: −8.13 / −26.00 / −3.05 / +11.83.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>RAY DALIO · 12 FRAMEWORKS · v.PROTOTYPE</span>
+  <span><a href="#sec-hero">↑ TOP</a></span>
+  <span>FRED · BIS · WB · DALIO PRIMARY</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<script>
+'use strict';
+
+// =============================================================================
+// PROTOTYPE V1 — combined locked direction
+// =============================================================================
+
+(function () {
+
+  // --- Read CSS variables for theming ECharts ----------------------------------
+  const ROOT = getComputedStyle(document.documentElement);
+  const ACCENT     = ROOT.getPropertyValue('--accent').trim();
+  const ACCENT_LOW = ROOT.getPropertyValue('--accent-low').trim();
+  const TEXT_1     = ROOT.getPropertyValue('--text-1').trim();
+  const TEXT_2     = ROOT.getPropertyValue('--text-2').trim();
+  const TEXT_3     = ROOT.getPropertyValue('--text-3').trim();
+  const BORDER     = ROOT.getPropertyValue('--border').trim();
+  const BAD        = ROOT.getPropertyValue('--bad').trim();
+  const WARN       = ROOT.getPropertyValue('--warn').trim();
+
+  // --- Chart 1: research/04 four-lever decomposition (3 cases) -----------------
+  const opt04 = {
+    backgroundColor: 'transparent',
+    textStyle: { color: TEXT_1, fontFamily: 'inherit' },
+    legend: {
+      textStyle: { color: TEXT_2, fontFamily: 'DM Mono, monospace', fontSize: 10 },
+      top: 0, itemWidth: 14, itemHeight: 8,
+      data: ['austerity', 'defaults', 'printing', 'redistribution'],
+    },
+    tooltip: {
+      trigger: 'axis', backgroundColor: '#0a0a0a',
+      borderColor: BORDER, textStyle: { color: TEXT_1 },
+    },
+    grid: { left: 60, right: 30, top: 36, bottom: 28 },
+    xAxis: {
+      type: 'category', data: ['US 1930–32', 'US 1933–37', 'Japan 1990+'],
+      axisLine: { lineStyle: { color: BORDER } },
+      axisLabel: { color: TEXT_2, fontFamily: 'DM Mono, monospace', fontSize: 10 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value', max: 100,
+      axisLine: { lineStyle: { color: BORDER } },
+      axisLabel: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 9, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: BORDER } },
+    },
+    series: [
+      { name: 'austerity',      type: 'bar', stack: 'levers', data: [35, 15, 30], itemStyle: { color: TEXT_3 } },
+      { name: 'defaults',       type: 'bar', stack: 'levers', data: [55, 40, 55], itemStyle: { color: BAD } },
+      { name: 'printing',       type: 'bar', stack: 'levers', data: [10, 40, 10], itemStyle: { color: ACCENT } },
+      { name: 'redistribution', type: 'bar', stack: 'levers', data: [ 0,  5,  5], itemStyle: { color: WARN } },
+    ],
+  };
+
+  // --- Chart 2: research/12 archetype portfolio impact -------------------------
+  const opt12 = {
+    backgroundColor: 'transparent',
+    textStyle: { color: TEXT_1, fontFamily: 'inherit' },
+    grid: { left: 170, right: 70, top: 16, bottom: 36 },
+    xAxis: {
+      type: 'value', min: -30, max: 15,
+      axisLine: { lineStyle: { color: BORDER } },
+      axisLabel: { color: TEXT_3, fontFamily: 'DM Mono, monospace', fontSize: 9, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: BORDER } },
+    },
+    yAxis: {
+      type: 'category', data: ['Deflationary', 'Inflationary', 'Stagflation', 'Reflation'],
+      axisLine: { lineStyle: { color: BORDER } },
+      axisLabel: { color: TEXT_1, fontFamily: 'inherit', fontSize: 13 },
+      axisTick: { show: false },
+    },
+    series: [{
+      type: 'bar', data: [-8.13, -26.00, -3.05, 11.83],
+      itemStyle: {
+        color: function (p) {
+          if (p.value >= 0) return ACCENT;
+          if (p.value > -10) return ACCENT_LOW;
+          if (p.value > -20) return WARN;
+          return BAD;
+        },
+      },
+      label: {
+        show: true, color: TEXT_1, position: 'right',
+        fontFamily: 'DM Mono, monospace', fontSize: 11,
+        formatter: function (p) { return p.value.toFixed(2) + '%'; },
+      },
+      barWidth: 22,
+      markLine: {
+        symbol: 'none',
+        lineStyle: { color: BAD, type: 'dashed', width: 1 },
+        data: [{ xAxis: -20, label: { show: false } }],
+      },
+    }],
+    tooltip: {
+      backgroundColor: '#0a0a0a', borderColor: BORDER,
+      textStyle: { color: TEXT_1 },
+      valueFormatter: function (v) { return v.toFixed(2) + '%'; },
+    },
+  };
+
+  const charts = {};
+  function initAll() {
+    const e1 = document.getElementById('chart-1-4');
+    const e2 = document.getElementById('chart-2-5');
+    if (e1) { charts.c1 = echarts.init(e1, null, { renderer: 'canvas' }); charts.c1.setOption(opt04); }
+    if (e2) { charts.c2 = echarts.init(e2, null, { renderer: 'canvas' }); charts.c2.setOption(opt12); }
+  }
+  window.addEventListener('DOMContentLoaded', initAll);
+  window.addEventListener('resize', function () {
+    Object.values(charts).forEach(function (c) { if (c) c.resize(); });
+  });
+
+  // ===========================================================================
+  // CYBERPUNK SUBTLE: DECRYPT TEXT REVEAL
+  // Each .decrypt[data-text] gets each char rolled through random alphanumerics
+  // then settled to final char. Total ~1.2s, character-by-character left→right.
+  // ===========================================================================
+  function decryptReveal(el) {
+    const target = el.getAttribute('data-text');
+    if (!target) return;
+    const isItalic = el.getAttribute('data-italic') === '1';
+    el.innerHTML = '';
+    const chars = Array.from(target);
+    const spans = chars.map(function (c) {
+      const s = document.createElement('span');
+      s.className = 'ch scrambling';
+      s.textContent = c === ' ' ? ' ' : c;
+      if (isItalic) s.style.fontStyle = 'italic';
+      el.appendChild(s);
+      return s;
+    });
+    const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@*<>/\\$&';
+    const rand = function () { return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]; };
+    const totalDuration = 900;       // ms
+    const perCharDelay = 40;         // ms stagger
+    const tick = 60;                 // ms scramble tick
+    const start = performance.now();
+
+    spans.forEach(function (s, i) {
+      const settleAt = start + perCharDelay * i + (totalDuration - perCharDelay * spans.length);
+      let timer = setInterval(function () {
+        const c = chars[i];
+        if (c === ' ') return;
+        if (performance.now() >= settleAt) {
+          s.textContent = c;
+          s.classList.remove('scrambling');
+          clearInterval(timer);
+        } else {
+          s.textContent = rand();
+        }
+      }, tick);
+    });
+  }
+  window.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.decrypt').forEach(decryptReveal);
+  });
+
+  // ===========================================================================
+  // SCROLL-OBSERVER: reveal fade-up on viewport entry + scan-line on section entry
+  // ===========================================================================
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        if (entry.target.classList.contains('scan-host')) {
+          entry.target.classList.add('scan-fired');
+          setTimeout(function () {
+            entry.target.classList.remove('scan-fired');
+          }, 1200);
+        }
+      }
+    });
+  }, { threshold: 0.15 });
+  window.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.reveal, .scan-host').forEach(function (el) { io.observe(el); });
+  });
+
+  // ===========================================================================
+  // HALO REFRESH PULSE — every 30s in preview (5min in prod)
+  // ===========================================================================
+  function tickHalo() {
+    document.querySelectorAll('.halo-target').forEach(function (el) {
+      el.classList.remove('halo-active');
+      void el.offsetHeight; // force reflow
+      el.classList.add('halo-active');
+      // Brief number-ticker flash on chart label numbers
+      const labels = el.querySelectorAll('text');
+      labels.forEach(function (t) {
+        if (t.classList) t.classList.add('flash');
+        setTimeout(function () { if (t.classList) t.classList.remove('flash'); }, 800);
+      });
+    });
+    // Reset all refresh-pill timestamps
+    document.querySelectorAll('.refresh-pill').forEach(function (el) {
+      el.dataset.ts = Date.now();
+    });
+  }
+  function updatePills() {
+    const now = Date.now();
+    document.querySelectorAll('.refresh-pill').forEach(function (el) {
+      const ts = parseInt(el.dataset.ts || now, 10);
+      const sec = Math.floor((now - ts) / 1000);
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      const txt = (m > 0 ? m + 'm ' : '') + s + 's ago';
+      const labelEl = el.querySelector('.label');
+      if (labelEl) labelEl.textContent = 'live · refreshed ' + txt;
+    });
+  }
+  setInterval(updatePills, 1000);
+  setInterval(tickHalo, 30000);
+  setTimeout(tickHalo, 5000); // initial pulse so user sees it
+  setTimeout(function () {
+    document.querySelectorAll('.refresh-pill').forEach(function (el) { el.dataset.ts = Date.now(); });
+    updatePills();
+  }, 100);
+
+  // ===========================================================================
+  // MINI-MAP active section tracking
+  // ===========================================================================
+  function updateActive() {
+    const sections = document.querySelectorAll('section[id^="sec-"]');
+    let active = null;
+    const fromTop = window.scrollY + 200;
+    sections.forEach(function (s) { if (s.offsetTop <= fromTop) active = s.id; });
+    document.querySelectorAll('.minimap a').forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + active);
+    });
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  window.addEventListener('DOMContentLoaded', updateActive);
+
+  // ===========================================================================
+  // KaTeX auto-render
+  // ===========================================================================
+  window.addEventListener('DOMContentLoaded', function () {
+    const tryRender = function () {
+      if (window.renderMathInElement) {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true },
+          ],
+          throwOnError: false,
+        });
+      } else {
+        setTimeout(tryRender, 100);
+      }
+    };
+    tryRender();
+  });
+
+})();
+</script>
+</body>
+</html>

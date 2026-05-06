@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dalio · 12 Frameworks — Variant A · Couture Restraint</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="_shared.css">
+
+<style>
+  :root {
+    --accent:       #0A6B3D;
+    --accent-low:   #14532d;
+    --accent-glow:  #0A6B3D;
+    --bg-page:      #0c0c0c;
+    --bg-panel:     #0d0d0d;
+    --border:       #1c1c1c;
+    --text-1:       #e8e6df;
+    --text-2:       #8a8a82;
+    --text-3:       #5a5a52;
+    --bad:          #6b2828;
+    --warn:         #876b3a;
+  }
+
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    min-height: 100vh;
+    padding: 48px 64px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--bg-page);
+  }
+  .hero .top-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .hero .center {
+    margin: auto 0;
+    max-width: 720px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(48px, 9vw, 110px);
+    line-height: 0.96;
+    letter-spacing: -2.5px;
+    color: var(--text-1);
+    margin-bottom: 28px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .hero .rule {
+    width: 80px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 26px;
+  }
+  .hero .lede {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--text-2);
+    max-width: 520px;
+  }
+  .hero .lede em { color: var(--text-1); font-style: italic; }
+  .hero .bottom-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--text-3);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ---- Section blocks ---- */
+  section.framework {
+    padding: 90px 64px 80px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-page);
+  }
+  section.framework .header {
+    margin-bottom: 36px;
+    max-width: 720px;
+  }
+  section.framework .seq {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  section.framework h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    color: var(--text-1);
+    margin-bottom: 18px;
+  }
+  section.framework .lede {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--text-2);
+    margin-bottom: 12px;
+  }
+  section.framework .lede em { color: var(--text-1); font-style: italic; }
+  .chart-card {
+    margin-top: 28px;
+    background: var(--bg-panel);
+  }
+  .chart-card .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-3);
+  }
+  .prov-block {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+</style>
+</head>
+<body>
+
+<nav class="minimap" aria-label="Section navigator">
+  <a href="#sec-hero" data-label="overview"></a>
+  <a href="#sec-1-1" data-label="1.1 economic machine"></a>
+  <a href="#sec-1-2" data-label="1.2 short-term debt"></a>
+  <a href="#sec-1-3" data-label="1.3 long-term debt"></a>
+  <a href="#sec-1-4" data-label="1.4 deleveragings"></a>
+  <a href="#sec-1-5" data-label="1.5 paradigm shifts"></a>
+  <a href="#sec-1-6" data-label="1.6 changing world order"></a>
+  <a href="#sec-1-7" data-label="1.7 inflation & currency"></a>
+  <a href="#sec-2-1" data-label="2.1 template for investing"></a>
+  <a href="#sec-2-2" data-label="2.2 all-weather"></a>
+  <a href="#sec-2-3" data-label="2.3 alpha"></a>
+  <a href="#sec-2-4" data-label="2.4 risk parity"></a>
+  <a href="#sec-2-5" data-label="2.5 stress testing"></a>
+</nav>
+
+<section id="sec-hero" class="hero">
+  <div class="top-meta">— Ray Dalio &nbsp;·&nbsp; Twelve Frameworks &nbsp;·&nbsp; 2026 —</div>
+  <div class="center">
+    <h1>how he sees<br>the&nbsp;<em>economy</em>.</h1>
+    <div class="rule"></div>
+    <p class="lede">A working portfolio model assembled from <em>Big Debt Crises</em> and <em>Principles for Dealing with the Changing World Order</em>. Every threshold cited; every formula sourced. Refreshes itself, every five minutes.</p>
+  </div>
+  <div class="bottom-meta">
+    <span>SCROLL ↓ &nbsp; 12 SECTIONS &nbsp; ~22 MIN</span>
+    <span class="refresh-pill" data-ts=""><span class="label">live · refreshed —</span></span>
+  </div>
+</section>
+
+<section id="sec-1-4" class="framework">
+  <div class="header">
+    <div class="seq">1.4 &nbsp;·&nbsp; Deleveragings</div>
+    <h2>three paths<br>through a debt&nbsp;<em>collapse</em>.</h2>
+    <p class="lede">Dalio's three-category taxonomy — <em>ugly deflationary</em>, <em>beautiful</em>, <em>ugly inflationary</em> — operationalized via four levers (austerity, defaults, money printing, wealth redistribution) on three Dalio-cited cases. The lever mix and the growth-rate gap $G_t = \mathrm{NGDP}_{yoy} - r_t$ together fix the regime.</p>
+  </div>
+  <div class="chart-card">
+    <div class="meta">
+      <span>FOUR-LEVER DECOMPOSITION · LEVER SHARES (%)</span>
+      <span class="refresh-pill" data-ts=""><span class="label">live · refreshed —</span></span>
+    </div>
+    <div id="chart-1-4" class="echart"></div>
+    <div class="prov-block">
+      <p class="prov-line"><span class="prov-marker dalio">Dalio</span>$G_t$ values per case from research/04 §7: US 1930–32 = −20.4 pp; US 1933–37 = +6.3 pp; Japan 1990+ = −2.0 pp. <em>An In-Depth Look at Deleveragings</em>, US/Japan tables.</p>
+      <p class="prov-line"><span class="prov-marker derived">Derived</span>Lever-share splits stylized from Dalio narrative descriptors. US 1930–32 print share = 0.10 anchor is Dalio-stated; remaining splits are author operationalization.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sec-2-5" class="framework">
+  <div class="header">
+    <div class="seq">2.5 &nbsp;·&nbsp; Stress Testing</div>
+    <h2>the all-weather portfolio<br>under <em>four archetypes</em>.</h2>
+    <p class="lede">Robbins (2014) weights $w = (0.30, 0.40, 0.15, 0.075, 0.075)$ passed through Dalio's four-archetype shock matrix. Per-archetype portfolio impact $R^{port}_e = \sum_i w_i \cdot S_{i,e}$; the inflationary-depression result drives the institutional case for leverage and inflation-linked bonds.</p>
+  </div>
+  <div class="chart-card">
+    <div class="meta">
+      <span>PORTFOLIO RETURN BY ARCHETYPE · UNLEVERAGED ROBBINS</span>
+      <span class="refresh-pill" data-ts=""><span class="label">live · refreshed —</span></span>
+    </div>
+    <div id="chart-2-5" class="echart"></div>
+    <div class="prov-block">
+      <p class="prov-line"><span class="prov-marker dalio">Dalio</span>Four-archetype taxonomy per <em>Big Debt Crises</em> Part 1, p. 14 + p. 32. Robbins 30/40/15/7.5/7.5 weights via Tony Robbins (2014), <em>MONEY: Master the Game</em>.</p>
+      <p class="prov-line"><span class="prov-marker derived">Derived</span>Per-archetype portfolio returns byte-exact from research/12 §7 Table 7.1 sum row: −8.13 / −26.00 / −3.05 / +11.83. Cross-checked via $w \cdot S_{i,e}$ longhand (research/12 §7 R14 self-check).</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>RAY DALIO · 12 FRAMEWORKS · v.PILOT</span>
+  <span><a href="#sec-hero">↑ TOP</a></span>
+  <span>SOURCES: FRED · BIS · WB · DALIO PRIMARY</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="_shared.js"></script>
+</body>
+</html>

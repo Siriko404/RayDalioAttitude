@@ -1,0 +1,159 @@
+/* =============================================================================
+   Shared core for all 4 minimal-luxury preview pages.
+   Each page imports this then overrides with its own aesthetic variant.
+   ============================================================================= */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #0c0c0c;
+  color: #e8e6df;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+img, svg, canvas { display: block; max-width: 100%; }
+
+/* ---- Mini-map (right edge dot navigator) ---- */
+.minimap {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  z-index: 100;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+.minimap a {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--accent-low, #1a3d2c);
+  background: transparent;
+  border-radius: 50%;
+  position: relative;
+  transition: background 200ms, border-color 200ms, transform 200ms;
+  text-decoration: none;
+}
+.minimap a:hover {
+  background: var(--accent, #10B981);
+  border-color: var(--accent, #10B981);
+  transform: scale(1.4);
+}
+.minimap a.active {
+  background: var(--accent, #10B981);
+  border-color: var(--accent, #10B981);
+}
+.minimap a::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  color: var(--text-muted, #6a6a62);
+  opacity: 0;
+  transition: opacity 200ms;
+  pointer-events: none;
+}
+.minimap a:hover::after { opacity: 1; color: var(--accent, #10B981); }
+
+/* ---- Halo refresh animation ---- */
+@keyframes haloRefresh {
+  0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.0); }
+  20% { box-shadow: 0 0 0 8px rgba(16,185,129,0.45), 0 0 24px rgba(16,185,129,0.30); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.0); }
+}
+.chart-card.halo {
+  animation: haloRefresh 2.4s ease-out;
+}
+
+/* ---- Refreshed-X-ago timer ---- */
+.refresh-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--accent, #10B981);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.refresh-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #10B981);
+  display: inline-block;
+}
+
+/* ---- Provenance markers (Dalio / DERIVED / NON-DALIO) ---- */
+.prov-marker {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  padding: 2px 7px;
+  border-radius: 2px;
+  margin-right: 10px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+.prov-marker.dalio { background: var(--accent, #10B981); color: #0c0c0c; }
+.prov-marker.derived { background: transparent; border: 1px solid #6a6a62; color: #a3a39c; }
+.prov-marker.nondalio { background: transparent; border: 1px solid var(--accent, #10B981); color: var(--accent, #10B981); }
+
+.prov-line {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8a8a82;
+  margin-bottom: 8px;
+}
+
+/* ---- KaTeX restraint ---- */
+.katex { font-size: 1.05em; }
+.katex .mord { color: var(--text-1, #e8e6df); }
+
+/* ---- Generic chart card scaffold ---- */
+.chart-card {
+  background: #0e0e0e;
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  padding: 24px;
+  position: relative;
+  transition: border-color 280ms;
+}
+.chart-card:hover { border-color: #262626; }
+
+.chart-card .echart {
+  width: 100%;
+  height: 360px;
+}
+
+/* ---- Footer ---- */
+footer {
+  border-top: 1px solid #1a1a1a;
+  padding: 36px 48px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #5a5a52;
+  letter-spacing: 1.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+footer a { color: #8a8a82; text-decoration: none; border-bottom: 1px solid #2a2a2a; }
+footer a:hover { color: var(--accent, #10B981); border-color: var(--accent, #10B981); }
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+  .minimap { display: none; }
+  footer { flex-direction: column; align-items: flex-start; padding: 28px 20px; }
+}

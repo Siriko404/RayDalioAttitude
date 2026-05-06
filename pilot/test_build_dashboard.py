@@ -110,5 +110,26 @@ class TestChromeGenerators(unittest.TestCase):
         self.assertIn("/raydalioattitude", f.lower())
 
 
+class TestHeroSlide(unittest.TestCase):
+    def test_hero_structure(self):
+        """Hero slide is first (.active class), data-bg=dark, contains h1 with reveal-target + data-text."""
+        import build_dashboard
+        s = build_dashboard.build_hero_slide()
+        self.assertIn('data-slide="hero"', s)
+        self.assertIn('data-bg="dark"', s)
+        self.assertIn('class="slide active"', s)
+        self.assertIn("<h1", s)
+        # AF reveal target
+        self.assertIn('class="reveal-target"', s)
+        self.assertIn('data-text=', s)
+        # Eyebrow with hairline
+        self.assertIn('class="eyebrow', s)
+        # Subtitle
+        self.assertIn('class="subtitle', s)
+        # Hero meta
+        self.assertIn('class="hero-meta', s)
+        self.assertIn("SCROLL", s)
+
+
 if __name__ == "__main__":
     unittest.main()

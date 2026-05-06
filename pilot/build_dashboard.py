@@ -778,6 +778,29 @@ def build_footer() -> str:
     )
 
 
+def build_hero_slide() -> str:
+    """Return the HERO slide HTML block — chrome, dark bg, first slide (.active).
+
+    Structure mirrors prototype-v4.html lines 688-699 verbatim:
+    - Outer div: class="slide active" data-slide="hero" data-bg="dark"
+    - slide-inner: eyebrow + h1 (AF reveal-target, content in data-text) + subtitle
+    - hero-meta: OUTSIDE slide-inner per prototype convention; contains source strip + SCROLL cue
+    """
+    return (
+        '<div class="slide active" data-slide="hero" data-bg="dark">\n'
+        '  <div class="slide-inner">\n'
+        '    <div class="eyebrow fade-target">RAY DALIO &nbsp;·&nbsp; THE TEMPLATE &nbsp;·&nbsp; 12 FRAMEWORKS, ONE PAGE</div>\n'
+        '    <h1 class="reveal-target" data-text="How he sees<br><em>the economy.</em>"></h1>\n'
+        '    <p class="subtitle fade-target">Twelve interlocking models — debt cycles, deleveragings, all-weather, stress tests — assembled from primary Bridgewater sources, parameterised, and rendered live.</p>\n'
+        '  </div>\n'
+        '  <div class="hero-meta fade-target">\n'
+        '    <div>NOWANDFUTURES &nbsp;·&nbsp; LINKEDIN &nbsp;·&nbsp; PRINCIPLES (CWO)</div>\n'
+        '    <div class="scroll-cue">SCROLL</div>\n'
+        '  </div>\n'
+        '</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

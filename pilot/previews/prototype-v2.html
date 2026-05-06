@@ -56,10 +56,31 @@
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.5;
   }
-  /* Native smooth scroll — anchor clicks animate via the browser engine.
-     Replaces the v2.2/v2.3 JS snap-scroll system (overengineered per user). */
-  html { scroll-behavior: smooth; }
+  /* Native smooth scroll + snap — every wheel/arrow lands at a waypoint,
+     never mid-way. Browser engine handles it; zero JS interception.
+     `scroll-snap-stop: always` on each anchor ensures no waypoint skipping. */
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
   body { overflow-x: hidden; }
+
+  /* Top-level section waypoints */
+  .hero, .intro, .more {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* Inner waypoints inside the §1.4 pin-wrapper — one per stage A/B/C/D */
+  .snap-anchor {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
 
   ::selection { background: var(--gold); color: var(--bg); }
 
@@ -655,6 +676,14 @@
      SECTION 1.4 DELEVERAGINGS — Apple-style pin + scrub
      ======================================================== -->
 <div class="pin-wrapper" id="sec-1-4">
+  <!-- Inner snap waypoints — stages A/B/C/D at progress 0, 1/3, 2/3, 1.0
+       of the 400vh pin scroll-budget (pin-wrapper is 500vh; pin holds for
+       500vh − 100vh viewport = 400vh). -->
+  <div class="snap-anchor" data-stage="A" style="top: 0"></div>
+  <div class="snap-anchor" data-stage="B" style="top: 133vh"></div>
+  <div class="snap-anchor" data-stage="C" style="top: 266vh"></div>
+  <div class="snap-anchor" data-stage="D" style="top: 400vh"></div>
+
   <div class="pin-stage">
     <div class="pin-section-tag"><span class="gold">§ 1.4</span> DELEVERAGINGS</div>
     <div class="pin-progress mono"><span id="progress-pct">00%</span></div>

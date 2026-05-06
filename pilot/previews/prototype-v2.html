@@ -1233,10 +1233,19 @@ function easeOutExpo(t) {
   return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
 
-var SNAP_DURATION     = 1000;  // ms per snap animation
-var SNAP_SETTLE       = 280;   // ms cooldown after animation
-var SNAP_BURST_EXTEND = 200;   // ms extension during continued wheel/inertia
-var ANCHOR_DURATION   = 1300;  // ms when click-jumping a non-adjacent anchor
+// Per user feedback v2.2 → v2.3: easeOutExpo's tail covers near-zero ground
+// but the lockout still blocked the next gesture, leaving the page feeling
+// sluggish at the end. v2.3 trims aggressively:
+//   - duration 1000 → 500ms (motion visually done by ~250ms with expo)
+//   - cooldown 280 → 80ms  (just enough to debounce a double-fire)
+//   - early-exit if remaining distance ≤ 2px past t=0.7
+// Net: max lockout 580ms (was 1280ms) — striking decel, no dead tail.
+var SNAP_DURATION     = 500;   // ms per snap (was 1000)
+var SNAP_SETTLE       = 80;    // ms cooldown (was 280)
+var SNAP_BURST_EXTEND = 140;   // ms extension during continued wheel/inertia (was 200)
+var ANCHOR_DURATION   = 700;   // ms anchor click — multi-section jump (was 1300)
+var EARLY_EXIT_T      = 0.70;  // past this t, check for px-tolerance exit
+var EARLY_EXIT_PX     = 2;     // px tolerance — if remaining distance ≤ this, snap to target
 
 var snapWaypoints = [];
 var snapLockUntil = 0;
@@ -1297,11 +1306,28 @@ function snapAnimateTo(targetY, duration) {
   var distance = targetY - startY;
   if (Math.abs(distance) < 1) return;
   var startTime = performance.now();
+
   function step(now) {
     var t = Math.min((now - startTime) / duration, 1);
     var eased = easeOutExpo(t);
-    window.scrollTo(0, startY + distance * eased);
-    if (t < 1) requestAnimationFrame(step);
+    var current = startY + distance * eased;
+    window.scrollTo(0, current);
+
+    if (t >= 1) {
+      window.scrollTo(0, targetY);
+      return;
+    }
+
+    // Early-exit: easeOutExpo(0.70) ≈ 99.2% — past this the user perceives
+    // "stopped" but the lockout would still hold. Snap to target and TIGHTEN
+    // the lockout so the next gesture can fire immediately on visual settle.
+    if (t >= EARLY_EXIT_T && Math.abs(targetY - current) <= EARLY_EXIT_PX) {
+      window.scrollTo(0, targetY);
+      snapLockUntil = now + SNAP_SETTLE;
+      return;
+    }
+
+    requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }

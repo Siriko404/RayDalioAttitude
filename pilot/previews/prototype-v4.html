@@ -70,7 +70,7 @@ body { overflow-x: hidden; }
   position: fixed;
   inset: 0;
   background: var(--ink);
-  transition: background 700ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  transition: background 350ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
   z-index: 5;
   overflow: hidden;
 }
@@ -298,8 +298,8 @@ h3::before {
 .fade-target {
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 0.85s cubic-bezier(0.2,0.8,0.2,1) 0.15s,
-              transform 0.85s cubic-bezier(0.2,0.8,0.2,1) 0.15s;
+  transition: opacity 0.42s cubic-bezier(0.2,0.8,0.2,1) 0.07s,
+              transform 0.42s cubic-bezier(0.2,0.8,0.2,1) 0.07s;
 }
 .fade-target.fade-armed {
   opacity: 1;
@@ -308,7 +308,7 @@ h3::before {
 .fade-target.fade-disarmed {
   opacity: 0;
   transform: translateY(-8px);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 
 /* =============================================================
@@ -857,9 +857,9 @@ footer a {
 // =====================================================================
 function airForceReveal(el, opts) {
   opts = opts || {};
-  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.5;
-  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.83;
-  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.18;
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.25;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.42;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.09;
 
   // Capture parent text color BEFORE we mutate innerHTML.  Once spans are
   // wrapped with inline color:transparent the computed style would be wrong.
@@ -926,8 +926,8 @@ function airForceReveal(el, opts) {
 function airForceRevealOut(el, opts) {
   opts = opts || {};
   var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.0;
-  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.28;
-  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.14;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.14;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.07;
 
   var spans = el.querySelectorAll('.reveal-ch');
   if (!spans.length) return null;
@@ -961,7 +961,7 @@ function armSlide(slide) {
   });
   slide.querySelectorAll('.fade-target').forEach(function (el, idx) {
     el.classList.remove('fade-disarmed');
-    var delay = Math.min(idx * 80, 480);
+    var delay = Math.min(idx * 40, 240);
     setTimeout(function () { el.classList.add('fade-armed'); }, delay);
   });
   // Lazy-init the §1.4-C chart on first activation
@@ -1009,14 +1009,14 @@ function transitionTo(slideId) {
     oldEl.classList.remove('active');
     // Show new — chars are already inline color:transparent so no flash
     newEl.classList.add('active');
-    // Roll bg color (CSS 700ms transition)
+    // Roll bg color (CSS 350ms transition)
     if (newBg === 'light') stage.classList.add('bg-light');
     else stage.classList.remove('bg-light');
     // Defer AF in by one frame so layout settles + bg roll has started
     requestAnimationFrame(function () {
       armSlide(newEl);
     });
-  }, 460);  // 440 AF-out duration + 20ms safety
+  }, 230);  // 210 AF-out duration + 20ms safety (was 460, halved per user)
 }
 
 // =====================================================================
@@ -1120,9 +1120,9 @@ function initChart() {
         }
       },
     ],
-    animationDuration: 1100,
+    animationDuration: 550,
     animationEasing: 'cubicOut',
-    animationDelay: function (idx) { return idx * 60; },
+    animationDelay: function (idx) { return idx * 30; },
     tooltip: {
       trigger: 'axis',
       backgroundColor: '#000',
@@ -1178,17 +1178,17 @@ window.addEventListener('DOMContentLoaded', function () {
   // Render KaTeX BEFORE arming hero (so math is ready when §1.4-D activates later)
   setTimeout(function () {
     initKatex();
-  }, 200);
+  }, 100);
   // Arm hero (initial active slide)
   setTimeout(function () {
     var hero = document.querySelector('.slide[data-slide="hero"]');
     if (hero) armSlide(hero);
-  }, 400);
+  }, 200);
   // Observers wired after fonts settle
   setTimeout(function () {
     initObserver();
     initMinimap();
-  }, 600);
+  }, 300);
 });
 </script>
 

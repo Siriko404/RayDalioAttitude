@@ -781,7 +781,9 @@ def build_footer() -> str:
 def build_hero_slide() -> str:
     """Return the HERO slide HTML block — chrome, dark bg, first slide (.active).
 
-    Structure mirrors prototype-v4.html lines 688-699 verbatim:
+    Structure mirrors prototype-v4.html lines 688-699 (functionally equivalent;
+    data-text uses literal `<br>`/`<em>` rather than the prototype's HTML-entity
+    encoding — both produce identical DOM via dataset.text + innerHTML at runtime):
     - Outer div: class="slide active" data-slide="hero" data-bg="dark"
     - slide-inner: eyebrow + h1 (AF reveal-target, content in data-text) + subtitle
     - hero-meta: OUTSIDE slide-inner per prototype convention; contains source strip + SCROLL cue

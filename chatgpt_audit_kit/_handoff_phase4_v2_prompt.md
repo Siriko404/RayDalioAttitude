@@ -1,9 +1,90 @@
 # Handoff — Phase 4 (v3 content-free deep-research prompt system)
 
-**Date:** 2026-05-05.
-**HEAD at write time:** `e3e6973` (subject to update post-this-commit).
+**Date:** 2026-05-05 (evening update).
+**HEAD at write time:** see `git log` for current; v3 final at `5d9bc6d`.
 **Branch:** `main`.
 **Verifier:** `python chatgpt_audit_kit/_layer3_bodycite_verify.py` → 12/12 PASS on `research/`.
+
+---
+
+## ⚠️ SESSION-2 UPDATE: PATH E RECOMMENDATION (read this first)
+
+**The v3 full-rewrite plan below is no longer the recommended path forward.**
+
+After receiving two deep-research v3 outputs (`research_v2/01_economic_machine.pdf` and `research_v2/04_deleveragings.pdf` — the topic-04 v3 retest), evidence checks revealed:
+
+1. **R12 charge against v3 1.4 dissolved.** WebFetched canonical In-Depth Look 2012 PDF p.1 directly. Found **TWO different wordings** of the deleveragings sentence on the same page:
+   - Intro paragraph: *"differences between **how** deleveragings **are resolved** depend on the amounts and paces ... haves to the have-nots **and** 4) debt monetization."* (no comma before "and 4)")
+   - Reprise paragraph: *"differences between deleveragings depend on the amounts and paces ... haves to the have-nots, **and** 4) debt monetization."* (with comma)
+
+   v3 1.4 quoted the intro paragraph verbatim (correct). research/04 quoted the reprise paragraph verbatim (correct). **Both pipelines have correct R12 quote-fidelity.** The v1 redteam's "CRITICAL R12 violation" finding was itself a misidentification — they compared v1's quote (intro paragraph) to the reprise paragraph and called it a violation.
+
+2. **R17 framework regression in v3 IS real and persistent.** v3 1.4 names the 4 levers in §1+§2 but does NOT operationalize them in §5/§6/§7. research/04 §5.2 has per-lever formulas, §7 lever-mix scores per case, §8a stacked-bar JS data structure. Same pattern verified on topic 12: research/12 has 4-archetype shock matrix; v3 hypothetical wouldn't reliably deliver this.
+
+3. **Audit findings on research/ are mostly polish.** Sample audit_12: 9 findings (8 critical / 9 major / 3 minor). Only ~2 of 9 (22%) affect Phase 5 artifacts (commodity data source + JS off-by-one). The other 7 are research/ presentation issues (URL rot, marker placement, word ratios, ibid usage, spacing typos) that don't break the deliverables.
+
+4. **Pivot premise was half-false.** The original v1→v2→v3 pivot was driven by R12 + R17 concerns. R12 was a misidentification. Only R17 was real. The v3 prompt's R17 reframing as discovery-directive caught the discovery side but the LLM doesn't reliably enforce operationalization — same problem v1 had.
+
+### Path E (recommended next action)
+
+```
+1. Use research/ files as authoritative input to Phase 5.
+   (12/12 verifier-passing; framework operationalization confirmed
+   on topics 04 + 12.)
+
+2. STOP running remaining 10 topics through ChatGPT Pro Deep Research.
+   The v3 prompt + R21 verifier remain useful tools for cross-check,
+   not as a full-rewrite mechanism.
+
+3. Build the 3 deliverables directly:
+   a. dalio_dashboard.html  ← Claude builds (JS + ECharts + locked palette)
+   b. dalio_model.xlsx      ← Claude builds (openpyxl + Power Query)
+   c. README.md narrative   ← user writes; Claude assembles structure
+
+4. Apply ~25 artifact-relevant audit findings inline during build.
+   Triage rule: does the finding affect what the artifact uses?
+   YES = fix in artifact code; NO = leave research/ as-is.
+
+5. Use existing v3 deep-research outputs (research_v2/01 + 04) as
+   adversarial cross-check. Where v3 disagrees with research/ on
+   substantive content, flag for primary-source verification.
+
+6. Skip patching research/ markdown beyond what the artifact build
+   surfaces. research/ ships in repo as historical-record-of-reasoning.
+   The 3 artifacts are the actual deliverables.
+```
+
+### What's awaiting user decision
+
+User asked "build deliverables from research/ now?" Response options:
+- **Yes** → Claude starts on `dalio_dashboard.html` (or whichever artifact user picks first)
+- **No, keep going with v3 deep-research** → user runs remaining 10 topics through ChatGPT Pro Deep Research; Claude continues v3 verification chain
+- **Pause** → no action; resume next session
+
+### v3 prompt system (built this session, kept for cross-check use)
+
+Architecture committed at HEAD `5d9bc6d` is functional and content-free. If user later wants v3 deep-research on specific topics for cross-check or as polish on weak research/ files, the system is ready. The build-only constraint + content-free principle remain durable.
+
+### Comparison receipts (for next-session re-check)
+
+| | research/ | deep-research v3 |
+|---|---|---|
+| 12/12 verifier passing | YES | (1.1, 1.4 only — not run yet) |
+| R12 quote-fidelity on topic 04 | correct (reprise paragraph) | correct (intro paragraph) |
+| R17 framework operationalization on topic 04 | YES (§5.2 4-lever decomp + §7 + §8a) | NO (named, not operationalized) |
+| R17 framework operationalization on topic 12 | YES (4-archetype shock matrix + §7 arithmetic + §8a) | not yet run |
+| Audit findings | ~113 across 05-12; ~22% artifact-relevant | output-by-output; varies |
+| Time to artifact-shipped | shortest (build now) | +8-20 hrs uncertain |
+
+### Files received this session in research_v2/
+
+- `research_v2/01_economic_machine.pdf` — v3 deep-research output for topic 1.1 (received from user; structurally clean)
+- `research_v2/04_deleveragings.pdf` — v3 RETEST output for topic 1.4 (received from user; R17 regression observed)
+- `research_v2/04_deleveragings_v1_rejected.{md,pdf}` — v1 pilot output preserved as comparison baseline (REJECTED, but R12 charge against it has been dissolved post-canonical-PDF check)
+
+---
+
+## (Original handoff — describes v3 architecture; still valid but Path E supersedes for next-session execution)
 
 ---
 

@@ -1,7 +1,7 @@
-# Handoff — Phase 4 (v2 deep-research prompt system)
+# Handoff — Phase 4 (v3 content-free deep-research prompt system)
 
 **Date:** 2026-05-05.
-**HEAD at write time:** `6447a26`.
+**HEAD at write time:** `e3e6973` (subject to update post-this-commit).
 **Branch:** `main`.
 **Verifier:** `python chatgpt_audit_kit/_layer3_bodycite_verify.py` → 12/12 PASS on `research/`.
 
@@ -9,13 +9,15 @@
 
 ## TL;DR — where we are
 
-The project pivoted twice in this session. Both pivots are durable, both are reflected in the commits.
+The project pivoted three times in this session. All pivots are durable, all are reflected in the commits.
 
-**Pivot 1 — Build-only constraint.** User declared (verbatim): *"NO research, fixing files, or nothing knowledge related will be done by you! you are responsible for BUILDING ONLY."* Claude no longer reads primary sources to verify ChatGPT-audit findings, no longer decides VALID/DISMISS/INVALID, no longer writes research-file body content, no longer makes framing decisions, no longer writes README narrative. Claude DOES: apply mechanical patches the user (or external research) hands over, run scripts, build code (Python, openpyxl, HTML/JS), git ops, advisor calls, format conversions.
+**Pivot 1 — Build-only constraint.** User declared (verbatim): *"NO research, fixing files, or nothing knowledge related will be done by you! you are responsible for BUILDING ONLY."* Claude no longer reads primary sources to verify ChatGPT-audit findings, no longer decides VALID/DISMISS/INVALID, no longer writes research-file body content, no longer makes framing decisions. Claude DOES: apply mechanical patches, run scripts, build code (Python/openpyxl/HTML/JS), git ops, format conversions.
 
-**Pivot 2 — Phase 4 audits become external.** Instead of Claude verifying ChatGPT-audit findings against primary sources, the 12 research files are regenerated from scratch by ChatGPT Pro Deep Research under engineered prompts. The pilot ran on topic 1.4 Deleveragings (commit `e37dffb` v1). Redteam audit on the v1 output found two CRITICAL R12 quote-fidelity violations (manufactured words inside Dalio blocks) plus a CRITICAL framework regression (4-lever decomposition abandoned vs the existing hand-built file). v1 REJECTED.
+**Pivot 2 — Phase 4 audits become external.** The 12 research files are regenerated from scratch by ChatGPT Pro Deep Research under engineered prompts. Pilot ran on topic 1.4 (commit `e37dffb` v1). Redteam REJECTED v1 (R12 violations + 4-lever framework regression).
 
-The v2 prompt system (commit `6447a26`) is the current state. It uses a scalable template + registry + generator architecture, with 9 new hard rules R17-R25 derived from the redteam findings. 12 v2 prompts are generated and ready. **Awaiting user to run topic 04 v2 prompt through ChatGPT Pro Deep Research as the pilot retest.**
+**Pivot 3 — Content-free prompt principle.** User declared (verbatim): *"you must not give any content to the research agent! content means anything that can bias the research towards what you know from memory. the deep research must have deep research principles and find and organize and report the workflow on its own!"* This pivot supersedes the v2 redteam audit's commit-2 fixes (registry tier-1 restructure etc.) — the entire registry-content approach was operating within the WRONG framework. The model MUST discover Dalio's framework structure (named components, typologies, historical cases, source coverage) by EXHAUSTIVE primary reading. Pre-filling content (sources, frameworks, cases, labels) BIASES the model toward Claude's prior memory.
+
+The v3 prompt system is the current state. It uses a scalable template + registry + generator architecture, with R17-R25 reframed as DISCOVERY-DIRECTIVE rules. 12 v3 prompts are content-free and generated. **Awaiting user to run topic 04 v3 prompt through ChatGPT Pro Deep Research as the pilot retest.**
 
 ---
 
@@ -26,94 +28,153 @@ The v2 prompt system (commit `6447a26`) is the current state. It uses a scalable
 2f9ce87  phase3.5: cluster-F spot-check + 3 stragglers swept                  (pre-pivot)
 e37dffb  phase4-pivot: engineered deep-research prompt for 1.4 (PILOT v1)
 6447a26  phase4: deep-research prompt v2 system — template + registry + generator
-                ← current HEAD
+8615132  docs(handoff): phase 4 v2 deep-research continuation guide
+545899e  phase4(redteam-fix-1): C1+M4+C3+M5+m2+M3 — template + generator structural fixes
+e633c69  phase4(content-free pivot): strip all per-topic content from prompt system
+06f12fc  chore: remove stray .commit_msg.tmp accidentally committed in e633c69
+e3e6973  chore: gitignore .commit_msg.tmp scratch files
+                ← current HEAD (subject to update on commit 3 of this run)
 ```
 
-**Pre-pivot work (still valid).** Phase 3.5 (research completeness sweep on cluster-F entries) was completed before the pivot. All 12 research files in `research/` pass marker-block-strict body-cite verifier. That work is preserved as the comparison baseline against the new deep-research outputs.
+**Pre-pivot work (still valid).** Phase 3.5 (research completeness sweep) was completed before the pivot. All 12 research files in `research/` pass marker-block-strict body-cite verifier. That work is preserved as the comparison baseline against new deep-research outputs.
 
 **Pivot artifacts (this session).**
-- `chatgpt_audit_kit/_deepresearch_prompt_template.md` — universal R1-R25 + 11-section schema + slot syntax `<<<...>>>`.
-- `chatgpt_audit_kit/_deepresearch_prompt_registry.py` — per-topic context (named components, expected cases, Tier-1 source allowlist) for all 12 topics.
-- `chatgpt_audit_kit/_deepresearch_prompt_generator.py` — combines template + registry, emits `_deepresearch_prompt_NN_slug.md` files.
-- `chatgpt_audit_kit/_deepresearch_prompt_NN_slug.md` (× 12) — generated per-topic prompts.
-- `chatgpt_audit_kit/_redteam_review_pilot_04_deleveragings.md` — full redteam findings on v1 with REJECT verdict and rule-sharpening recommendations.
-- `research_v2/04_deleveragings.md`, `04_deleveragings.pdf` — v1 pilot output (preserved as comparison baseline; PDF is the canonical render with proper footnoted URL bibliography).
+- `chatgpt_audit_kit/_deepresearch_prompt_template.md` — universal R1-R25 + 11-section schema + DISCOVERY DIRECTIVE + slot syntax `<<<...>>>`. Content-free.
+- `chatgpt_audit_kit/_deepresearch_prompt_registry.py` — 4 fields per topic only (seq, id, slug, title). Content-free.
+- `chatgpt_audit_kit/_deepresearch_prompt_generator.py` — combines template + registry + builds `SUBSECTION_MAP`.
+- `chatgpt_audit_kit/_deepresearch_prompt_NN_slug.md` (× 12) — generated content-free per-topic prompts.
+- `chatgpt_audit_kit/_redteam_review_pilot_04_deleveragings.md` — v1 redteam findings.
+- `chatgpt_audit_kit/_redteam_v2_prompt_system_audit.md` — v2 redteam findings (FAIL verdict). Most findings re-evaluated as relevant or irrelevant under content-free architecture (see "Audit findings re-evaluation" below).
+- `chatgpt_audit_kit/_redteam_v2_quote_audit_diff.py` — R21 byte-equal verifier script (NEW; mechanizes verification-chain step 6).
+- `research_v2/04_deleveragings.md`, `04_deleveragings.pdf` — v1 pilot output (preserved as REJECTED comparison baseline; still uses pre-pivot v2 framework so its content patterns are not the v3 target).
 
 ---
 
-## Hard rules R1-R25 — what's in the v2 prompt
+## Hard rules R1-R25 — what's in the v3 prompt
 
-R1-R16 carry over from the original `research/_prompt_template.md` (R1-R15) plus the §11 Completeness Self-Audit table requirement (R16) introduced in the v1 pilot. R17-R25 are NEW, derived from the redteam findings on v1.
+R1-R16 carry over from `research/_prompt_template.md` (R1-R15) plus R16 §11 self-audit. R17-R25 are NEW; R17/R20/R23 are reframed as DISCOVERY-DIRECTIVE in v3 (model discovers, prompt does not pre-fill).
 
 ```
-R1  All 11 sections present (was 10; §11 added)
-R2  Numeric thresholds / formulas cited
-R3  Inputs name specific public data source
-R4  ≥85% inputs/formulas/impl ratio (vs ≤15% narrative)
-R5  Ambiguities CLOSED via Dalio cite / NON-DALIO cite / DERIVED marker
-R6  No out-of-scope content
-R7  Visual attribution markers Dalio / NON-DALIO / DERIVED
-R8  Public URL only (no paywalls)
-R9  Commercial-book quote ≤1 sentence at a time, ≤2 cumulative
-R10 Point-of-use attribution within 3 lines of derived threshold
-R11 URL pre-flight WebFetch each URL before citing
-R12 Quote fidelity verbatim from retrieved text
-R13 Data-series ID verification
-R14 Worked-example arithmetic self-check
-R15 §10 has exactly 2 sub-sections (Limitations / Sources). No open questions.
-R16 §11 Completeness Self-Audit table (gap → keywords → hits → closure → location)
+R1   All 11 sections present (was 10; §11 added)
+R2   Numeric thresholds / formulas cited
+R3   Inputs name specific public data source
+R4   ≥85% inputs/formulas/impl ratio + §11 ≤30% of §§4-8 (M3 fix)
+R5   Ambiguities CLOSED via Dalio cite / NON-DALIO cite / DERIVED marker
+R6   No out-of-scope content
+R7   Visual attribution markers + pagination-dictated cite format (m2 fix)
+R8   Public URL only (no paywalls)
+R9   Commercial-book quote ≤1 sentence at a time, ≤2 cumulative
+R10  Point-of-use attribution within 3 lines of derived threshold
+R11  URL pre-flight WebFetch each URL before citing
+R12  Quote fidelity verbatim from retrieved text
+R13  Data-series ID verification
+R14  Worked-example arithmetic self-check
+R15  §10 has exactly 2 sub-sections (Limitations / Sources). No open questions.
+R16  §11 Completeness Self-Audit table (gap → keywords → hits → closure → location)
 
-R17 NEW — Framework-component coverage (topic-bound). For every named
-    component in §2 quotes (4 levers, 8 measures, etc.), §5 must operationalize,
-    §6 must emit, §7 must show column, §11 must row.
-R18 NEW — Decision-rule truth-table closure. Catch-all UNRESOLVED forbidden;
-    every Boolean cell maps to a named regime tag.
-R19 NEW — Numeric provenance inline. Every value in §5/§6/§7 carries
-    inline (source, p.N) cite + §11 row. Footer-style sources insufficient.
-R20 NEW — Dalio corpus breadth. Min N Tier-1 sources searched (topic-bound);
-    each searched source ≥3 verbatim quotes OR §11 row with verbatim
-    Dalio passage proving silence on the gap.
-R21 NEW — Verbatim quote audit appendix `_quote_audit.md` with byte-equal
-    source-text diff per Dalio block. Catches manufactured words.
-R22 NEW — Cross-section consistency. Every variable in §6/§7/§8 defined
-    in §4/§5. URLs canonical/identical across §4/§8/§10.
-R23 NEW — Worked-example case coverage. Topic-bound min N cases from
-    registry allowlist. Boolean flags must derive from row data.
-R24 NEW — Autoformat contamination rejection. Smart quotes / emoji / em-dash
-    inside Dalio blocks = rejection.
-R25 NEW — Book-attribution sanity check. Every Dalio cite matches Tier-1
-    taxonomy by exact title. (BDC ≠ HCGB-1 ≠ HCG.)
+R17  v3 — FRAMEWORK-COMPONENT DISCOVERY + COVERAGE. Model MUST discover
+     every named multi-part construct Dalio defines for this subsection by
+     primary reading; operationalize each component (§5/§6/§7/§11). Naming
+     a component from prior knowledge without verbatim cite = rejection.
+R18  Decision-rule truth-table closure. Catch-all UNRESOLVED forbidden.
+R19  Numeric provenance inline.
+R20  v3 — DALIO CORPUS EXHAUSTIVE SEARCH + SEARCH TRACE. Every Tier-1
+     work (all 7 cascade entries) MUST appear as its own §11 search-trace
+     row with 4 fields: Source / Keywords tried / Hit counts / Outcome.
+     Skipping any Tier-1 work = rejection. Search-trace row sufficient
+     for silence (no incoherent "verbatim passage proving silence").
+R21  Verbatim quote audit appendix `_quote_audit.md` with byte-equal
+     diff per Dalio block. NOW SCRIPTED — see verification chain.
+R22  Cross-section consistency.
+R23  v3 — CASE DISCOVERY + WORKED-EXAMPLE COVERAGE. Model MUST discover
+     historical cases by reading Dalio case panels (BDC Part 2/3, In-Depth
+     Look, HCGB-1, etc.); §7 covers ALL discovered cases; §11 includes
+     a CASE COMPLETENESS row.
+R24  v3 — Anti-AUTOFORMAT-CONTAMINATION (M5 fix). Reject model-introduced
+     curly quotes / em-dashes where source has ASCII; ALSO reject silent
+     ASCII-normalization of source-faithful typography. R21 audits against
+     UN-NORMALIZED source bytes.
+R25  Book-attribution sanity check. (BDC ≠ HCGB-1 ≠ HCG.)
 ```
 
 ---
 
-## v1 pilot — what failed (redteam findings)
+## v3 prompt structure (PROMPT block delivered to ChatGPT)
 
-Full report: `chatgpt_audit_kit/_redteam_review_pilot_04_deleveragings.md` (2,759 words). Key findings:
+```
+ROLE
+SUBSECTION (id, title; methodological statement: discover, do not assume)
+SUBSECTION MAP (12 subsections, current marked, Module 1 / Module 2 split)
+DISCOVERY DIRECTIVE (BLOCKING — orientation; you discover components, cases, sources)
+SOURCE PRIORITY (BLOCKING; cascade Tier 1-5; Dalio FIRST, all 7 Tier-1 must be searched)
+PUBLIC-ACCESS REQUIREMENT
+DELIVERABLE (research_v2/SEQ_slug.md; floor 2000 words; +_quote_audit.md)
+HARD RULES R1-R25 (with R17/R20/R23 discovery-directive)
+REQUIRED OUTPUT SCHEMA (11 sections in order)
+TONE
+REJECTION TRIGGERS
+```
 
-**CRITICAL — R12 violation line 9.** The new file's `> **Dalio**` block:
-> "The differences between **how** deleveragings **are resolved** depend on the amounts and paces of 1) debt reduction, 2) austerity, 3) transferring wealth from the haves to the have-nots and 4) debt monetization."
-
-Canonical In-Depth Look 2012 PDF page 1 (verified by redteam WebFetch) actually reads:
-> "the differences between deleveragings depend on the amounts and paces of 1) debt reduction, 2) austerity, 3) transferring wealth from the haves to the have-nots, and 4) debt monetization."
-
-Words `how` and `are resolved` were manufactured inside a verbatim Dalio block. Comma before "and 4)" was deleted. Stand-alone R12 rejection trigger.
-
-**CRITICAL — R12 + book misattribution line 17.** Quote: *"the debt-to-income ratio HAS THE BE lowered by roughly 50%, give or take about 20%."* "has the be" is non-grammatical. Cite is to *How Countries Go Broke* Part 1, p. 27. Redteam read the canonical PDF pp. 25-42 and could not find the cited text. MEMORY records the verified location as HCGB-1 Ch 1 — a different Tier-1 book.
-
-**CRITICAL — Framework regression.** v1 quotes the 4 levers in §2 but never operationalizes them. The existing hand-built `research/04_deleveragings.md` §5.2 has per-lever pp-of-GDP formulas, lever-share scores, balance flags wired into §6 and §8a. v1: zero. The 4-lever decomposition IS the substantive core of Dalio's In-Depth Look 2012; v1 is non-responsive to the prompt's own IN-SCOPE clause.
-
-**Engineer error.** Claude's initial v1 verdict overstated rigor: "13 gates PASS + body-cite verifier PASS" — body-cite verifier checks marker presence + topic keywords, NOT byte-equal quote matching. The R12 violations went unflagged. Claude's "+175% input-table rows" stat was also wrong (actual delta is +10%; my regex under-counted the existing file). These are documented in the redteam report.
-
-**v2 prompt addresses each finding** via R17 (framework coverage), R21 (quote-audit byte-equal diff), R25 (book-attribution check), and topic-bound registry context.
+What CHANGED from v2 → v3:
+- DROPPED `NAMED FRAMEWORK COMPONENTS (TOPIC-BOUND)` section
+- DROPPED `EXPECTED HISTORICAL CASE SET (TOPIC-BOUND)` section
+- DROPPED `EXPECTED DALIO TIER-1 SOURCE COVERAGE (TOPIC-BOUND)` section
+- DROPPED IN-SCOPE / OUT-OF-SCOPE prose (replaced by SUBSECTION MAP for boundaries)
+- ADDED `SUBSECTION MAP` (computed from registry; current subsection marked)
+- ADDED `DISCOVERY DIRECTIVE` block stating the model must discover, not assume
+- REFRAMED R17/R20/R23 to be discovery-directive
+- Cascade Tier 1: emphasized "ALL 7 works MUST be searched" (no per-topic subset)
 
 ---
 
-## v2 retest plan — workflow
+## Audit findings re-evaluation (v2 redteam audit vs v3 architecture)
+
+The v2 redteam audit (`_redteam_v2_prompt_system_audit.md`) found 4 CRITICAL / 7 MAJOR / 5 MINOR with verdict FAIL. Status under v3:
+
+| Finding | Status |
+|---|---|
+| C1 — slot-doc table corruption | FIXED in commit `545899e` (generator slot-reference exclusion) |
+| C2 — Tier-1 contamination across topics | IRRELEVANT under v3 (no per-topic Tier-1 lists exist) |
+| C3 — R20 silence-proof incoherent | FIXED in commit `545899e` then re-clarified in v3 R20 |
+| C4 — verification scripts missing | PARTIALLY FIXED in this commit (R21 byte-equal verifier script written) |
+| M1 — Robbins on tier1 | IRRELEVANT under v3 |
+| M2 — pilot context identical | IRRELEVANT under v3 (pilot context now project-wide by design) |
+| M3 — R4 §11 cap missing | FIXED in commit `545899e` |
+| M4 — generator docstring stale | FIXED in commit `545899e` |
+| M5 — R12 vs R24 collision | FIXED in commit `545899e` |
+| M6 — chronic-case mis-classification | IRRELEVANT under v3 (no case allowlist) |
+| M7 — illustrative cases on topics 10/11 | IRRELEVANT under v3 |
+| m1 — MP2/MP3 unverified labels | IRRELEVANT under v3 (no labels in registry) |
+| m2 — R7 unpaginated fallback | FIXED in commit `545899e` |
+| m3 — slot reference paired with C1 | FIXED with C1 |
+| m4 — Topic 02 transitional catch-all | IRRELEVANT under v3 |
+| m5 — Topic 06 8-vs-18 mismatch | IRRELEVANT under v3 |
+
+Net: 9 CRITICAL/MAJOR fixed; 7 made irrelevant by content-free pivot.
+
+---
+
+## v1 pilot — what failed (redteam findings; still source-of-truth)
+
+Full report: `chatgpt_audit_kit/_redteam_review_pilot_04_deleveragings.md` (2,759 words). Key findings recapped:
+
+**CRITICAL — R12 violation line 9.** The v1 file's `> **Dalio**` block had `how` and `are resolved` manufactured inside the verbatim Dalio block + missing comma. Stand-alone R12 rejection trigger.
+
+**CRITICAL — R12 + book misattribution line 17.** Quote *"the debt-to-income ratio HAS THE BE lowered by roughly 50%, give or take about 20%."* "has the be" is non-grammatical. Cite is to *How Countries Go Broke* Part 1, p. 27; verified location is HCGB-1 Ch 1 — different Tier-1 book.
+
+**CRITICAL — Framework regression.** v1 quotes the 4 levers in §2 but never operationalizes them. Existing `research/04_deleveragings.md` §5.2 has per-lever pp-of-GDP formulas, lever-share scores, balance flags. v1: zero.
+
+**Engineer error.** "13 gates PASS + body-cite verifier PASS" overstated rigor; body-cite verifier checks marker presence + topic keywords, not byte-equal quote matching. Recorded for honesty.
+
+**v3 prompt addresses each finding via:** R17 DISCOVERY-DIRECTIVE (forces operationalization of every discovered component, not just §2 quoting), R21 byte-equal scripted audit (catches manufactured words), R25 book-attribution check, content-free architecture (model can't drift to CONTENT FROM PRIOR MEMORY because none is given).
+
+---
+
+## v3 retest plan — workflow
 
 When user is ready to retest:
 
-1. Open `chatgpt_audit_kit/_deepresearch_prompt_04_deleveragings.md` (v2).
+1. Open `chatgpt_audit_kit/_deepresearch_prompt_04_deleveragings.md` (v3).
 2. Copy the entire `## PROMPT (paste the block below into Deep Research)` code-fenced block.
 3. Paste into ChatGPT Pro Deep Research.
 4. Save the model response to `research_v2/04_deleveragings.md` (will overwrite v1).
@@ -123,29 +184,57 @@ When user is ready to retest:
 **Verification chain Claude runs:**
 
 ```
-1. Schema + R1-R16 gates (existing 13 automated checks + body-cite verifier)
-2. R17 component-coverage check
-   - For each registry component, verify §5 transform + §6 emission +
-     §7 column + §11 row presence
-3. R18 truth-table closure check
-   - Verify §6 contains explicit truth table with no UNRESOLVED catch-all
-4. R19 numeric-provenance spot-check (5 numerics from §5/§6/§7)
-5. R20 corpus-breadth check (≥4 Tier-1 sources searched per registry)
-6. R21 byte-equal quote audit
-   - Run diff between body Dalio blocks and _quote_audit.md appendix
-   - Any non-zero diff without [sic] = reject
-7. R22 cross-section consistency
-   - Variable definitions across §4/§5/§6/§7/§8
-   - URL canonicalization across §4/§8/§10
-8. R23 case-coverage check (≥4 cases from registry allowlist)
-9. R24 autoformat scan (smart quotes / emoji inside Dalio blocks)
-10. R25 book-attribution scan (cite text vs Tier-1 taxonomy)
-11. Side-by-side diff vs research/04_deleveragings.md
-12. User decision: approve / reject / refine
+Step  Rule(s)              Implementation        Action
+----  -------------------  --------------------  -----------------------
+ 1    Schema + R1-R16      _layer3_bodycite_     Run script
+                            verify.py (existing)
+ 2    R17 component cov    MANUAL                Spot-check §11 component
+                                                  rows; compare to body
+ 3    R18 truth-table      MANUAL                Confirm §6 has explicit
+                                                  truth table, no catch-all
+ 4    R19 numeric prov     MANUAL                5-numeric spot-check
+ 5    R20 corpus breadth   MANUAL                §11 search-trace has 7
+                                                  Tier-1 rows w/ all 4 fields
+ 6    R21 byte-equal       _redteam_v2_quote_    Run script (NEW)
+                            audit_diff.py
+ 7    R22 cross-section    MANUAL                Variable + URL trace
+ 8    R23 case coverage    MANUAL                §11 CASE COMPLETENESS
+                                                  row + §7 row count
+ 9    R24 autoformat       MANUAL                Grep for smart quotes /
+                                                  em-dashes inside Dalio
+                                                  blocks; cross-check vs
+                                                  source PDFs
+10    R25 book attribution MANUAL                Cross-check cites vs
+                                                  Tier-1 taxonomy
+11    Side-by-side diff    MANUAL                vs research/04_*.md
+12    User decision        MANUAL                approve/reject/refine
 ```
 
-If v2 PASSES: scale by running the other 11 v2 prompts through deep research.
-If v2 FAILS: iterate the prompt (template or registry) + regenerate + re-run.
+Steps 2-5, 7-10 are MANUAL today (Claude runs them with judgment + grep). Step 6 is now SCRIPTED. Future scripts can mechanize 2/3/4/5/8/9/10 — see "Future hardening" below.
+
+If v3 PASSES: scale by running the other 11 v3 prompts through deep research.
+If v3 FAILS: iterate the prompt (template only — registry has no content to iterate) → regenerate → re-run.
+
+---
+
+## R21 byte-equal verifier (NEW) — usage
+
+```bash
+python chatgpt_audit_kit/_redteam_v2_quote_audit_diff.py \
+    research_v2/04_deleveragings.md
+```
+
+Auto-derives audit appendix path from main path (inserts `_quote_audit` before `.md`). Override with `--audit <path>`.
+
+What it checks:
+1. Every `> **Dalio**` block in the main has a matching audit entry whose `Quoted text in body` equals the body text byte-equal.
+2. Every audit entry's `Quoted text in body` matches some body quote (no orphans).
+3. Every audit entry's body_text vs source_text is byte-equal OR the diff field declares `[sic]` annotations.
+4. Every audit entry has all 6 required fields (Body location, Source, Source URL fetched, Quoted text in body, Source PDF text, Diff).
+
+Exit code 0 = PASS, 1 = FAIL.
+
+What it does NOT check (the model's responsibility under R12+R21): whether the audit's `Source PDF text (byte-equal)` actually matches the real source PDF. That requires retrieving the source. The script verifies INTERNAL consistency of the appendix; primary-source fidelity is the model's job to certify.
 
 ---
 
@@ -153,40 +242,26 @@ If v2 FAILS: iterate the prompt (template or registry) + regenerate + re-run.
 
 ```
 chatgpt_audit_kit/
-  _deepresearch_prompt_template.md     ← universal R1-R25 + schema. Has slot
-                                          syntax <<<NAME>>>. Edit this for
-                                          rule changes that apply to all 12.
-  _deepresearch_prompt_registry.py     ← per-topic context. Edit this for
-                                          topic-specific changes (named
-                                          components, cases, sources).
-  _deepresearch_prompt_generator.py    ← combines template + registry. No
-                                          regular edits. Run after every
-                                          template/registry change.
-  _deepresearch_prompt_NN_slug.md      ← 12 generated files. DO NOT edit
-                                          directly — regenerated by the
-                                          generator. Edits are overwritten.
+  _deepresearch_prompt_template.md   ← universal R1-R25 + schema. Slot syntax
+                                       <<<NAME>>>. Edit for rule changes.
+  _deepresearch_prompt_registry.py   ← 4 fields per topic (seq/id/slug/title).
+                                       Edit only to change topic identifiers.
+                                       NO content (per content-free pivot).
+  _deepresearch_prompt_generator.py  ← combines template + registry + builds
+                                       SUBSECTION_MAP. Run after every
+                                       template/registry change.
+  _deepresearch_prompt_NN_slug.md    ← 12 generated files. DO NOT edit
+                                       directly — regenerated by the
+                                       generator.
+  _redteam_v2_quote_audit_diff.py    ← R21 byte-equal verifier (verification
+                                       chain step 6).
 ```
 
-**Slot syntax:** `<<<ID>>>`, `<<<TITLE>>>`, `<<<SEQ>>>`, `<<<slug>>>`, `<<<SCOPE_IN>>>`, `<<<SCOPE_OUT>>>`, `<<<NAMED_COMPONENTS_BLOCK>>>`, `<<<EXPECTED_CASES_BLOCK>>>`, `<<<EXPECTED_CASES_MIN>>>`, `<<<TIER1_SOURCES_BLOCK>>>`, `<<<TIER1_SOURCES_MIN>>>`. Chosen to avoid collision with example uses of `{ID}` etc. inside instruction prose.
+**Slot syntax (5 slots only):** `<<<ID>>>`, `<<<TITLE>>>`, `<<<SEQ>>>`, `<<<slug>>>`, `<<<SUBSECTION_MAP>>>`. The slot reference table at the bottom of the template is auto-stripped before substitution (its literal `<<<NAME>>>` tokens document the slot syntax and would otherwise be clobbered).
 
-**Registry shape per topic:**
+**Registry shape per topic (4 fields):**
 ```python
-"NN": dict(
-    seq, id, slug, title,
-    scope_in, scope_out,           # prose paragraphs
-    named_components=[             # for R17 enforcement
-        dict(name, items, dalio_anchor, operationalization),
-        ...
-    ],
-    expected_cases=dict(           # for R23 enforcement
-        min,                        # int
-        allowlist,                  # list[str]
-    ),
-    tier1_sources=dict(            # for R20 enforcement
-        min,                        # int
-        allowlist,                  # list[str]
-    ),
-)
+"NN": dict(seq, id, slug, title)
 ```
 
 **Generator commands:**
@@ -200,61 +275,48 @@ python chatgpt_audit_kit/_deepresearch_prompt_generator.py
 
 ---
 
-## Per-topic registry status
-
-Topic 04 (Deleveragings) is **fully populated** for the pilot retest — 4 levers + 3 archetypes as named components, 7 historical cases as allowlist, 6 Tier-1 sources. Other topics carry **best-derivation skeleton** populations from existing `research/_prompt_template.md` IN/OUT scope plus Dalio framework structure inferences. Some fields may need user / external research confirmation before each topic's prompt runs through deep research.
-
-Quick registry sanity:
-```bash
-python chatgpt_audit_kit/_deepresearch_prompt_registry.py
-```
-Outputs per-topic component count + min cases + min sources.
-
----
-
 ## Memory state at compaction
 
 Updated by this session:
 - `MEMORY.md` index — points to current memory files.
-- `project_phase4_v2_prompt_system.md` — current architecture (NEW).
-- `feedback_buildonly_constraint.md` — build-only pivot (NEW).
-- `project_layer2_state.md` — REPLACED with handoff pointer + sunset note.
+- `project_phase4_v2_prompt_system.md` — current architecture (will be updated to v3).
+- `feedback_buildonly_constraint.md` — build-only pivot.
+- `feedback_content_free_prompts.md` (NEW) — content-free principle for deep-research prompts.
 
 Pre-pivot memories preserved (still useful as backup reference):
-- `feedback_layer2_methodology.md` — sequential per-file workflow. Still valid for the *existing* `research/` files (1-4 audited; 5-12 untouched). Build-only pivot supersedes for new work.
-- `reference_pdf_workflow.md` — PDF extraction + verification recipes.
-- Other feedback memories.
+- `feedback_layer2_methodology.md` — sequential per-file workflow. Still valid for *existing* `research/` files. Build-only pivot supersedes for new work.
+- `reference_pdf_workflow.md` — PDF extraction recipes.
 
 ---
 
 ## Pre-existing project facts (still valid)
 
-**Verified Dalio quotes (Phase 3 work, pre-pivot — still source-of-truth for backup verification):**
-- HEMW p. 5: cycle ranges "50 to 75 years" / "5 to 8 years"
-- HEMW p. 7: "$50 trillion" debt, "$3 trillion" money, "roughly 15 times"
-- HEMW p. 18: 6-phase cycle, "around 3.5-4%" + "about 2½ years"
-- HCGB-1 Ch 1 footnote: MP scheme renumbered (current MP1 Linked, MP4 Coordinated, MP5 Big Deleveraging, MP6 Hard Money)
-- HCGB-1 Ch 1 Stage 4: "lowered by roughly 50%, give or take about 20%"
-- HCGB-1 Ch 3: "interest rates being higher than income growth by 2%...debt-to-income ratio to increase by around 50% over 20 years"
-- Engineering p. 3: "Alphas...risk-adjusted returns slightly negative on average"
-- Engineering p. 8 Chart 5: P1 N=6 ρ=0.25 IR=0.6; P2 N=77 ρ=0.04 IR=1.4
-- Engineering p. 11: "around 2 times leveraged"
-- Engineering L466-467: tracking-error "3% / 6%" examples
-- CWO Ch 1 LinkedIn: "roughly equal average of 18 measures of strength"
-- Robbins reprint: "30% in stocks…15% in immediate term…40% in long-term bonds…7.5% in gold…7.5% in commodities"
-- Our Thoughts 2015 p. 6: 25% per quadrant risk allocation
+The "Verified Dalio quotes" list in pre-pivot memory is **preserved for backup verification only**. It is NOT used to fill the prompt (per content-free principle). Useful when manually spot-checking the deep-research model's output against known-good source bytes.
 
-**Verified factual claims:**
+**Verified factual claims (project-facts, not Dalio-content):**
 - TCMDO units = MILLIONS USD (FRED Q4 2025 = 107,632,484 mn = $107.6T)
 - M2SL units = BILLIONS USD (Dec 2025 ≈ 22,411 bn)
 - BIS dataflow current version = `BIS,WS_TC,2.0`
 - Hamilton 2018 (NBER w23429) does NOT define ±1σ classification band
-- Schema spacing typo: `audit_prompt.md` uses 2 spaces; `_acceptance_criteria.md` S4 regex uses 1 space (canonical). All ChatGPT spacing MINOR findings = false positives → DISMISS.
+- Schema spacing typo: `audit_prompt.md` uses 2 spaces; `_acceptance_criteria.md` S4 regex uses 1 space (canonical).
 
 **Environment constraints:**
-- FRED is BLOCKED for Claude's WebFetch (403). Workarounds: WebSearch metadata; WebFetch on third-party PDF mirrors; firecrawl agent (per redteam workflow this session).
+- FRED is BLOCKED for Claude's WebFetch (403). Workarounds: WebSearch metadata; WebFetch on third-party PDF mirrors; firecrawl agent.
 - WebFetch on PDF saves binary to disk; Read tool with `pages:N-M` extracts text + renders.
-- Python on Windows console is cp1252; use `.encode('ascii', 'replace').decode()` for printing strings with §, ρ, σ, etc.
+- Python on Windows console is cp1252; the R21 verifier reconfigures stdout to UTF-8 to render §, ρ, σ, etc. correctly.
+
+---
+
+## Future hardening (non-blocking)
+
+Scripts that could be added to mechanize verification chain steps:
+- `_redteam_v2_truth_table_check.py` — R18: parse §6 for truth table, verify no catch-all phrases.
+- `_redteam_v2_numeric_provenance.py` — R19: regex-extract numerics in §5/§6/§7, flag any without inline `(source, p.N)` or `(institution series-ID, date)` or `(derived from ...)` cite.
+- `_redteam_v2_search_trace_check.py` — R20: parse §11 for the 7 Tier-1 rows, verify all 4 fields (Source / Keywords tried / Hit counts / Outcome) populated.
+- `_redteam_v2_autoformat_scan.py` — R24: grep for smart quotes / em-dashes / emoji inside `> **Dalio**` blocks.
+- `_redteam_v2_book_attribution.py` — R25: extract every `> **Dalio** — source: ...` cite, regex against the Tier-1 taxonomy (BDC / CWO / HCGB-1 / HEMW / In-Depth Look / Paradigm Shifts / LinkedIn).
+
+Build them on demand when verification chain steps prove too noisy in manual judgment.
 
 ---
 
@@ -267,18 +329,18 @@ Phase 5 (final consolidation) has not started. Per build-only constraint:
 - Cross-test scripts — Claude builds.
 - GitHub push — Claude executes.
 
-Phase 5 build can start *now* against existing `research/` files (12/12 verifier-passing) OR wait for v2 deep-research outputs to land in `research_v2/`. Decision deferred to user direction post-pilot-retest.
+Phase 5 build can start *now* against existing `research/` files (12/12 verifier-passing) OR wait for v3 deep-research outputs to land in `research_v2/`. Decision deferred to user post-pilot-retest.
 
 ---
 
 ## How to resume next session
 
-1. Read this handoff (you're doing that).
+1. Read this handoff.
 2. Read `MEMORY.md` index. Memory files load automatically per Claude Code session-start hooks.
-3. `git log --oneline -5` to confirm HEAD `6447a26` (or whatever's current).
+3. `git log --oneline -10` to confirm current HEAD.
 4. `python chatgpt_audit_kit/_layer3_bodycite_verify.py` to confirm `research/` baseline still 12/12.
-5. `ls research_v2/` to see whether user has run v2 prompt for any topics yet.
-6. If `research_v2/04_deleveragings.md` is newer than `6447a26` commit time → user has run v2 retest, run verification chain.
+5. `ls research_v2/` to see whether user has run v3 prompt for any topics yet.
+6. If `research_v2/04_deleveragings.md` is newer than current commit time → user has run v3 retest. Run verification chain (script for step 6, manual for others).
 7. If unchanged → still awaiting user retest. Status report + ask for direction.
 
 ---
@@ -292,7 +354,8 @@ Every meaningful position change in this session passed the 3-step protocol:
 
 Notable position reversals this session:
 - "Pilot result: STRONG, scale to 11 more" → REJECT after redteam WebFetched canonical PDFs and found R12 violations. Evidence: byte-equal diff from primary source.
-- "+175% input-table rows" → +10%. Evidence: redteam programmatic count with explicit definitions.
-- "All 13 gates PASS = pilot ready" → "13 gates PASS but verifier doesn't catch quote fidelity, separate audit needed". Evidence: redteam pointed out body-cite verifier checks marker shape + topic keywords, NOT byte-equal text.
+- "+175% input-table rows" → +10%. Evidence: redteam programmatic count.
+- "All 13 gates PASS = pilot ready" → "13 gates PASS but verifier doesn't catch quote fidelity". Evidence: redteam pointed out body-cite verifier checks marker shape + topic keywords, NOT byte-equal text.
+- "Registry path (a) tier1_sources rename solves redteam C2" → "registry should have NO content at all". Evidence: user citing original session directive *"it must not give any content in the prompt!"* + principled correction that pre-filling biases the research.
 
-Build-only constraint stays active in next session unless explicitly lifted by user. Per-file authorization gate stays active for Phase 5 work.
+Build-only constraint stays active in next session unless explicitly lifted. Per-file authorization gate stays active for Phase 5. Content-free principle stays active for any future prompt-engineering work.

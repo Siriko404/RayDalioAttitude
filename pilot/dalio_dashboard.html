@@ -3,390 +3,2189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dalio Dashboard — Pilot Build</title>
-<!-- Pilot build: 2 tabs from research/04 (deleveragings) + research/12 (stress testing).
-     Locked palette tokens per research/01_economic_machine.md §8c.
-     Provenance markers: chart values cite source (Dalio, DERIVED, NON-DALIO). -->
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<title>Dalio · Economic Framework</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000000'/><text x='16' y='23' font-family='Georgia,serif' font-weight='200' font-style='italic' font-size='24' fill='%23ffffff' text-anchor='middle'>D</text></svg>">
+
+<!-- Fonts: Source Serif 4 variable (200..900 + italic) + DM Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+<!-- ECharts + GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
 <style>
-  /* Locked palette (12 tokens) — research/01 §8c */
-  :root {
-    --bg-page:    #0B0B0B;
-    --bg-panel:   #141414;
-    --bg-inset:   #080808;
-    --bg-tooltip: #1C1C1C;
-    --border:     #262626;
-    --grid:       #1C1C1C;
-    --text-1:     #F5F5F5;
-    --text-2:     #A3A3A3;
-    --text-3:     #6B7280;
-    --good:       #00D08C;
-    --trend:      #7FFFD4;
-    --warn:       #D4A373;
-    --bad:        #E5484D;
-  }
+/* =============================================================
+   PALETTE — pure B&W, no glow, no accents. Vintage minimal.
+   Hierarchy lives in: weight (mostly 200, sparingly 700+),
+   italic, size, hairline rules.
+   ============================================================= */
+:root {
+  --ink:   #000;
+  --paper: #fff;
+}
 
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--bg-page);
-    color: var(--text-1);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-panel);
-  }
-  header h1 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-1);
-  }
-  header .pilot-tag {
-    display: inline-block;
-    padding: 2px 8px;
-    margin-left: 12px;
-    background: var(--warn);
-    color: var(--bg-page);
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 3px;
-    letter-spacing: 0.5px;
-  }
-  header p {
-    margin: 4px 0 0 0;
-    color: var(--text-2);
-    font-size: 12px;
-  }
-  nav.tabs {
-    display: flex;
-    background: var(--bg-panel);
-    border-bottom: 1px solid var(--border);
-    padding: 0 16px;
-  }
-  nav.tabs button {
-    background: transparent;
-    border: none;
-    color: var(--text-2);
-    padding: 12px 20px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    border-bottom: 2px solid transparent;
-    transition: color 120ms, border-color 120ms;
-  }
-  nav.tabs button:hover { color: var(--text-1); }
-  nav.tabs button.active {
-    color: var(--good);
-    border-bottom-color: var(--good);
-  }
-  main {
-    padding: 24px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  section.tab {
-    display: none;
-  }
-  section.tab.active {
-    display: block;
-  }
-  .chart-container {
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  .chart-container h2 {
-    margin: 0 0 4px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-1);
-  }
-  .chart-container .subtitle {
-    margin: 0 0 16px 0;
-    font-size: 12px;
-    color: var(--text-2);
-  }
-  .chart {
-    width: 100%;
-    height: 520px;
-  }
-  .provenance {
-    margin-top: 12px;
-    padding: 12px;
-    background: var(--bg-inset);
-    border-left: 3px solid var(--text-3);
-    font-size: 12px;
-    color: var(--text-2);
-  }
-  .provenance .marker {
-    display: inline-block;
-    padding: 1px 6px;
-    margin-right: 6px;
-    border-radius: 2px;
-    font-weight: 700;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-  }
-  .provenance .marker.dalio   { background: var(--good); color: var(--bg-page); }
-  .provenance .marker.derived { background: var(--warn); color: var(--bg-page); }
-  .provenance .marker.nondalio{ background: var(--trend); color: var(--bg-page); }
-  footer {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    color: var(--text-3);
-    font-size: 11px;
-    text-align: center;
-  }
-  footer a { color: var(--text-2); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Source Serif 4', 'Times New Roman', Times, serif;
+  font-weight: 300;       /* DEFAULT: thin but readable. Was 200 — too faint for pro finance. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  background: var(--ink);
+}
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+body { overflow-x: hidden; }
+
+/* =============================================================
+   SCROLLBAR — monochrome, minimal
+   ============================================================= */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); transition: background 220ms; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.45); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+::selection { background: currentColor; color: var(--ink); }
+
+/* =============================================================
+   STAGE — fixed-position slideshow viewport
+   Content stays still during scroll. Only bg "rolls" + AF reveals
+   handle the transitions. (User note 3: material remains still.)
+   ============================================================= */
+.stage {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  transition: background 350ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  z-index: 5;
+  overflow: hidden;
+}
+.stage.bg-light { background: var(--paper); }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  padding: 76px 8vw 56px;        /* leave room for header (top) + footer */
+  color: var(--paper);
+  pointer-events: none;
+  overflow: hidden;
+}
+.slide[data-bg="light"] { color: var(--ink); }
+.slide.active {
+  display: flex;
+  pointer-events: auto;
+}
+
+.slide-inner {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+  /* No max-height/overflow here — slide itself has overflow:hidden.
+     Letting slide-inner size naturally avoids clip-mid-content artifacts. */
+}
+
+/* =============================================================
+   SCROLL-TRACK — invisible scroll slots, drive snap + intersection.
+   They live below the fixed stage in z-order so they're never seen.
+   ============================================================= */
+.scroll-track {
+  position: relative;
+  z-index: 1;
+}
+.slot {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* =============================================================
+   TYPOGRAPHY — 90% thin (weight 200), play with size + italic.
+   Heavy weights only on hero h1 (the dramatic moment) + lever
+   names (mid weight) + key emphasis words.
+   ============================================================= */
+
+/* Eyebrow — DM Mono with thin rule before */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'DM Mono', ui-monospace, Menlo, monospace;
+  font-weight: 500;       /* readable density on dark + light bg */
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  opacity: 0.85;
+}
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+.eyebrow.eyebrow--center { justify-content: center; }
+.eyebrow.eyebrow--center::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+/* H1 — hero only · the ONE bold moment · weight 700 (less artistic, professional) */
+h1 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 700;
+  font-size: clamp(56px, 9vw, 132px);
+  letter-spacing: -2.5px;
+  line-height: 0.96;
+  margin-bottom: 32px;
+}
+h1 em {
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: -1.6px;
+}
+
+/* H2 — section · italic THIN, sized down for fit */
+h2 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(40px, 5.6vw, 76px);
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+  margin-bottom: 28px;
+  position: relative;
+  padding-top: 24px;
+}
+h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 1px;
+  background: currentColor;
+}
+h2 em { font-style: normal; font-weight: 600; }
+
+/* H3 — stage heading · italic, mid-thin */
+h3 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(24px, 2.8vw, 38px);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin-bottom: 22px;
+  position: relative;
+  padding-top: 20px;
+  max-width: 880px;
+}
+h3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Display italic — questions, dramatic statements · italic, sized for fit */
+.display-italic {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(34px, 4.6vw, 64px);
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  max-width: 920px;
+}
+.display-italic em {
+  font-weight: 600;
+  font-style: italic;
+}
+
+/* Body — readable thin */
+.body-text {
+  font-size: clamp(16px, 1.25vw, 18px);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 640px;
+}
+.body-text em { font-style: italic; font-weight: 500; }
+.body-text + .body-text { margin-top: 20px; }
+
+/* Subtitle — italic, slightly heavier than body for hierarchy */
+.subtitle {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.55;
+  max-width: 720px;
+  opacity: 1;        /* full opacity for contrast — was 0.82 (too faint) */
+}
+
+/* Citation — italic, readable */
+.citation {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.6;
+  max-width: 580px;
+  margin-top: 28px;
+  padding-top: 16px;
+  position: relative;
+  opacity: 0.95;     /* was 0.85 */
+}
+.citation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 1px;
+  background: currentColor;
+}
+.citation-source {
+  display: block;
+  font-style: normal;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  margin-top: 14px;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* =============================================================
+   AF TEXT REVEAL — char block-fill IN / OUT
+   ============================================================= */
+.reveal-ch {
+  display: inline;          /* was inline-block — caused mid-word wraps */
+  transition: background 0.18s ease-out, color 0.18s ease-out;
+}
+.reveal-target { visibility: hidden; }
+.reveal-target.reveal-armed { visibility: visible; }
+.reveal-target { text-wrap: balance; }   /* prevent ragged short tails */
+
+.fade-target {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.42s cubic-bezier(0.2,0.8,0.2,1) 0.07s,
+              transform 0.42s cubic-bezier(0.2,0.8,0.2,1) 0.07s;
+}
+.fade-target.fade-armed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-target.fade-disarmed {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+/* =============================================================
+   HEADER + MINIMAP — mix-blend-mode: difference auto-flips
+   ============================================================= */
+header.brand-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 22px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--paper);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+header.brand-bar .refresh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+header.brand-bar .refresh-pill::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+nav.minimap {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  mix-blend-mode: difference;
+  color: var(--paper);
+}
+nav.minimap a {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  position: relative;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 220ms, transform 220ms, background 220ms;
+}
+nav.minimap a::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 220ms;
+  pointer-events: none;
+}
+nav.minimap a:hover { opacity: 1; transform: scale(1.6); }
+nav.minimap a:hover::after { opacity: 1; }
+nav.minimap a.active {
+  opacity: 1;
+  background: currentColor;
+}
+
+/* =============================================================
+   HERO meta strip
+   ============================================================= */
+.hero-meta {
+  position: absolute;
+  bottom: 56px;
+  left: 8vw; right: 8vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.hero-meta .scroll-cue::after {
+  content: '  ↓';
+  margin-left: 6px;
+}
+
+/* =============================================================
+   §1.4 — section-tag + stage-counter (sits between header + content)
+   ============================================================= */
+.section-tag {
+  position: absolute;
+  top: 64px;
+  left: 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.75;
+  z-index: 7;
+}
+.section-tag .num { font-weight: 600; opacity: 1; }
+
+.stage-counter {
+  position: absolute;
+  top: 64px;
+  right: 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 3px;
+  opacity: 0.65;
+  text-transform: uppercase;
+  z-index: 7;
+}
+
+/* =============================================================
+   LEVERS — typographic list, no boxes
+   ============================================================= */
+.levers {
+  margin-top: 36px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+.lever {
+  display: grid;
+  grid-template-columns: 50px 1fr auto;
+  align-items: baseline;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.95;
+  transition: opacity 220ms, padding-left 220ms;
+}
+.lever:last-child { border-bottom: none; }
+.lever:hover { opacity: 1; padding-left: 8px; }
+.lever .num {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}
+.lever .body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lever .name {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(20px, 2vw, 26px);
+  letter-spacing: -0.4px;
+  line-height: 1.1;
+}
+.lever .desc {
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+.lever .effect {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+/* =============================================================
+   CHART panel (§1.4-C)
+   ============================================================= */
+.chart-shell {
+  width: 100%;
+  height: clamp(320px, 50vh, 480px);   /* tighter to ensure fit */
+  position: relative;
+  margin-top: 18px;
+}
+.chart-shell .echart {
+  position: absolute;
+  inset: 0;
+}
+.chart-caption {
+  margin-top: 18px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* =============================================================
+   MATH + VERDICT
+   ============================================================= */
+.math-line {
+  font-size: 17px;
+  margin: 10px 0;
+  padding-left: 26px;
+  position: relative;
+}
+.math-line::before {
+  content: attr(data-step);
+  position: absolute;
+  left: 0;
+  top: 4px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  opacity: 0.5;
+}
+
+.verdict {
+  margin-top: 36px;
+  padding: 28px 0 24px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  text-align: center;
+}
+.verdict .verdict-label {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  opacity: 0.7;
+}
+.verdict .verdict-text {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(28px, 3.6vw, 48px);
+  letter-spacing: -0.7px;
+  line-height: 1.15;
+}
+.verdict .verdict-text em {
+  font-style: italic;
+  font-weight: 600;     /* heaviest emphasis, but not screaming */
+}
+
+/* =============================================================
+   MORE — TOC grid
+   ============================================================= */
+.toc {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 36px;
+  row-gap: 0;
+  margin-top: 36px;
+}
+.toc-item {
+  padding: 14px 0;
+  border-top: 1px solid currentColor;       /* hairlines only on top of each row */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0.85;
+  transition: opacity 220ms, padding-left 220ms;
+}
+.toc-item:hover { opacity: 1; padding-left: 6px; }
+.toc-item .num {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+.toc-item .ttl {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: -0.2px;
+  line-height: 1.25;
+}
+.toc-item .ttl em {
+  font-weight: 300;
+  font-style: italic;
+}
+
+footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 6;
+  padding: 18px 36px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  color: var(--paper);
+  mix-blend-mode: difference;
+  opacity: 0.5;
+}
+footer a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  pointer-events: auto;
+}
+
+/* =============================================================
+   RESPONSIVE
+   ============================================================= */
+@media (max-width: 900px) {
+  nav.minimap { display: none; }
+  .lever { grid-template-columns: 36px 1fr; gap: 16px; }
+  .lever .effect { grid-column: 2; padding-top: 6px; }
+  .toc { grid-template-columns: repeat(2, 1fr); column-gap: 24px; }
+  h1 { font-size: clamp(56px, 14vw, 96px); }
+  h2 { font-size: clamp(40px, 11vw, 72px); }
+  .display-italic { font-size: clamp(32px, 9vw, 64px); }
+  footer { padding: 14px 20px; flex-direction: column; gap: 6px; align-items: flex-start; }
+}
 </style>
-</head>
-<body>
-
-<header>
-  <h1>Ray Dalio — Investment & Macro Frameworks <span class="pilot-tag">PILOT</span></h1>
-  <p>2-tab pilot from <code>research/04_deleveragings.md</code> + <code>research/12_stress_testing.md</code>. Locked dark palette (12 tokens). All values cite source.</p>
+</head><body>
+<header class="brand-bar">
+  <div>DALIO &nbsp;·&nbsp; ECONOMIC FRAMEWORK &nbsp;·&nbsp; v0.4</div>
+  <div class="refresh-pill" id="refresh-pill"><span>live · refreshed 0s ago</span></div>
 </header>
-
-<nav class="tabs">
-  <button class="tab-btn active" data-tab="t04">1.4 Deleveragings</button>
-  <button class="tab-btn" data-tab="t12">2.5 Stress Testing</button>
+<nav class="minimap" aria-label="page navigation">
+  <a href="#slot-hero" data-slide="hero" data-label="HERO" class="active"></a>
+  <a href="#slot-intro" data-slide="intro" data-label="INTRO"></a>
+  <a href="#slot-1-1-A" data-slide="1-1-A" data-label="1.1 / A"></a>
+  <a href="#slot-1-1-B" data-slide="1-1-B" data-label="1.1 / B"></a>
+  <a href="#slot-1-1-C" data-slide="1-1-C" data-label="1.1 / C"></a>
+  <a href="#slot-1-1-D" data-slide="1-1-D" data-label="1.1 / D"></a>
+  <a href="#slot-1-2-A" data-slide="1-2-A" data-label="1.2 / A"></a>
+  <a href="#slot-1-2-B" data-slide="1-2-B" data-label="1.2 / B"></a>
+  <a href="#slot-1-2-C" data-slide="1-2-C" data-label="1.2 / C"></a>
+  <a href="#slot-1-2-D" data-slide="1-2-D" data-label="1.2 / D"></a>
+  <a href="#slot-1-3-A" data-slide="1-3-A" data-label="1.3 / A"></a>
+  <a href="#slot-1-3-B" data-slide="1-3-B" data-label="1.3 / B"></a>
+  <a href="#slot-1-3-C" data-slide="1-3-C" data-label="1.3 / C"></a>
+  <a href="#slot-1-3-D" data-slide="1-3-D" data-label="1.3 / D"></a>
+  <a href="#slot-1-4-A" data-slide="1-4-A" data-label="1.4 / A"></a>
+  <a href="#slot-1-4-B" data-slide="1-4-B" data-label="1.4 / B"></a>
+  <a href="#slot-1-4-C" data-slide="1-4-C" data-label="1.4 / C"></a>
+  <a href="#slot-1-4-D" data-slide="1-4-D" data-label="1.4 / D"></a>
+  <a href="#slot-1-5-A" data-slide="1-5-A" data-label="1.5 / A"></a>
+  <a href="#slot-1-5-B" data-slide="1-5-B" data-label="1.5 / B"></a>
+  <a href="#slot-1-5-C" data-slide="1-5-C" data-label="1.5 / C"></a>
+  <a href="#slot-1-5-D" data-slide="1-5-D" data-label="1.5 / D"></a>
+  <a href="#slot-1-6-A" data-slide="1-6-A" data-label="1.6 / A"></a>
+  <a href="#slot-1-6-B" data-slide="1-6-B" data-label="1.6 / B"></a>
+  <a href="#slot-1-6-C" data-slide="1-6-C" data-label="1.6 / C"></a>
+  <a href="#slot-1-6-D" data-slide="1-6-D" data-label="1.6 / D"></a>
+  <a href="#slot-1-7-A" data-slide="1-7-A" data-label="1.7 / A"></a>
+  <a href="#slot-1-7-B" data-slide="1-7-B" data-label="1.7 / B"></a>
+  <a href="#slot-1-7-C" data-slide="1-7-C" data-label="1.7 / C"></a>
+  <a href="#slot-1-7-D" data-slide="1-7-D" data-label="1.7 / D"></a>
+  <a href="#slot-2-1-A" data-slide="2-1-A" data-label="2.1 / A"></a>
+  <a href="#slot-2-1-B" data-slide="2-1-B" data-label="2.1 / B"></a>
+  <a href="#slot-2-1-C" data-slide="2-1-C" data-label="2.1 / C"></a>
+  <a href="#slot-2-1-D" data-slide="2-1-D" data-label="2.1 / D"></a>
+  <a href="#slot-2-2-A" data-slide="2-2-A" data-label="2.2 / A"></a>
+  <a href="#slot-2-2-B" data-slide="2-2-B" data-label="2.2 / B"></a>
+  <a href="#slot-2-2-C" data-slide="2-2-C" data-label="2.2 / C"></a>
+  <a href="#slot-2-2-D" data-slide="2-2-D" data-label="2.2 / D"></a>
+  <a href="#slot-2-3-A" data-slide="2-3-A" data-label="2.3 / A"></a>
+  <a href="#slot-2-3-B" data-slide="2-3-B" data-label="2.3 / B"></a>
+  <a href="#slot-2-3-C" data-slide="2-3-C" data-label="2.3 / C"></a>
+  <a href="#slot-2-3-D" data-slide="2-3-D" data-label="2.3 / D"></a>
+  <a href="#slot-2-4-A" data-slide="2-4-A" data-label="2.4 / A"></a>
+  <a href="#slot-2-4-B" data-slide="2-4-B" data-label="2.4 / B"></a>
+  <a href="#slot-2-4-C" data-slide="2-4-C" data-label="2.4 / C"></a>
+  <a href="#slot-2-4-D" data-slide="2-4-D" data-label="2.4 / D"></a>
+  <a href="#slot-2-5-A" data-slide="2-5-A" data-label="2.5 / A"></a>
+  <a href="#slot-2-5-B" data-slide="2-5-B" data-label="2.5 / B"></a>
+  <a href="#slot-2-5-C" data-slide="2-5-C" data-label="2.5 / C"></a>
+  <a href="#slot-2-5-D" data-slide="2-5-D" data-label="2.5 / D"></a>
+  <a href="#slot-more" data-slide="more" data-label="MORE"></a>
 </nav>
-
-<main>
-  <!-- ===================== Tab 1: 1.4 Deleveragings ===================== -->
-  <section id="t04" class="tab active">
-    <div class="chart-container">
-      <h2>Deleveraging archetypes — four-lever decomposition + growth-rate gap</h2>
-      <p class="subtitle">Stacked bar: lever shares (austerity / defaults / printing / redistribution). Line below: $G = \mathrm{NGDP}_{yoy} - \mathrm{LT\_Rate}$ in pp. Three Dalio-named cases.</p>
-      <div id="chart-04" class="chart"></div>
-      <div class="provenance">
-        <div><span class="marker dalio">DALIO</span>$G_t$ values per case from research/04 §7: US 1930-32 = −20.4 pp; US 1933-37 = +6.3 pp; Japan 1990+ = −2.0 pp. Source: <em>An In-Depth Look at Deleveragings</em>, US/Japan tables.</div>
-        <div style="margin-top:6px"><span class="marker derived">DERIVED</span>Lever-share splits stylized from Dalio narrative descriptors ("defaults dominant", "under-printed", "printing low") — Dalio publishes no per-case quantified share decomposition. US 1930-32 print = 0.10 anchor is Dalio-stated; remaining splits are author operationalization.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== Tab 2: 2.5 Stress Testing ===================== -->
-  <section id="t12" class="tab">
-    <div class="chart-container">
-      <h2>All-Weather portfolio return by Dalio archetype</h2>
-      <p class="subtitle">Robbins (2014) weights: $w = (0.30, 0.40, 0.15, 0.075, 0.075)$. Per-archetype shocks DERIVED from 1929-33 / 1973-74 / 2008 / 2020 historical anchors.</p>
-      <div id="chart-12" class="chart"></div>
-      <div class="provenance">
-        <div><span class="marker dalio">DALIO</span>Four-archetype taxonomy (Deflationary / Inflationary / Stagflation / Reflation) per <em>Big Debt Crises</em> Part 1, p. 14 + p. 32. Robbins 30/40/15/7.5/7.5 weights per Tony Robbins (2014), <em>MONEY: Master the Game</em>.</div>
-        <div style="margin-top:6px"><span class="marker derived">DERIVED</span>Per-archetype portfolio returns byte-exact from research/12 §7 Table 7.1 sum row: −8.13 / −26.00 / −3.05 / +11.83. Cross-checked via $w \cdot S_{i,e}$ longhand (research/12 §7 R14 self-check).</div>
-      </div>
-    </div>
-  </section>
-</main>
-
 <footer>
-  Pilot build · palette: research/01 §8c · charts: research/04 §8c + research/12 §8c · data: research/04 §7 + research/12 §7 Table 7.1
+  <div>DALIO &nbsp;·&nbsp; <a href="#">/raydalioattitude</a></div>
+  <div>v0.4 &nbsp;·&nbsp; 2026-05</div>
 </footer>
+<div class="stage" id="stage">
+<div class="slide active" data-slide="hero" data-bg="dark">
+  <div class="slide-inner">
+    <div class="eyebrow fade-target">RAY DALIO &nbsp;·&nbsp; THE TEMPLATE &nbsp;·&nbsp; 12 FRAMEWORKS, ONE PAGE</div>
+    <h1 class="reveal-target" data-text="How he sees<br><em>the economy.</em>"></h1>
+    <p class="subtitle fade-target">Twelve interlocking models — debt cycles, deleveragings, all-weather, stress tests — assembled from primary Bridgewater sources, parameterised, and rendered live.</p>
+  </div>
+  <div class="hero-meta fade-target">
+    <div>NOWANDFUTURES &nbsp;·&nbsp; LINKEDIN &nbsp;·&nbsp; PRINCIPLES (CWO)</div>
+    <div class="scroll-cue">SCROLL</div>
+  </div>
+</div>
 
+<div class="slide" data-slide="intro" data-bg="light">
+  <div class="slide-inner">
+    <div class="eyebrow fade-target">FRAMEWORK CORPUS &nbsp;·&nbsp; TWELVE IDENTITIES</div>
+    <h2 class="reveal-target" data-text="An economic mind, decomposed into twelve identities — each cited, each worked, each falsifiable."></h2>
+    <p class="body-text fade-target">The first seven frameworks describe <em>how the economy works</em>: credit cycles short and long, deleveragings, paradigm shifts, the changing world order, inflation and currency. The remaining five describe <em>how to invest within</em>: a four-step decision template, the All-Weather portfolio, alpha and portable alpha, risk parity with leverage, and stress-testing for tails.</p>
+    <p class="body-text fade-target">Each framework rendered with its decision question, mechanism, historical archetype, and worked-example formula — <em>verbatim from Dalio's writings, byte-exact reconciled</em>.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-1-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.1</span> &nbsp; HOW THE ECONOMIC MACHINE WORKS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What drives output, prices, and credit growth at the broadest level?"></p>
+    <div class="citation fade-target">
+      "An economy is simply the sum of the transactions that make it up."
+      <span class="citation-source">Dalio · How the Economic Machine Works · Bridgewater 2012 · p.1</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-1-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.1</span> &nbsp; HOW THE ECONOMIC MACHINE WORKS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="The three forces, layered."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Productivity</span>
+          <span class="desc">Long-run trend growth from output-per-hour gains. Slow, smooth, decade-scale.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Short-term cycle</span>
+          <span class="desc">5–8 year credit waves driven by central-bank policy. Boom-bust around the productivity trend.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Long-term cycle</span>
+          <span class="desc">50–75 year debt accumulation cycles culminating in deleveraging.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-1-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.1</span> &nbsp; HOW THE ECONOMIC MACHINE WORKS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Three forces visible since 1900."></h3>
+    <p class="body-text fade-target">Productivity has trended near 2% real for a century. Short-cycles oscillate ±5pp around it. Long-cycles emerge at debt peaks: 1929–1932, 2008–2009, 2020+.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-1-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.1</span> &nbsp; HOW THE ECONOMIC MACHINE WORKS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Output identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$Y_t \;=\; P_t \cdot (1 + g_{ST,t}) \cdot (1 + g_{LT,t})$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Productivity sets the trend; cycles are deviations.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-2-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.2</span> &nbsp; THE SHORT-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What drives the 5–8 year boom-bust cycle?"></p>
+    <div class="citation fade-target">
+      "a shorter-term (typically 5 to 8 years) debt cycle."
+      <span class="citation-source">Dalio · How the Economic Machine Works · Bridgewater 2012 · p.5</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-2-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.2</span> &nbsp; THE SHORT-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Five-stage cycle."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Expansion</span>
+          <span class="desc">Low rates → credit growth → spending → income → repeat.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Inflation pickup</span>
+          <span class="desc">Capacity tightens → wage and price pressure.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Tightening</span>
+          <span class="desc">Central bank raises rates to cool inflation.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Recession</span>
+          <span class="desc">Spending contracts, debts go bad, unemployment rises.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">05</span>
+        <div class="body">
+          <span class="name">Easing</span>
+          <span class="desc">Central bank cuts rates → cycle restarts.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-2-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.2</span> &nbsp; THE SHORT-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="1965–2020: ~10 cycles in the US."></h3>
+    <p class="body-text fade-target">Cycle length 5–8 years, driven by Fed Funds rate cycles. Mild deviations around 2% real productivity trend.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-2-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.2</span> &nbsp; THE SHORT-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Credit-spending identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$S_t \;=\; I_t + \Delta D_t$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Spending equals income plus credit growth.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-3-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.3</span> &nbsp; THE LONG-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What happens when debt accumulation outpaces income for decades?"></p>
+    <div class="citation fade-target">
+      "big, long-term debt cycles typically last about one lifetime—roughly 80 years."
+      <span class="citation-source">Dalio · How Countries Go Broke Part 1 · Introduction</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-3-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.3</span> &nbsp; THE LONG-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Three phases."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Accumulation</span>
+          <span class="desc">Debt-to-income rises over decades; living standards rise faster than productivity.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Bubble</span>
+          <span class="desc">Asset prices, debt, and spending peak together; speculation dominates.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Deleveraging</span>
+          <span class="desc">Debt service can no longer be paid; defaults, restructurings, money printing.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-3-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.3</span> &nbsp; THE LONG-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="US 1929, Japan 1990, Global 2008."></h3>
+    <p class="body-text fade-target">Each ended a 50–75 year accumulation cycle. Resolution mechanism is the four levers (see §1.4).</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-3-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.3</span> &nbsp; THE LONG-TERM DEBT CYCLE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Debt-burden identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$\text{Debt Service}_t \;=\; D_t \cdot r_t$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Debt service growth must not exceed income growth indefinitely.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-4-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="When debt service overwhelms income, what mix of policy levers resolves the cycle, and which mix produces a 'beautiful' vs 'ugly' deleveraging?"></p>
+    <div class="citation fade-target">
+      "Each one of these four paths reduces debt/income ratios."
+      <span class="citation-source">Dalio · An In-Depth Look at Deleveragings · Bridgewater 2012</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-4-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Four policy levers, four archetypes."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Austerity</span>
+          <span class="desc">Cut spending. Deflationary. Reduces debt-service capacity.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Defaults</span>
+          <span class="desc">Write down debts. Deflationary. Wealth destruction.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Money printing</span>
+          <span class="desc">Expand monetary base. Inflationary. Debases currency.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Redistribution</span>
+          <span class="desc">Transfer wealth from creditors to debtors. Politically unstable.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-4-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Four archetypes: ugly deflationary, beautiful, ugly inflationary, transitional."></h3>
+    <p class="body-text fade-target">US 1930–32 (ugly deflationary); US 1933–37 (beautiful — printing dominant); Japan 1990+ (ugly deflationary lite); Weimar 1921–23 (ugly inflationary).</p>
+    <div class="chart-shell fade-target">
+      <div id="chart-1-4" class="echart"></div>
+    </div>
+    <div class="chart-caption fade-target">research/04_deleveragings.md §7 — lever-mix percentages (DERIVED from narrative anchors)</div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-4-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Inflationary impulse identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$\pi_{\text{total}} \;=\; \Delta M_0^{\%GDP} + \Delta CB^{\%GDP}$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">If printing dominates the lever mix, deleveraging is beautiful; if austerity + defaults dominate, it is <em>ugly deflationary</em>.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-5-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.5</span> &nbsp; PARADIGM SHIFTS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="When does the dominant macro regime change, and what triggers the shift?"></p>
+    <div class="citation fade-target">
+      "Identify the paradigm you're in, examine if and how it is unsustainable."
+      <span class="citation-source">Dalio · Paradigm Shifts · LinkedIn · 17 Jul 2019</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-5-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.5</span> &nbsp; PARADIGM SHIFTS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Three signals."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Asset returns invert</span>
+          <span class="desc">Best-performing assets of the prior regime become worst-performing.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Policy reversal</span>
+          <span class="desc">Central bank pivot from easing to tightening (or vice versa).</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Sentiment flip</span>
+          <span class="desc">Market consensus shifts from confidence to fear.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-5-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.5</span> &nbsp; PARADIGM SHIFTS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="1970s, 1980s, 2000s."></h3>
+    <p class="body-text fade-target">1970s inflation paradigm. 1980s disinflation paradigm. 2000s quantitative easing paradigm. 2020s likely transition.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-5-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.5</span> &nbsp; PARADIGM SHIFTS</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Regime classifier."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$R_t \;=\; \arg\max_r \; P(r \mid X_t)$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Paradigms last 10–20 years; transitions are the source of greatest opportunity and risk.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-6-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.6</span> &nbsp; THE CHANGING WORLD ORDER</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What drives the rise and fall of reserve currencies and great powers?"></p>
+    <div class="citation fade-target">
+      "important empires typically lasted roughly 250 years, give or take 150 years."
+      <span class="citation-source">Dalio · The Changing World Order · Ch 1 · p.6</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-6-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.6</span> &nbsp; THE CHANGING WORLD ORDER</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Eight measures of empire strength."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Education</span>
+          <span class="desc">Human capital quality.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Innovation</span>
+          <span class="desc">Patents and tech leadership.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Trade</span>
+          <span class="desc">Share of global trade.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Reserve currency</span>
+          <span class="desc">Share of FX reserves.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">05</span>
+        <div class="body">
+          <span class="name">Military</span>
+          <span class="desc">Defense spending and capability.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">06</span>
+        <div class="body">
+          <span class="name">Output</span>
+          <span class="desc">Share of global GDP.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">07</span>
+        <div class="body">
+          <span class="name">Financial center</span>
+          <span class="desc">Share of global finance.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">08</span>
+        <div class="body">
+          <span class="name">Cost competitiveness</span>
+          <span class="desc">Unit-cost vs peers.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-6-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.6</span> &nbsp; THE CHANGING WORLD ORDER</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Dutch → British → US."></h3>
+    <p class="body-text fade-target">Each empire peaked in the 8 measures, then declined as costs rose, debt accumulated, and the next rising power overtook it.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-6-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.6</span> &nbsp; THE CHANGING WORLD ORDER</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Empire strength index."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$E_t \;=\; \frac{1}{8} \sum_{i=1}^{8} w_i M_{i,t}$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">The US is past peak in 6 of 8 measures; China rising in all 8.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-7-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.7</span> &nbsp; INFLATION & CURRENCY</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What determines whether a deleveraging produces inflation or deflation?"></p>
+    <div class="citation fade-target">
+      "storing one's money in cash and bonds will no longer be safe."
+      <span class="citation-source">Dalio · Paradigm Shifts · LinkedIn · 17 Jul 2019</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-7-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.7</span> &nbsp; INFLATION & CURRENCY</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Two dimensions."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Currency-of-debt</span>
+          <span class="desc">Own-currency debt → can print to repay → inflationary risk.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Reserve status</span>
+          <span class="desc">Reserve currency → external demand absorbs printing.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Currency-of-assets</span>
+          <span class="desc">Foreign-currency assets → exposure to FX swings.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-7-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 1.7</span> &nbsp; INFLATION & CURRENCY</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="US 1933 inflated; Japan 1990s deflated."></h3>
+    <p class="body-text fade-target">US debts were USD; printing produced moderate inflation. Japan's debts also were JPY but external surplus absorbed printing → deflation persisted.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="1-7-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 1.7</span> &nbsp; INFLATION & CURRENCY</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Inflation identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$\pi_t \;=\; \Delta M_t - \Delta Y_t + \Delta V_t$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Currency status determines whether debt resolution is inflationary or deflationary.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-1-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.1</span> &nbsp; TEMPLATE FOR INVESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What is the four-step process for choosing an investment policy?"></p>
+    <div class="citation fade-target">
+      "My mantra of investing is fifteen good uncorrelated return streams, risk balanced."
+      <span class="citation-source">Dalio · LinkedIn · My mantra of investing</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-1-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.1</span> &nbsp; TEMPLATE FOR INVESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Four steps."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Goals</span>
+          <span class="desc">Returns target, risk tolerance, liquidity needs.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Drivers</span>
+          <span class="desc">Identify the macro forces that affect each asset class.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Portfolio</span>
+          <span class="desc">Combine assets that respond differently to those drivers.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Stress-test</span>
+          <span class="desc">Simulate tail scenarios; verify portfolio survives.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-1-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.1</span> &nbsp; TEMPLATE FOR INVESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Bridgewater pure-alpha + All-Weather."></h3>
+    <p class="body-text fade-target">The four-step process underlies both the discretionary alpha fund and the rules-based All-Weather portfolio.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-1-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.1</span> &nbsp; TEMPLATE FOR INVESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Decision identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$\Pi^* \;=\; \arg\max_\Pi \; U(\Pi \mid \text{drivers}, \text{stress})$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">All four steps are required; skipping any one produces fragility.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-2-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.2</span> &nbsp; ALL-WEATHER PORTFOLIO</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="What portfolio survives all four economic environments — rising/falling growth × rising/falling inflation?"></p>
+    <div class="citation fade-target">
+      "The key was to put equal risk on each scenario to achieve balance."
+      <span class="citation-source">Dalio / Bridgewater · The All Weather Story · bridgewater.com</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-2-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.2</span> &nbsp; ALL-WEATHER PORTFOLIO</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Four-quadrant balance."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Rising growth</span>
+          <span class="desc">Equities, corporate credit, commodities.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Falling growth</span>
+          <span class="desc">Government bonds, defensive equities.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Rising inflation</span>
+          <span class="desc">Commodities, TIPS, gold.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Falling inflation</span>
+          <span class="desc">Long-duration government bonds.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-2-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.2</span> &nbsp; ALL-WEATHER PORTFOLIO</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="1996–2024: positive returns in 24 of 28 years."></h3>
+    <p class="body-text fade-target">Drawdowns shallower than equity-heavy benchmarks; returns competitive with 60/40.</p>
+    <div class="chart-shell fade-target">
+      <div id="chart-2-2" class="echart"></div>
+    </div>
+    <div class="chart-caption fade-target">research/09_all_weather.md §6 — Robbins (2014) / Dalio disclosure · weights 30/40/15/7.5/7.5</div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-2-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.2</span> &nbsp; ALL-WEATHER PORTFOLIO</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Risk-parity identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$w_i \cdot \sigma_i \;=\; \text{const} \quad \forall i$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Equal risk per environment, not equal weight per asset.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-3-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.3</span> &nbsp; ALPHA & PORTABLE ALPHA</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="How is alpha decomposed and combined with beta to produce the desired return profile?"></p>
+    <div class="citation fade-target">
+      "alpha is independent from beta and is overlaid on the beta."
+      <span class="citation-source">Dalio · Engineering Targeted Returns and Risks · Bridgewater Aug 2011 · p.8</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-3-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.3</span> &nbsp; ALPHA & PORTABLE ALPHA</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Two return sources."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Beta</span>
+          <span class="desc">Systematic exposure to asset classes; unlimited capacity.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Alpha</span>
+          <span class="desc">Skill-based excess return; capacity-constrained.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Portable alpha</span>
+          <span class="desc">Apply alpha (often via futures/swaps) on top of any beta exposure.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-3-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.3</span> &nbsp; ALPHA & PORTABLE ALPHA</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Bridgewater Pure Alpha 1991+."></h3>
+    <p class="body-text fade-target">Pure Alpha targets ~12% annualized excess return uncorrelated with beta. Combined with various betas to produce custom return profiles.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-3-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.3</span> &nbsp; ALPHA & PORTABLE ALPHA</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Total return decomposition."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$R_p \;=\; \beta + \alpha + \epsilon$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Alpha and beta are independent risk premia; portable alpha allows arbitrary combination.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-4-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.4</span> &nbsp; RISK PARITY & LEVERAGE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="How is leverage applied to balance risk contributions across asset classes?"></p>
+    <div class="citation fade-target">
+      "All Weather doesn't use very much leverage; the strategy is around 2 times leveraged."
+      <span class="citation-source">Dalio / Bridgewater · Engineering Targeted Returns and Risks · p.11</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-4-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.4</span> &nbsp; RISK PARITY & LEVERAGE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Three steps."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Volatility scaling</span>
+          <span class="desc">Compute σ for each asset class.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Equal-risk weighting</span>
+          <span class="desc">w_i ∝ 1/σ_i.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Total leverage</span>
+          <span class="desc">Lever the portfolio to target total volatility (e.g. 10%).</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-4-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.4</span> &nbsp; RISK PARITY & LEVERAGE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Risk parity since 1996."></h3>
+    <p class="body-text fade-target">All-Weather is a risk-parity portfolio levered ~2× on bonds. Survived 2008 with shallow drawdown.</p>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-4-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.4</span> &nbsp; RISK PARITY & LEVERAGE</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Equal-risk identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$w_i \;=\; \frac{1/\sigma_i}{\sum_j 1/\sigma_j} \cdot L$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">Leverage transforms low-vol assets from minor contributors to equal-risk peers.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-5-A" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.5</span> &nbsp; STRESS TESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="slide-inner">
+    <p class="display-italic reveal-target" data-text="Will the portfolio survive a tail scenario like the 2008 crisis or 1970s inflation?"></p>
+    <div class="citation fade-target">
+      "the All Weather asset mix performed as expected."
+      <span class="citation-source">Dalio / Bridgewater · Engineering Targeted Returns and Risks · p.10</span>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-5-B" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.5</span> &nbsp; STRESS TESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE MECHANISM</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Four-archetype shock matrix."></h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">1929-style deflation</span>
+          <span class="desc">Equities −50%, long bonds +20%, commodities −35%.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">1973-style stagflation</span>
+          <span class="desc">Equities −37%, long bonds −5%, commodities +40%.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">2008-style credit crisis</span>
+          <span class="desc">Equities −37%, long bonds +20%, credit −25%.</span>
+        </div>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Reflation</span>
+          <span class="desc">Equities +25%, bonds +5%, commodities +15%.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-5-C" data-bg="dark">
+  <div class="section-tag fade-target"><span class="num">§ 2.5</span> &nbsp; STRESS TESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Four archetype contributions to All-Weather."></h3>
+    <p class="body-text fade-target">Robbins (2014) disclosed Bridgewater's 4-archetype stress matrix for All-Weather. Contributions sum to portfolio return per archetype (Table 7.1 research/12).</p>
+    <div class="chart-shell fade-target">
+      <div id="chart-2-5" class="echart"></div>
+    </div>
+    <div class="chart-caption fade-target">research/12_stress_testing.md §7 Table 7.1 — Sum R^port_e row (Robbins weights)</div>
+  </div>
+</div>
+
+<div class="slide" data-slide="2-5-D" data-bg="light">
+  <div class="section-tag fade-target"><span class="num">§ 2.5</span> &nbsp; STRESS TESTING</div>
+  <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="slide-inner">
+    <h3 class="reveal-target" data-text="Contribution identity."></h3>
+    <div class="fade-target" style="margin-top: 4px;">
+      <div class="math-line">$$C_{i,e} \;=\; w_i \cdot S_{i,e}$$</div>
+    </div>
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text">All-Weather expected return by archetype: −8.13%, <em>−26.00%</em>, −3.05%, +11.83%.</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" data-slide="more" data-bg="dark">
+  <div class="slide-inner">
+    <div class="eyebrow eyebrow--center fade-target">CONTINUATION</div>
+    <h2 class="reveal-target" data-text="Twelve frameworks, the corpus complete." style="text-align: center;"></h2>
+    <div class="toc fade-target">
+      <div class="toc-item"><span class="num">§ 1.1</span><span class="ttl">How the economic machine works</span></div>
+      <div class="toc-item"><span class="num">§ 1.2</span><span class="ttl">The short-term debt cycle</span></div>
+      <div class="toc-item"><span class="num">§ 1.3</span><span class="ttl">The long-term debt cycle</span></div>
+      <div class="toc-item"><span class="num">§ 1.4</span><span class="ttl">Deleveragings</span></div>
+      <div class="toc-item"><span class="num">§ 1.5</span><span class="ttl">Paradigm shifts</span></div>
+      <div class="toc-item"><span class="num">§ 1.6</span><span class="ttl">The changing world order</span></div>
+      <div class="toc-item"><span class="num">§ 1.7</span><span class="ttl">Inflation & currency</span></div>
+      <div class="toc-item"><span class="num">§ 2.1</span><span class="ttl">Template for investing</span></div>
+      <div class="toc-item"><span class="num">§ 2.2</span><span class="ttl">All-Weather portfolio</span></div>
+      <div class="toc-item"><span class="num">§ 2.3</span><span class="ttl">Alpha & portable alpha</span></div>
+      <div class="toc-item"><span class="num">§ 2.4</span><span class="ttl">Risk parity & leverage</span></div>
+      <div class="toc-item"><span class="num">§ 2.5</span><span class="ttl">Stress testing</span></div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="scroll-track">
+  <div class="slot" id="slot-hero" data-slide="hero"></div>
+  <div class="slot" id="slot-intro" data-slide="intro"></div>
+  <div class="slot" id="slot-1-1-A" data-slide="1-1-A"></div>
+  <div class="slot" id="slot-1-1-B" data-slide="1-1-B"></div>
+  <div class="slot" id="slot-1-1-C" data-slide="1-1-C"></div>
+  <div class="slot" id="slot-1-1-D" data-slide="1-1-D"></div>
+  <div class="slot" id="slot-1-2-A" data-slide="1-2-A"></div>
+  <div class="slot" id="slot-1-2-B" data-slide="1-2-B"></div>
+  <div class="slot" id="slot-1-2-C" data-slide="1-2-C"></div>
+  <div class="slot" id="slot-1-2-D" data-slide="1-2-D"></div>
+  <div class="slot" id="slot-1-3-A" data-slide="1-3-A"></div>
+  <div class="slot" id="slot-1-3-B" data-slide="1-3-B"></div>
+  <div class="slot" id="slot-1-3-C" data-slide="1-3-C"></div>
+  <div class="slot" id="slot-1-3-D" data-slide="1-3-D"></div>
+  <div class="slot" id="slot-1-4-A" data-slide="1-4-A"></div>
+  <div class="slot" id="slot-1-4-B" data-slide="1-4-B"></div>
+  <div class="slot" id="slot-1-4-C" data-slide="1-4-C"></div>
+  <div class="slot" id="slot-1-4-D" data-slide="1-4-D"></div>
+  <div class="slot" id="slot-1-5-A" data-slide="1-5-A"></div>
+  <div class="slot" id="slot-1-5-B" data-slide="1-5-B"></div>
+  <div class="slot" id="slot-1-5-C" data-slide="1-5-C"></div>
+  <div class="slot" id="slot-1-5-D" data-slide="1-5-D"></div>
+  <div class="slot" id="slot-1-6-A" data-slide="1-6-A"></div>
+  <div class="slot" id="slot-1-6-B" data-slide="1-6-B"></div>
+  <div class="slot" id="slot-1-6-C" data-slide="1-6-C"></div>
+  <div class="slot" id="slot-1-6-D" data-slide="1-6-D"></div>
+  <div class="slot" id="slot-1-7-A" data-slide="1-7-A"></div>
+  <div class="slot" id="slot-1-7-B" data-slide="1-7-B"></div>
+  <div class="slot" id="slot-1-7-C" data-slide="1-7-C"></div>
+  <div class="slot" id="slot-1-7-D" data-slide="1-7-D"></div>
+  <div class="slot" id="slot-2-1-A" data-slide="2-1-A"></div>
+  <div class="slot" id="slot-2-1-B" data-slide="2-1-B"></div>
+  <div class="slot" id="slot-2-1-C" data-slide="2-1-C"></div>
+  <div class="slot" id="slot-2-1-D" data-slide="2-1-D"></div>
+  <div class="slot" id="slot-2-2-A" data-slide="2-2-A"></div>
+  <div class="slot" id="slot-2-2-B" data-slide="2-2-B"></div>
+  <div class="slot" id="slot-2-2-C" data-slide="2-2-C"></div>
+  <div class="slot" id="slot-2-2-D" data-slide="2-2-D"></div>
+  <div class="slot" id="slot-2-3-A" data-slide="2-3-A"></div>
+  <div class="slot" id="slot-2-3-B" data-slide="2-3-B"></div>
+  <div class="slot" id="slot-2-3-C" data-slide="2-3-C"></div>
+  <div class="slot" id="slot-2-3-D" data-slide="2-3-D"></div>
+  <div class="slot" id="slot-2-4-A" data-slide="2-4-A"></div>
+  <div class="slot" id="slot-2-4-B" data-slide="2-4-B"></div>
+  <div class="slot" id="slot-2-4-C" data-slide="2-4-C"></div>
+  <div class="slot" id="slot-2-4-D" data-slide="2-4-D"></div>
+  <div class="slot" id="slot-2-5-A" data-slide="2-5-A"></div>
+  <div class="slot" id="slot-2-5-B" data-slide="2-5-B"></div>
+  <div class="slot" id="slot-2-5-C" data-slide="2-5-C"></div>
+  <div class="slot" id="slot-2-5-D" data-slide="2-5-D"></div>
+  <div class="slot" id="slot-more" data-slide="more"></div>
+</div>
 <script>
 'use strict';
 
-// ============================================================================
-//  Tab 1: research/04 — four-lever stacked bar + G_gap line
-//  Spec source: research/04_deleveragings.md §8c (palette + structure verbatim)
-// ============================================================================
-
-const cases04 = ['US 1930-32', 'US 1933-37', 'Japan 1990+'];
-
-// Lever-share splits (% of total levers) — DERIVED from Dalio narrative.
-// Dalio explicit anchors:  US 1930-32 print ≈ 10  (research/04 §7);
-// Japan print ≈ 10  (research/04 §7).
-// Other splits are author operationalization tagged in <provenance>.
-const sAust   = [35, 15, 30];   // austerity
-const sDef    = [55, 40, 55];   // defaults
-const sPrint  = [10, 40, 10];   // printing
-const sRedist = [ 0,  5,  5];   // redistribution
-
-// G = NGDP_yoy − LT_Rate per case (pp). Dalio-stated, research/04 §7.
-const gGap = [-20.4, 6.3, -2.0];
-
-const option04 = {
-  backgroundColor: '#0B0B0B',
-  textStyle: { color: '#F5F5F5', fontFamily: 'Inter, sans-serif' },
-  legend: {
-    textStyle: { color: '#A3A3A3' },
-    data: ['austerity', 'defaults', 'printing', 'redistribution', 'G_gap (pp)'],
-    top: 8,
-  },
-  tooltip: {
-    trigger: 'axis',
-    backgroundColor: '#1C1C1C',
-    borderColor: '#262626',
-    textStyle: { color: '#F5F5F5' },
-  },
-  grid: [
-    { left: 60, right: 40, top: 50, height: '45%',
-      backgroundColor: '#141414', borderColor: '#262626', borderWidth: 1 },
-    { left: 60, right: 40, top: '65%', height: '25%',
-      backgroundColor: '#141414', borderColor: '#262626', borderWidth: 1 },
-  ],
-  xAxis: [
-    { gridIndex: 0, type: 'category', data: cases04,
-      axisLine: { lineStyle: { color: '#262626' } },
-      axisLabel: { color: '#A3A3A3' } },
-    { gridIndex: 1, type: 'category', data: cases04,
-      axisLine: { lineStyle: { color: '#262626' } },
-      axisLabel: { color: '#A3A3A3' } },
-  ],
-  yAxis: [
-    { gridIndex: 0, name: 'lever share (%)', max: 100,
-      nameTextStyle: { color: '#A3A3A3' },
-      axisLabel: { color: '#A3A3A3', formatter: '{value}%' },
-      axisLine: { lineStyle: { color: '#262626' } },
-      splitLine: { lineStyle: { color: '#1C1C1C' } } },
-    { gridIndex: 1, name: 'G = NGDP_yoy − LT_Rate (pp)',
-      nameTextStyle: { color: '#A3A3A3' },
-      axisLabel: { color: '#A3A3A3' },
-      axisLine: { lineStyle: { color: '#262626' } },
-      splitLine: { lineStyle: { color: '#1C1C1C' } } },
-  ],
-  series: [
-    { name: 'austerity', type: 'bar', stack: 'levers',
-      xAxisIndex: 0, yAxisIndex: 0,
-      itemStyle: { color: '#6B7280' }, data: sAust },
-    { name: 'defaults', type: 'bar', stack: 'levers',
-      xAxisIndex: 0, yAxisIndex: 0,
-      itemStyle: { color: '#E5484D' }, data: sDef },
-    { name: 'printing', type: 'bar', stack: 'levers',
-      xAxisIndex: 0, yAxisIndex: 0,
-      itemStyle: { color: '#00D08C' }, data: sPrint },
-    { name: 'redistribution', type: 'bar', stack: 'levers',
-      xAxisIndex: 0, yAxisIndex: 0,
-      itemStyle: { color: '#D4A373' }, data: sRedist },
-    { name: 'G_gap (pp)', type: 'line',
-      xAxisIndex: 1, yAxisIndex: 1,
-      data: gGap, showSymbol: true, symbolSize: 8,
-      lineStyle: { color: '#7FFFD4', width: 2 },
-      itemStyle: { color: '#7FFFD4' },
-      markLine: {
-        symbol: 'none',
-        lineStyle: { color: '#E5484D', type: 'dashed' },
-        data: [{ yAxis: 0, label: { color: '#A3A3A3' } }],
-      },
-      markArea: {
-        itemStyle: { color: '#080808' },
-        data: [[{ yAxis: 0 }, { yAxis: 3 }]],   // BEAUTIFUL band 0-3 pp
-      } },
-  ],
-};
-
-// ============================================================================
-//  Tab 2: research/12 — horizontal bar of portfolio return per archetype
-//  Spec source: research/12_stress_testing.md §8c (verbatim)
-//  Data source: research/12 §7 Table 7.1 sum row (byte-exact)
-// ============================================================================
-
-const option12 = {
-  backgroundColor: '#0B0B0B',
-  textStyle: { color: '#F5F5F5', fontFamily: 'Inter, sans-serif' },
-  title: {
-    text: 'All-Weather: Portfolio Return by Dalio Archetype',
-    textStyle: { color: '#F5F5F5', fontSize: 15 },
-    subtext: 'Robbins (2014) weights; shocks DERIVED from 1929-33 / 1973-74 / 2008 / 2020 anchors',
-    subtextStyle: { color: '#A3A3A3' },
-    top: 8,
-  },
-  grid: { left: 200, top: 80, right: 60, bottom: 60,
-    backgroundColor: '#141414', borderColor: '#262626' },
-  xAxis: {
-    type: 'value', min: -30, max: 15,
-    axisLabel: { color: '#A3A3A3', formatter: '{value}%' },
-    axisLine: { lineStyle: { color: '#262626' } },
-    splitLine: { lineStyle: { color: '#262626' } },
-  },
-  yAxis: {
-    type: 'category',
-    data: ['Deflationary depression', 'Inflationary depression', 'Stagflation', 'Reflation'],
-    axisLabel: { color: '#F5F5F5' },
-    axisLine: { lineStyle: { color: '#262626' } },
-  },
-  series: [{
-    type: 'bar',
-    // Values from research/12 §7 Table 7.1 sum row — byte-for-byte
-    data: [-8.13, -26.00, -3.05, 11.83],
-    itemStyle: {
-      color: function (p) {
-        if (p.value >= 0) return '#00D08C';
-        if (p.value > -10) return '#7FFFD4';
-        if (p.value > -20) return '#D4A373';
-        return '#E5484D';
-      },
+var CHART_DATA = {
+  "1.4": {
+    "archetypes": [
+      "US 1930–32",
+      "US 1933–37",
+      "Japan 1990+",
+      "Weimar 1921–23"
+    ],
+    "levers": [
+      "austerity",
+      "defaults",
+      "printing",
+      "redistribution"
+    ],
+    "values": {
+      "austerity": [
+        35,
+        15,
+        30,
+        0
+      ],
+      "defaults": [
+        55,
+        40,
+        55,
+        5
+      ],
+      "printing": [
+        10,
+        40,
+        10,
+        90
+      ],
+      "redistribution": [
+        0,
+        5,
+        5,
+        5
+      ]
     },
-    label: {
-      show: true,
-      color: '#F5F5F5',
-      formatter: '{c}%',
-      position: 'right',
-    },
-    markLine: {
-      symbol: 'none',
-      lineStyle: { color: '#E5484D', type: 'dashed' },
-      data: [{ xAxis: -20, name: 'RED band (re-architect)' }],
-      label: { color: '#D4A373' },
-    },
-  }],
-  tooltip: {
-    backgroundColor: '#1C1C1C',
-    borderColor: '#262626',
-    textStyle: { color: '#F5F5F5' },
-    valueFormatter: function (v) { return v + '%'; },
+    "source": "research/04_deleveragings.md §7 — lever-mix percentages (DERIVED from narrative anchors)"
   },
-};
-
-// ============================================================================
-//  Tab switching + chart lifecycle
-// ============================================================================
-
-const charts = {};
-
-function initChart(elementId, option) {
-  const el = document.getElementById(elementId);
-  if (!el) {
-    console.error('Chart container not found:', elementId);
-    return null;
+  "2.2": {
+    "labels": [
+      "Long Treasuries",
+      "Intermediate Treasuries",
+      "Stocks",
+      "Commodities",
+      "Gold"
+    ],
+    "weights": [
+      40,
+      15,
+      30,
+      7.5,
+      7.5
+    ],
+    "source": "research/09_all_weather.md §6 — Robbins (2014) / Dalio disclosure · weights 30/40/15/7.5/7.5"
+  },
+  "2.5": {
+    "archetypes": [
+      "Deflationary",
+      "Inflationary",
+      "Stagflation",
+      "Reflation"
+    ],
+    "contributions": [
+      -8.13,
+      -26.0,
+      -3.05,
+      11.83
+    ],
+    "source": "research/12_stress_testing.md §7 Table 7.1 — Sum R^port_e row (Robbins weights)"
   }
-  const c = echarts.init(el, null, { renderer: 'canvas' });
-  c.setOption(option);
-  return c;
+};
+
+// =====================================================================
+// AF TEXT REVEAL — IN (block-fill char appears)
+// =====================================================================
+function airForceReveal(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.25;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.42;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.09;
+
+  // Capture parent text color BEFORE we mutate innerHTML.  Once spans are
+  // wrapped with inline color:transparent the computed style would be wrong.
+  var parentColor = getComputedStyle(el).color;
+
+  var raw = el.dataset.text || el.innerHTML;
+  el.dataset.text = raw;
+
+  var decoder = document.createElement('textarea');
+  decoder.innerHTML = raw;
+  var decoded = decoder.value;
+
+  var temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  var html = '';
+  function processNode(node, italic) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (c === ' ') {
+          html += '&nbsp;';
+        } else {
+          // Pre-set inline color:transparent so chars are NEVER painted at
+          // their default color before GSAP runs (fixes flash bug 1).
+          var styleAttr = ' style="color:transparent' + (italic ? ';font-style:italic' : '') + '"';
+          html += '<span class="reveal-ch"' + styleAttr + '>' + escapeHtml(c) + '</span>';
+        }
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName.toLowerCase();
+      if (tag === 'br') { html += '<br>'; return; }
+      var isEm = tag === 'em' || tag === 'i';
+      var newItalic = italic || isEm;
+      var openTag = '<' + tag;
+      if (node.className) openTag += ' class="' + node.className + '"';
+      openTag += '>';
+      html += openTag;
+      Array.from(node.childNodes).forEach(function (n) { processNode(n, newItalic); });
+      html += '</' + tag + '>';
+    }
+  }
+  Array.from(temp.childNodes).forEach(function (n) { processNode(n, false); });
+  el.innerHTML = html;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    // Block-fill phase: bg = captured parent color, briefly visible block
+    local.set(span, { background: parentColor }, delay);
+    // Resolve phase: bg transparent + clearProps lets parent color show
+    local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
 }
 
-function activateTab(tabId) {
-  document.querySelectorAll('.tab').forEach(function (s) {
-    s.classList.toggle('active', s.id === tabId);
+// =====================================================================
+// AF TEXT REVEAL — OUT (block-fill char disappears) · faster
+// =====================================================================
+function airForceRevealOut(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.0;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.14;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.07;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  if (!spans.length) return null;
+
+  // Capture color from element itself (parent of spans) — chars are currently
+  // visible at this color so use it for the block-fill out
+  var parentColor = getComputedStyle(el).color;
+
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { background: parentColor, color: 'transparent' }, delay);
+    local.set(span, { background: 'transparent' }, delay + holdDuration);
+    tl.add(local, 0);
   });
-  document.querySelectorAll('.tab-btn').forEach(function (b) {
-    b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
-  });
-  // ECharts needs a resize call when its container becomes visible
-  if (charts[tabId]) charts[tabId].resize();
+  return tl;
 }
 
-window.addEventListener('DOMContentLoaded', function () {
-  charts.t04 = initChart('chart-04', option04);
-  charts.t12 = initChart('chart-12', option12);
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
-  document.querySelectorAll('.tab-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      activateTab(btn.getAttribute('data-tab'));
+// =====================================================================
+// SLIDE ARM / DISARM
+// =====================================================================
+function armSlide(slide) {
+  slide.querySelectorAll('.reveal-target').forEach(function (el) {
+    el.classList.add('reveal-armed');
+    airForceReveal(el);
+  });
+  slide.querySelectorAll('.fade-target').forEach(function (el, idx) {
+    el.classList.remove('fade-disarmed');
+    var delay = Math.min(idx * 40, 240);
+    setTimeout(function () { el.classList.add('fade-armed'); }, delay);
+  });
+  // Lazy-init chart on first activation of any chart-bearing C slide
+  if (slide.querySelector('.chart-shell') && !window._chartInited) {
+    window._chartInited = true;
+    initChart();
+  }
+}
+
+function disarmSlide(slide) {
+  slide.querySelectorAll('.reveal-target').forEach(function (el) {
+    airForceRevealOut(el);
+  });
+  slide.querySelectorAll('.fade-target').forEach(function (el) {
+    el.classList.remove('fade-armed');
+    el.classList.add('fade-disarmed');
+  });
+}
+
+// =====================================================================
+// SLIDE TRANSITION — coordinates AF out → bg roll → AF in
+// Content remains still; only bg + char animations move.
+// =====================================================================
+var currentSlide = 'hero';
+
+function transitionTo(slideId) {
+  if (slideId === currentSlide) return;
+
+  var oldEl = document.querySelector('.slide.active');
+  var newEl = document.querySelector('.slide[data-slide="' + slideId + '"]');
+  if (!oldEl || !newEl) return;
+
+  var stage = document.getElementById('stage');
+  var newBg = newEl.dataset.bg;
+
+  // Mark synchronously so duplicate observer fires no-op
+  currentSlide = slideId;
+
+  // PHASE 1 — AF reveal-OUT fully runs to completion on outgoing chars
+  disarmSlide(oldEl);
+
+  // PHASE 2 — only AFTER OUT is done: swap slides + roll bg + start IN
+  setTimeout(function () {
+    // Hide old (now fully invisible from AF out)
+    oldEl.classList.remove('active');
+    // Show new — chars are already inline color:transparent so no flash
+    newEl.classList.add('active');
+    // Roll bg color (CSS 350ms transition)
+    if (newBg === 'light') stage.classList.add('bg-light');
+    else stage.classList.remove('bg-light');
+    // Defer AF in by one frame so layout settles + bg roll has started
+    requestAnimationFrame(function () {
+      armSlide(newEl);
     });
-  });
-});
+  }, 230);  // 210 AF-out duration + 20ms safety (was 460, halved per user)
+}
 
-window.addEventListener('resize', function () {
-  Object.values(charts).forEach(function (c) { if (c) c.resize(); });
+// =====================================================================
+// INTERSECTION OBSERVERS — slot detection + minimap
+// =====================================================================
+function initObserver() {
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var slideId = entry.target.dataset.slide;
+        transitionTo(slideId);
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.slot').forEach(function (s) { observer.observe(s); });
+}
+
+function initMinimap() {
+  var dots = document.querySelectorAll('nav.minimap a');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var slideId = entry.target.dataset.slide;
+        dots.forEach(function (a) {
+          a.classList.toggle('active', a.dataset.slide === slideId);
+        });
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.slot').forEach(function (s) { observer.observe(s); });
+}
+
+// =====================================================================
+// CHART — §1.4 + §2.2 + §2.5 (three chart-bearing sections)
+// Pure white-opacity scale with decal pattern differentiation, no color.
+// =====================================================================
+function initChart() {
+  initChart_1_4();
+  initChart_2_2();
+  initChart_2_5();
+}
+
+function initChart_1_4() {
+  var el = document.getElementById('chart-1-4');
+  if (!el || el.dataset.initialized) return;
+  if (!window.echarts) return;
+  if (!CHART_DATA['1.4']) return;
+  var d = CHART_DATA['1.4'];
+  var chart = echarts.init(el);
+  chart.setOption({
+    animation: true,
+    animationDuration: 550,
+    backgroundColor: 'transparent',
+    grid: { left: 60, right: 30, top: 24, bottom: 56 },
+    legend: {
+      data: d.levers,
+      textStyle: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 11 },
+      bottom: 0
+    },
+    xAxis: {
+      type: 'category', data: d.archetypes,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value', max: 100,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10 },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+    },
+    series: [
+      { name: d.levers[0], type: 'bar', stack: 'levers', data: d.values[d.levers[0]],
+        itemStyle: { color: 'rgba(255,255,255,0.06)', decal: decalPattern('diagonal', 0.55) } },
+      { name: d.levers[1], type: 'bar', stack: 'levers', data: d.values[d.levers[1]],
+        itemStyle: { color: 'rgba(255,255,255,0.06)', decal: decalPattern('vertical', 0.78) } },
+      { name: d.levers[2], type: 'bar', stack: 'levers', data: d.values[d.levers[2]],
+        itemStyle: { color: 'rgba(255,255,255,1.0)' } },
+      { name: d.levers[3], type: 'bar', stack: 'levers', data: d.values[d.levers[3]],
+        itemStyle: { color: 'rgba(255,255,255,0.06)', decal: decalPattern('dot', 0.7) } }
+    ]
+  });
+  window.addEventListener('resize', function () { chart.resize(); });
+  el.dataset.initialized = '1';
+}
+
+function initChart_2_2() {
+  var el = document.getElementById('chart-2-2');
+  if (!el || el.dataset.initialized) return;
+  if (!window.echarts) return;
+  if (!CHART_DATA['2.2']) return;
+  var d = CHART_DATA['2.2'];
+  var patterns = ['diagonal', 'vertical', 'solid', 'dot', 'diagonal'];
+  var opacities = [0.55, 0.78, 1.0, 0.7, 0.4];
+  var chart = echarts.init(el);
+  chart.setOption({
+    animation: true,
+    animationDuration: 550,
+    backgroundColor: 'transparent',
+    series: [{
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      label: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 11, formatter: '{b}\n{c}%' },
+      labelLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      data: d.labels.map(function(label, i) {
+        var p = patterns[i % patterns.length];
+        var o = opacities[i % opacities.length];
+        return {
+          name: label, value: d.weights[i],
+          itemStyle: {
+            color: p === 'solid' ? 'rgba(255,255,255,1.0)' : 'rgba(255,255,255,0.06)',
+            decal: decalPattern(p, o)
+          }
+        };
+      })
+    }]
+  });
+  window.addEventListener('resize', function () { chart.resize(); });
+  el.dataset.initialized = '1';
+}
+
+function initChart_2_5() {
+  var el = document.getElementById('chart-2-5');
+  if (!el || el.dataset.initialized) return;
+  if (!window.echarts) return;
+  if (!CHART_DATA['2.5']) return;
+  var d = CHART_DATA['2.5'];
+  var chart = echarts.init(el);
+  chart.setOption({
+    animation: true,
+    animationDuration: 550,
+    backgroundColor: 'transparent',
+    grid: { left: 70, right: 30, top: 24, bottom: 80 },
+    xAxis: {
+      type: 'category', data: d.archetypes,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10, interval: 0, rotate: 20 }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.45)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Mono, monospace', fontSize: 10, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+    },
+    series: [{
+      type: 'bar',
+      data: d.contributions.map(function(v) {
+        return {
+          value: v,
+          itemStyle: {
+            color: v < 0 ? 'rgba(255,255,255,0.78)' : 'rgba(255,255,255,1.0)',
+            decal: v < 0 ? decalPattern('vertical', 0.78) : null
+          }
+        };
+      })
+    }]
+  });
+  window.addEventListener('resize', function () { chart.resize(); });
+  el.dataset.initialized = '1';
+}
+
+// decalPattern helper (per spec §6.5)
+function decalPattern(kind, opacity) {
+  opacity = opacity || 0.7;
+  if (kind === 'solid') return null;
+  if (kind === 'diagonal') {
+    return { symbol: 'rect', color: 'rgba(255,255,255,' + opacity + ')',
+             rotation: -Math.PI / 4, dashArrayX: [1, 7], dashArrayY: [4, 0], symbolSize: 1 };
+  }
+  if (kind === 'vertical') {
+    return { symbol: 'rect', color: 'rgba(255,255,255,' + opacity + ')',
+             rotation: 0, dashArrayX: [1, 4], dashArrayY: [1, 0], symbolSize: 1 };
+  }
+  if (kind === 'dot') {
+    return { symbol: 'circle', color: 'rgba(255,255,255,' + opacity + ')',
+             dashArrayX: [4, 4], dashArrayY: [4, 4], symbolSize: 0.45 };
+  }
+  return null;
+}
+
+// =====================================================================
+// REFRESH PILL — count-up timer
+// =====================================================================
+function initRefresh() {
+  var pill = document.getElementById('refresh-pill');
+  if (!pill) return;
+  var lastTs = Date.now();
+  function update() {
+    var sec = Math.floor((Date.now() - lastTs) / 1000);
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    var txt = (m > 0 ? m + 'm ' : '') + s + 's';
+    pill.querySelector('span').textContent = 'live · refreshed ' + txt + ' ago';
+  }
+  setInterval(update, 1000);
+  update();
+  setInterval(function () { lastTs = Date.now(); update(); }, 30000);
+}
+
+// =====================================================================
+// KATEX
+// =====================================================================
+function initKatex() {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+}
+
+// =====================================================================
+// BOOT
+// =====================================================================
+window.addEventListener('DOMContentLoaded', function () {
+  initRefresh();
+  // Render KaTeX BEFORE arming hero (so math is ready when §1.4-D activates later)
+  setTimeout(function () {
+    initKatex();
+  }, 100);
+  // Arm hero (initial active slide)
+  setTimeout(function () {
+    var hero = document.querySelector('.slide[data-slide="hero"]');
+    if (hero) armSlide(hero);
+  }, 200);
+  // Observers wired after fonts settle
+  setTimeout(function () {
+    initObserver();
+    initMinimap();
+  }, 300);
 });
 
 </script>

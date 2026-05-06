@@ -77,10 +77,9 @@ DISCOVERY DIRECTIVE (BLOCKING — orientation for the research)
       taxonomies, lever sets, phase enumerations, measure sets,
       step-by-step procedures.
     - Discover every historical case Dalio analyzes for this subsection
-      (R23) by reading his case panels (BDC Part 2 + Part 3 case
-      compendium, In-Depth Look case section, HCGB-1 case studies, plus
-      cases discussed in HEMW / CWO / LinkedIn essays germane to this
-      subsection).
+      (R23) by reading his case panels (BDC Part 2 + Part 3, In-Depth
+      Look, HCGB-1, plus cases discussed in HEMW / CWO / LinkedIn
+      essays germane to this subsection).
     - Discover which of his primary works contain material on this
       subsection (R20) by exhaustive search of the cascade Tier-1
       corpus. EVERY Tier-1 source MUST be searched, and the search
@@ -180,17 +179,17 @@ HARD RULES (every rule binding; one violation = rejection)
        (institution name + dataset/series identifier + API endpoint or
        URL). Generic phrases ("could be obtained from a data vendor") are
        rejection-grade.
-  R4.  WORD RATIO + §11 CAP. The combined word count of §§4-8
-       (inputs / formulas / decision rules / worked example /
-       implementation specs) must be at least 5.67 times the combined
-       word count of §§2-3 (verbatim Dalio + decision-problem
-       framing). Less than 5.67 = rejection.
+  R4.  WORD RATIO. The combined word count of §§4-8 (inputs /
+       formulas / decision rules / worked example / implementation
+       specs) must be at least 5.67 times the combined word count of
+       §§2-3 (verbatim Dalio + decision-problem framing). Less than
+       5.67 = rejection.
 
-       Additionally, §11 word count MUST NOT exceed 30% of the §§4-8
-       combined word count. §11 over 30% of §§4-8 = rejection.
-       (Prevents §11 inflation from gaming the §§4-8 vs §§2-3 ratio
-       — a long §11 self-audit cannot substitute for thin §§4-8
-       operational content.)
+       (NOTE: v3 has NO §11 word cap. v3 R20 forces 7 mandatory
+       Tier-1 search-trace rows in §11; v3 R17/R23 add more §11
+       rows than v2; capping §11 at a fraction of §§4-8 would put
+       discovery-directive R-rules in tension with R4. §11 may grow
+       as needed to satisfy R16/R17/R20/R23 row requirements.)
   R5.  AMBIGUITY MUST BE CLOSED, NOT JUST ACKNOWLEDGED. If Dalio's
        writing leaves a numeric threshold or rule ambiguous, the gap
        MUST be closed at the point of use by ONE of:
@@ -419,11 +418,10 @@ HARD RULES (every rule binding; one violation = rejection)
   R23. CASE DISCOVERY + WORKED-EXAMPLE COVERAGE (BLOCKING). You MUST
        identify every historical case Dalio analyzes for this
        subsection across his primary corpus by EXHAUSTIVE reading of
-       his case panels (BDC Part 2 detailed case studies + Part 3
-       48-case compendium, In-Depth Look case section, HCGB-1 case
-       studies, plus cases discussed in HEMW / CWO / LinkedIn essays
-       germane to this subsection). The prompt does NOT name an
-       expected case set; you discover it.
+       his case panels (BDC Part 2 + Part 3, In-Depth Look, HCGB-1,
+       plus cases discussed in HEMW / CWO / LinkedIn essays germane
+       to this subsection). The prompt does NOT name an expected
+       case set; you discover it.
        §7 MUST include worked rows for ALL discovered cases. Each
        case row MUST compute every Boolean flag and every output
        variable from numeric inputs visible in the row itself.

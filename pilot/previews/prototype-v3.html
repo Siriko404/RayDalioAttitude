@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<title>Dalio · Economic Framework</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000000'/><text x='16' y='23' font-family='Georgia,serif' font-weight='900' font-size='22' fill='%23ffffff' text-anchor='middle'>D</text></svg>">
+
+<!-- Fonts: Source Serif 4 variable (200-900 + italic) + DM Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+<!-- ECharts + GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<style>
+/* =============================================================
+   PALETTE — only black + white + their alphas. No accents.
+   Distinction earned via weight, italic, size, rules, glow.
+   ============================================================= */
+:root {
+  --ink:    #000;
+  --paper:  #fff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Source Serif 4', 'Times New Roman', Times, serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+html {
+  background: var(--ink);
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+body { overflow-x: hidden; }
+
+/* Selection follows current page */
+::selection { background: currentColor; color: var(--ink); }
+.page--light ::selection { background: var(--ink); color: var(--paper); }
+
+/* =============================================================
+   SCROLLBAR — pure monochrome
+   ============================================================= */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.25) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border: 2px solid var(--ink);
+  transition: background 220ms;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* =============================================================
+   PAGE — each is one viewport-tall slide with snap
+   ============================================================= */
+.page {
+  min-height: 100vh;
+  width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8vw;
+  position: relative;
+  overflow: hidden;
+}
+.page--dark  { background: var(--ink);   color: var(--paper); }
+.page--light { background: var(--paper); color: var(--ink); }
+
+.page-inner {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* =============================================================
+   TYPOGRAPHY — only weight / italic / size / rules. No color.
+   ============================================================= */
+
+/* Eyebrow — DM Mono with hairline rule before */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'DM Mono', ui-monospace, Menlo, monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+  opacity: 0.7;
+}
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.eyebrow.eyebrow--center {
+  justify-content: center;
+}
+.eyebrow.eyebrow--center::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* H1 — hero, weight 900, massive */
+h1 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 900;
+  font-size: clamp(72px, 11vw, 180px);
+  letter-spacing: -3px;
+  line-height: 0.92;
+  margin-bottom: 36px;
+}
+
+/* H2 — section, weight 800, with rule above */
+h2 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 800;
+  font-size: clamp(48px, 7vw, 96px);
+  letter-spacing: -1.8px;
+  line-height: 1.0;
+  margin-bottom: 32px;
+  position: relative;
+  padding-top: 28px;
+}
+h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* H3 — stage heading, weight 700 */
+h3 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 700;
+  font-size: clamp(28px, 3vw, 44px);
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  position: relative;
+  padding-top: 22px;
+}
+h3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Display italic — questions, dramatic statements, weight 300 italic */
+.display-italic {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(36px, 5vw, 64px);
+  letter-spacing: -0.5px;
+  line-height: 1.18;
+  max-width: 920px;
+}
+.display-italic em {
+  font-weight: 600;
+  font-style: italic;
+}
+
+/* Body */
+.body-text {
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.7;
+  font-weight: 400;
+  max-width: 660px;
+}
+.body-text em { font-style: italic; font-weight: 500; }
+.body-text + .body-text { margin-top: 22px; }
+
+/* Subtitle — italic 300, smaller */
+.subtitle {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.55;
+  max-width: 700px;
+  opacity: 0.85;
+}
+
+/* Citation — italic 400, small, after a rule */
+.citation {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 560px;
+  margin-top: 32px;
+  padding-top: 18px;
+  position: relative;
+  opacity: 0.8;
+}
+.citation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 1px;
+  background: currentColor;
+}
+.citation-source {
+  display: block;
+  font-style: normal;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  margin-top: 10px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+/* Mono labels */
+.mono {
+  font-family: 'DM Mono', ui-monospace, Menlo, monospace;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+}
+
+/* =============================================================
+   MYSTICAL GLOW — title becomes a halo, text near-invisible flat,
+   readable only via the glow. Used sparingly: hero h1 + verdict.
+   ============================================================= */
+
+/* On dark page: text near-black, white halo */
+.glow--white {
+  color: rgba(255,255,255,0.08);  /* very faint white anchor */
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.55),
+    0 0 18px rgba(255,255,255,0.65),
+    0 0 42px rgba(255,255,255,0.5),
+    0 0 90px rgba(255,255,255,0.3),
+    0 0 160px rgba(255,255,255,0.15);
+}
+
+/* On light page: text near-white, black halo */
+.glow--black {
+  color: rgba(0,0,0,0.08);
+  text-shadow:
+    0 0 4px rgba(0,0,0,0.6),
+    0 0 18px rgba(0,0,0,0.55),
+    0 0 42px rgba(0,0,0,0.4),
+    0 0 90px rgba(0,0,0,0.22),
+    0 0 160px rgba(0,0,0,0.1);
+}
+
+/* =============================================================
+   AF TEXT REVEAL — char block-fill IN / OUT
+   ============================================================= */
+.reveal-ch {
+  display: inline-block;
+  transition: background 0.18s ease-out, color 0.18s ease-out;
+}
+/* Initial state — text invisible until reveal fires */
+.reveal-target { visibility: hidden; }
+.reveal-target.reveal-armed { visibility: visible; }
+
+/* =============================================================
+   GLOW REVEAL — title fades from invisible into full halo
+   ============================================================= */
+.glow-target {
+  opacity: 0;
+  filter: blur(20px);
+  transform: translateY(8px);
+  transition:
+    opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter   1.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.glow-target.glow-armed {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+.glow-target.glow-disarmed {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(-8px);
+}
+
+/* Plain fade-up for body content */
+.fade-target {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.9s cubic-bezier(0.2,0.8,0.2,1) 0.2s,
+              transform 0.9s cubic-bezier(0.2,0.8,0.2,1) 0.2s;
+}
+.fade-target.fade-armed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-target.fade-disarmed {
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* =============================================================
+   HEADER + MINIMAP — mix-blend-mode: difference reads on both bg
+   ============================================================= */
+header.brand-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 22px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--paper);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+header.brand-bar .refresh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+header.brand-bar .refresh-pill::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+nav.minimap {
+  position: fixed;
+  top: 50%;
+  right: 22px;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  mix-blend-mode: difference;
+  color: var(--paper);
+}
+nav.minimap a {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  position: relative;
+  text-decoration: none;
+  opacity: 0.5;
+  transition: opacity 220ms, transform 220ms, background 220ms;
+}
+nav.minimap a::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 220ms;
+  pointer-events: none;
+}
+nav.minimap a:hover { opacity: 1; transform: scale(1.4); }
+nav.minimap a:hover::after { opacity: 1; }
+nav.minimap a.active {
+  opacity: 1;
+  background: currentColor;
+}
+
+/* =============================================================
+   HERO PAGE
+   ============================================================= */
+.hero {
+  justify-content: center;
+}
+.hero h1 {
+  margin-bottom: 56px;
+}
+.hero .meta {
+  position: absolute;
+  bottom: 56px;
+  left: 8vw; right: 8vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.hero .scroll-cue::after {
+  content: '  ↓';
+  margin-left: 6px;
+}
+
+/* =============================================================
+   §1.4 stages
+   ============================================================= */
+.section-tag {
+  position: absolute;
+  top: 56px;
+  left: 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.section-tag .num { font-weight: 700; opacity: 1; }
+
+.stage-counter {
+  position: absolute;
+  top: 56px;
+  right: 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 3px;
+  opacity: 0.5;
+}
+
+/* Lever list — typographic only, no boxes */
+.levers {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+.lever {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  align-items: baseline;
+  gap: 28px;
+  padding: 22px 0;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.6;
+  transition: opacity 220ms;
+}
+.lever:last-child { border-bottom: none; }
+.lever:hover { opacity: 1; }
+.lever .num {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.5;
+}
+.lever .body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lever .name {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.7px;
+  line-height: 1.1;
+}
+.lever .desc {
+  font-style: italic;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+.lever .effect {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* Chart panel for §1.4-C */
+.chart-shell {
+  width: 100%;
+  height: clamp(380px, 56vh, 540px);
+  position: relative;
+  margin-top: 24px;
+}
+.chart-shell .echart {
+  position: absolute;
+  inset: 0;
+}
+.chart-caption {
+  margin-top: 18px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* Math + verdict */
+.math-line {
+  font-size: 18px;
+  margin: 14px 0;
+  padding-left: 28px;
+  position: relative;
+}
+.math-line::before {
+  content: attr(data-step);
+  position: absolute;
+  left: 0;
+  top: 4px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  opacity: 0.5;
+}
+.verdict {
+  margin-top: 56px;
+  padding: 40px 0 32px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  text-align: center;
+}
+.verdict .verdict-label {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  opacity: 0.6;
+}
+.verdict .verdict-text {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 800;
+  font-size: clamp(36px, 4.5vw, 64px);
+  letter-spacing: -1px;
+  line-height: 1.0;
+}
+.verdict .verdict-text em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* =============================================================
+   MORE — TOC grid, type only
+   ============================================================= */
+.toc {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 48px;
+  border-top: 1px solid currentColor;
+}
+.toc-item {
+  padding: 22px 18px 22px 0;
+  border-bottom: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0.7;
+  transition: opacity 220ms;
+}
+.toc-item:hover { opacity: 1; }
+.toc-item:nth-child(4n) { border-right: none; padding-right: 0; }
+.toc-item .num {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}
+.toc-item .ttl {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.toc-item .ttl em {
+  font-weight: 400;
+  font-style: italic;
+}
+
+footer {
+  padding: 32px 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  opacity: 0.6;
+}
+footer a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+/* =============================================================
+   RESPONSIVE
+   ============================================================= */
+@media (max-width: 900px) {
+  nav.minimap { display: none; }
+  .lever { grid-template-columns: 40px 1fr; gap: 16px; }
+  .lever .effect { grid-column: 2; padding-top: 6px; }
+  .toc { grid-template-columns: repeat(2, 1fr); }
+  .toc-item:nth-child(4n) { border-right: 1px solid currentColor; }
+  .toc-item:nth-child(2n) { border-right: none; }
+  h1 { font-size: clamp(56px, 14vw, 96px); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER  (mix-blend-mode: difference reads on both bgs)
+     ============================================================ -->
+<header class="brand-bar">
+  <div>DALIO &nbsp;·&nbsp; ECONOMIC FRAMEWORK &nbsp;·&nbsp; v0.3</div>
+  <div class="refresh-pill" id="refresh-pill"><span>live · refreshed 0s ago</span></div>
+</header>
+
+<!-- ============================================================
+     MINIMAP — 7 dots, one per page
+     ============================================================ -->
+<nav class="minimap" aria-label="page navigation">
+  <a href="#hero"      data-label="HERO"     data-page="hero"      class="active"></a>
+  <a href="#intro"     data-label="INTRO"    data-page="intro"></a>
+  <a href="#sec-1-4-a" data-label="1.4 / A · QUESTION"   data-page="sec-1-4-a"></a>
+  <a href="#sec-1-4-b" data-label="1.4 / B · LEVERS"     data-page="sec-1-4-b"></a>
+  <a href="#sec-1-4-c" data-label="1.4 / C · HISTORY"    data-page="sec-1-4-c"></a>
+  <a href="#sec-1-4-d" data-label="1.4 / D · FORMULA"    data-page="sec-1-4-d"></a>
+  <a href="#more"      data-label="MORE"     data-page="more"></a>
+</nav>
+
+<!-- ============================================================
+     PAGE 1 / HERO  (dark, glow title)
+     ============================================================ -->
+<section class="page page--dark hero" id="hero" data-page-name="hero">
+  <div class="page-inner">
+    <div class="eyebrow fade-target">RAY DALIO &nbsp;·&nbsp; THE TEMPLATE &nbsp;·&nbsp; 12 FRAMEWORKS, ONE PAGE</div>
+    <h1 class="glow--white glow-target">How he sees<br><em>the&nbsp;economy.</em></h1>
+    <p class="subtitle fade-target">Twelve interlocking models — debt cycles, deleveragings, all-weather, stress tests — assembled from primary Bridgewater sources, parameterised, and rendered live.</p>
+  </div>
+  <div class="meta fade-target">
+    <div>NOWANDFUTURES &nbsp;·&nbsp; LINKEDIN &nbsp;·&nbsp; PRINCIPLES (CWO)</div>
+    <div class="scroll-cue">SCROLL</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 2 / INTRO  (light, the inversion)
+     ============================================================ -->
+<section class="page page--light" id="intro" data-page-name="intro">
+  <div class="page-inner">
+    <div class="eyebrow fade-target">§ 1.4 &nbsp;·&nbsp; IN CONTEXT</div>
+    <h2 class="reveal-target" data-text="Twelve frameworks, three regimes, four levers.">Twelve frameworks, three regimes, four levers.</h2>
+    <p class="body-text fade-target">Dalio's economic engine produces three classical outcomes when a long-term debt cycle tops: <em>ugly deflationary</em>, <em>beautiful</em>, or <em>ugly inflationary</em>. The path that obtains depends on how policymakers mix four levers — <em>debt reduction</em>, <em>austerity</em>, <em>wealth transfer</em>, <em>debt monetisation</em>.</p>
+    <p class="body-text fade-target">This page renders all twelve frameworks. We start with the deleveragings sub-model — the moment where the regime branches.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 3 / §1.4-A  (dark, italic question + citation)
+     ============================================================ -->
+<section class="page page--dark" id="sec-1-4-a" data-page-name="sec-1-4-a">
+  <div class="section-tag"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+  <div class="page-inner">
+    <p class="display-italic reveal-target" data-text="When debt tops out, who bears the &lt;em&gt;loss&lt;/em&gt;?">When debt tops out, who bears the <em>loss</em>?</p>
+    <div class="citation fade-target">
+      "The differences between deleveragings depend on the amounts and paces of (1) debt reduction, (2) austerity, (3) transferring wealth from the haves to the have-nots, and (4) debt monetisation."
+      <span class="citation-source">Ray Dalio · An In-Depth Look at Deleveragings · 2012</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 4 / §1.4-B  (light, lever list)
+     ============================================================ -->
+<section class="page page--light" id="sec-1-4-b" data-page-name="sec-1-4-b">
+  <div class="section-tag"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE FOUR LEVERS</div>
+  <div class="page-inner">
+    <h3 class="reveal-target" data-text="Each lever shrinks debt-to-income — but with different side effects.">Each lever shrinks debt-to-income — but with different side effects.</h3>
+    <div class="levers fade-target">
+      <div class="lever">
+        <span class="num">01</span>
+        <div class="body">
+          <span class="name">Debt reduction</span>
+          <span class="desc">Defaults, restructurings, write-downs. Investors absorb the loss.</span>
+        </div>
+        <span class="effect">Deflationary · Depressing</span>
+      </div>
+      <div class="lever">
+        <span class="num">02</span>
+        <div class="body">
+          <span class="name">Austerity</span>
+          <span class="desc">Cut spending. Households and governments reduce consumption.</span>
+        </div>
+        <span class="effect">Deflationary · Depressing</span>
+      </div>
+      <div class="lever">
+        <span class="num">03</span>
+        <div class="body">
+          <span class="name">Wealth transfer</span>
+          <span class="desc">Tax the haves; redistribute to the have-nots. Dalio: rare in scale.</span>
+        </div>
+        <span class="effect">Neutral · Political</span>
+      </div>
+      <div class="lever">
+        <span class="num">04</span>
+        <div class="body">
+          <span class="name">Debt monetisation</span>
+          <span class="desc">Central bank prints money, buys debt. Currency dilutes.</span>
+        </div>
+        <span class="effect">Inflationary · Stimulative</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 5 / §1.4-C  (dark, chart)
+     ============================================================ -->
+<section class="page page--dark" id="sec-1-4-c" data-page-name="sec-1-4-c">
+  <div class="section-tag"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; THE HISTORICAL DECOMPOSITION</div>
+  <div class="page-inner">
+    <h3 class="reveal-target" data-text="Same four levers — radically different mixes.">Same four levers — radically different mixes.</h3>
+    <div class="chart-shell fade-target">
+      <div id="chart-mix" class="echart"></div>
+    </div>
+    <div class="chart-caption fade-target">Four-lever mix · 1930–32 vs 1933–37 vs Japan 1990+ &nbsp;—&nbsp; byte-exact, research/04 §7</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 6 / §1.4-D  (light, math + glow verdict)
+     ============================================================ -->
+<section class="page page--light" id="sec-1-4-d" data-page-name="sec-1-4-d">
+  <div class="section-tag"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+  <div class="stage-counter">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+  <div class="page-inner">
+    <h3 class="reveal-target" data-text="The beautiful gate: nominal growth must exceed nominal interest.">The beautiful gate: nominal growth must exceed nominal interest.</h3>
+
+    <div class="fade-target" style="margin-top: 8px;">
+      <div class="math-line" data-step="">$$G_t \;=\; \mathrm{NGDP}_{yoy,t} \;-\; r_t$$</div>
+      <p class="body-text" style="margin-top: 28px;">If $G_t > 0$ and $\Delta D_t < 0$, the deleveraging is <em>beautiful</em>. If $G_t < 0$ and $\Delta D_t > 0$, it is <em>ugly deflationary</em>.</p>
+
+      <div style="margin-top: 40px;">
+        <div class="eyebrow" style="margin-bottom: 18px;">U.S. 1930–32 · Worked</div>
+        <div class="math-line" data-step="1">$G = -17.0\% - 3.4\% = -20.4\,\mathrm{pp}$</div>
+        <div class="math-line" data-step="2">$\Delta D = +97\,\mathrm{pp}$ &nbsp; (DebtGDP $155\% \to 252\%$)</div>
+        <div class="math-line" data-step="3">$\pi = 0.4\% + 0.4\% = 0.8\%$ — print intensity stayed low</div>
+      </div>
+    </div>
+
+    <div class="verdict fade-target">
+      <div class="verdict-label">Regime</div>
+      <div class="verdict-text glow--black glow-target">G &lt; 0 &nbsp;and&nbsp; ΔD &gt; 0 &nbsp;⇒&nbsp; <em>ugly deflationary.</em></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAGE 7 / MORE  (dark, TOC)
+     ============================================================ -->
+<section class="page page--dark" id="more" data-page-name="more">
+  <div class="page-inner">
+    <div class="eyebrow eyebrow--center fade-target">CONTINUATION</div>
+    <h2 class="reveal-target" data-text="Eleven more frameworks &lt;em&gt;follow this pattern&lt;/em&gt;." style="text-align: center;">Eleven more frameworks <em>follow this pattern</em>.</h2>
+    <div class="toc fade-target">
+      <div class="toc-item"><span class="num">§ 1.1</span><span class="ttl">Economic Machine</span></div>
+      <div class="toc-item"><span class="num">§ 1.2</span><span class="ttl">Short-Term Debt Cycle</span></div>
+      <div class="toc-item"><span class="num">§ 1.3</span><span class="ttl">Long-Term Debt Cycle</span></div>
+      <div class="toc-item"><span class="num">§ 1.4</span><span class="ttl"><em>Deleveragings · shown above</em></span></div>
+      <div class="toc-item"><span class="num">§ 1.5</span><span class="ttl">Paradigm Shifts</span></div>
+      <div class="toc-item"><span class="num">§ 1.6</span><span class="ttl">Changing World Order</span></div>
+      <div class="toc-item"><span class="num">§ 1.7</span><span class="ttl">Inflation &amp; Currency</span></div>
+      <div class="toc-item"><span class="num">§ 2.1</span><span class="ttl">Template for Investing</span></div>
+      <div class="toc-item"><span class="num">§ 2.2</span><span class="ttl">All-Weather</span></div>
+      <div class="toc-item"><span class="num">§ 2.3</span><span class="ttl">Alpha / Portable Alpha</span></div>
+      <div class="toc-item"><span class="num">§ 2.4</span><span class="ttl">Risk Parity Leverage</span></div>
+      <div class="toc-item"><span class="num">§ 2.5</span><span class="ttl">Stress Testing</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>DALIO ECONOMIC FRAMEWORK &nbsp;·&nbsp; BUILT FROM 12 RESEARCH FILES &nbsp;·&nbsp; <a href="#">/raydalioattitude</a></div>
+  <div>v0.3 PROTOTYPE &nbsp;·&nbsp; 2026-05</div>
+</footer>
+
+<script>
+'use strict';
+
+// =====================================================================
+// AF TEXT REVEAL — forward (block-fill IN, char appears)
+// Faithful to airforce.com clientlib pipeline.
+// =====================================================================
+function airForceReveal(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.5;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.83;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.18;
+
+  // Stash raw HTML in data-text on first call so multi-call works
+  var raw = el.dataset.text || el.innerHTML;
+  el.dataset.text = raw;
+
+  var decoder = document.createElement('textarea');
+  decoder.innerHTML = raw;
+  var decoded = decoder.value;
+
+  var temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  var html = '';
+  function processNode(node, italic) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (c === ' ') {
+          html += '&nbsp;';
+        } else if (c === '\n') {
+          html += '<br>';
+        } else {
+          html += '<span class="reveal-ch"' + (italic ? ' style="font-style:italic"' : '') + '>' + escapeHtml(c) + '</span>';
+        }
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName.toLowerCase();
+      var isEm = tag === 'em' || tag === 'i';
+      var newItalic = italic || isEm;
+      var openTag = '<' + tag;
+      if (node.className) openTag += ' class="' + node.className + '"';
+      openTag += '>';
+      html += openTag;
+      Array.from(node.childNodes).forEach(function (n) { processNode(n, newItalic); });
+      html += '</' + tag + '>';
+    }
+  }
+  Array.from(temp.childNodes).forEach(function (n) { processNode(n, false); });
+  el.innerHTML = html;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var charColor = getComputedStyle(span).color;
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { color: 'transparent' }, 0);
+    local.set(span, { background: charColor }, delay);
+    local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+// =====================================================================
+// AF TEXT REVEAL — reverse (block-fill OUT, char disappears)
+// Faster than forward — must complete during snap transition (~500ms).
+// =====================================================================
+function airForceRevealOut(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.0;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.30;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.14;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  if (!spans.length) {
+    // Element wasn't revealed — just hide it for symmetry
+    el.style.visibility = 'hidden';
+    return null;
+  }
+
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var charColor = getComputedStyle(span).color;
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    // Phase 1 — color fades to transparent + background fills with char color (block reveal)
+    local.set(span, { background: charColor, color: 'transparent' }, delay);
+    // Phase 2 — background fades to transparent (chars are now invisible: color:transparent + bg:transparent)
+    local.set(span, { background: 'transparent' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// =====================================================================
+// ARM / DISARM PAGES — coordinate all reveals on Intersection events
+// =====================================================================
+function armPage(page) {
+  page.querySelectorAll('.reveal-target').forEach(function (el) {
+    el.classList.add('reveal-armed');
+    airForceReveal(el);
+  });
+  page.querySelectorAll('.glow-target').forEach(function (el) {
+    el.classList.remove('glow-disarmed');
+    el.classList.add('glow-armed');
+  });
+  page.querySelectorAll('.fade-target').forEach(function (el, idx) {
+    el.classList.remove('fade-disarmed');
+    // Slight stagger so multiple fades on the same page don't fire identically
+    var delay = Math.min(idx * 80, 480);
+    setTimeout(function () { el.classList.add('fade-armed'); }, delay);
+  });
+}
+
+function disarmPage(page) {
+  page.querySelectorAll('.reveal-target').forEach(function (el) {
+    airForceRevealOut(el);
+  });
+  page.querySelectorAll('.glow-target').forEach(function (el) {
+    el.classList.remove('glow-armed');
+    el.classList.add('glow-disarmed');
+  });
+  page.querySelectorAll('.fade-target').forEach(function (el) {
+    el.classList.remove('fade-armed');
+    el.classList.add('fade-disarmed');
+  });
+}
+
+// =====================================================================
+// INTERSECTION OBSERVER — drives page enter / leave reveals
+// =====================================================================
+function initObserver() {
+  var armedSet = new Set();
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var page = entry.target;
+      if (entry.intersectionRatio > 0.5 && !armedSet.has(page)) {
+        armedSet.add(page);
+        armPage(page);
+      } else if (entry.intersectionRatio < 0.05 && armedSet.has(page)) {
+        armedSet.delete(page);
+        disarmPage(page);
+      }
+    });
+  }, { threshold: [0, 0.05, 0.25, 0.5, 0.75, 1] });
+
+  document.querySelectorAll('.page').forEach(function (p) {
+    observer.observe(p);
+  });
+}
+
+// =====================================================================
+// MINIMAP — active dot tracking
+// =====================================================================
+function initMinimap() {
+  var dots = document.querySelectorAll('nav.minimap a');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var name = entry.target.dataset.pageName;
+        dots.forEach(function (a) {
+          a.classList.toggle('active', a.dataset.page === name);
+        });
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.page').forEach(function (p) { observer.observe(p); });
+}
+
+// =====================================================================
+// CHART (§1.4-C only) — pure B&W on dark bg, white shades by lever
+// =====================================================================
+function initChart() {
+  var el = document.getElementById('chart-mix');
+  if (!el) return;
+  var c = echarts.init(el, null, { renderer: 'canvas' });
+  var TEXT = '#fff';
+  var GRID = 'rgba(255,255,255,0.18)';
+  var GRID_2 = 'rgba(255,255,255,0.06)';
+  c.setOption({
+    backgroundColor: 'transparent',
+    textStyle: { color: TEXT, fontFamily: 'inherit' },
+    legend: {
+      textStyle: { color: TEXT, fontFamily: 'DM Mono, monospace', fontSize: 10 },
+      top: 0, itemWidth: 14, itemHeight: 8,
+      data: ['austerity', 'defaults', 'printing', 'redistribution'],
+    },
+    grid: { left: 70, right: 30, top: 56, bottom: 36 },
+    xAxis: {
+      type: 'category',
+      data: ['US 1930–32', 'US 1933–37', 'JAPAN 90+'],
+      axisLine: { lineStyle: { color: GRID } },
+      axisLabel: { color: TEXT, fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 500 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value', max: 100,
+      axisLine: { lineStyle: { color: GRID } },
+      axisLabel: { color: TEXT, fontFamily: 'DM Mono, monospace', fontSize: 9, formatter: '{value}%', opacity: 0.6 },
+      splitLine: { lineStyle: { color: GRID_2 } },
+    },
+    series: [
+      // Differentiation by white-opacity (no color); printing pops as the brightest
+      { name: 'austerity',      type: 'bar', stack: 'levers', data: [35, 15, 30], itemStyle: { color: 'rgba(255,255,255,0.18)' } },
+      { name: 'defaults',       type: 'bar', stack: 'levers', data: [55, 40, 55], itemStyle: { color: 'rgba(255,255,255,0.45)' } },
+      { name: 'printing',       type: 'bar', stack: 'levers', data: [10, 40, 10], itemStyle: { color: 'rgba(255,255,255,1.0)' } },
+      { name: 'redistribution', type: 'bar', stack: 'levers', data: [ 0,  5,  5], itemStyle: { color: 'rgba(255,255,255,0.30)' } },
+    ],
+    animationDuration: 1100,
+    animationEasing: 'cubicOut',
+    animationDelay: function (idx) { return idx * 60; },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#000',
+      borderColor: GRID,
+      textStyle: { color: TEXT },
+      valueFormatter: function (v) { return v + '%'; },
+    },
+  });
+  window.addEventListener('resize', function () { c.resize(); });
+}
+
+// =====================================================================
+// REFRESH PILL
+// =====================================================================
+function initRefresh() {
+  var pill = document.getElementById('refresh-pill');
+  if (!pill) return;
+  var lastTs = Date.now();
+  function update() {
+    var sec = Math.floor((Date.now() - lastTs) / 1000);
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    var txt = (m > 0 ? m + 'm ' : '') + s + 's';
+    pill.querySelector('span').textContent = 'live · refreshed ' + txt + ' ago';
+  }
+  setInterval(update, 1000);
+  update();
+  setInterval(function () { lastTs = Date.now(); update(); }, 30000);
+}
+
+// =====================================================================
+// KATEX
+// =====================================================================
+function initKatex() {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+}
+
+// =====================================================================
+// BOOT
+// =====================================================================
+window.addEventListener('DOMContentLoaded', function () {
+  initChart();
+  initRefresh();
+  // KaTeX + observer fire after fonts settle so layout offsets are stable
+  setTimeout(function () {
+    initKatex();
+    initObserver();
+    initMinimap();
+  }, 350);
+});
+</script>
+
+</body>
+</html>

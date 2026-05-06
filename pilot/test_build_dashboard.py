@@ -472,5 +472,54 @@ class TestInlineJs(unittest.TestCase):
         self.assertIn("$$", js)
 
 
+class TestAssembleHtml(unittest.TestCase):
+    def test_assemble_produces_full_html(self):
+        """assemble_html returns complete HTML with 51 slides + 51 slots + chrome + JS."""
+        import build_dashboard
+        html = build_dashboard.assemble_html()
+        # DOCTYPE
+        self.assertTrue(html.startswith("<!DOCTYPE html>"))
+        # 51 slide divs (count both inactive and active; exclude slide-inner substring collision)
+        self.assertEqual(
+            html.count('<div class="slide"') + html.count('<div class="slide active"'),
+            51,
+        )
+        # 51 slot divs
+        self.assertEqual(html.count('<div class="slot"'), 51)
+        # Stage container
+        self.assertIn('<div class="stage" id="stage">', html)
+        # Scroll-track container
+        self.assertIn('<div class="scroll-track">', html)
+        # Chrome
+        self.assertIn('<header class="brand-bar">', html)
+        self.assertIn('<nav class="minimap"', html)
+        self.assertIn('<footer>', html)
+        # Inline JS markers
+        self.assertIn("airForceReveal", html)
+        self.assertIn("transitionTo", html)
+        self.assertIn("var CHART_DATA", html)
+        # Closes properly
+        self.assertTrue(html.rstrip().endswith("</html>"))
+
+    def test_assemble_contains_all_12_sections(self):
+        """assemble_html includes all 12 section A/B/C/D slides."""
+        import build_dashboard
+        html = build_dashboard.assemble_html()
+        # Each section's 4 stage slide IDs present
+        for sid in ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7",
+                    "2.1", "2.2", "2.3", "2.4", "2.5"]:
+            sid_dashed = sid.replace(".", "-")
+            for stage in ["A", "B", "C", "D"]:
+                self.assertIn(f'data-slide="{sid_dashed}-{stage}"', html)
+
+    def test_assemble_chart_containers_present(self):
+        """Chart containers for §1.4, §2.2, §2.5 present."""
+        import build_dashboard
+        html = build_dashboard.assemble_html()
+        self.assertIn('id="chart-1-4"', html)
+        self.assertIn('id="chart-2-2"', html)
+        self.assertIn('id="chart-2-5"', html)
+
+
 if __name__ == "__main__":
     unittest.main()

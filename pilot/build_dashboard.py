@@ -1403,6 +1403,59 @@ window.addEventListener('DOMContentLoaded', function () {
     return js_body
 
 
+def assemble_html() -> str:
+    """Assemble the full HTML document from all generators.
+
+    Order: head → header → minimap → footer → stage (51 slides) → scroll-track (51 slots) → inline JS
+    """
+    import dashboard_data
+    sections = dashboard_data.SECTIONS
+    slide_ids = all_slide_ids()
+
+    # Head + chrome
+    head = build_html_head()
+    header = build_header()
+    minimap = build_minimap(slide_ids)
+    footer = build_footer()
+
+    # Build all 51 slides in scroll order
+    slide_chunks = [build_hero_slide(), build_intro_slide()]
+    for sid in SECTION_IDS:
+        data = sections[sid]
+        slide_chunks.append(build_section_a_slide(sid, data))
+        slide_chunks.append(build_section_b_slide(sid, data))
+        slide_chunks.append(build_section_c_slide(sid, data))
+        slide_chunks.append(build_section_d_slide(sid, data))
+    slide_chunks.append(build_more_slide(sections))
+    slides_html = "\n".join(slide_chunks)
+    stage_html = f'<div class="stage" id="stage">\n{slides_html}\n</div>\n'
+
+    # Build scroll-track with one slot per slide id
+    slots_html = "\n".join(
+        f'  <div class="slot" id="slot-{sid}" data-slide="{sid}"></div>'
+        for sid in slide_ids
+    )
+    track_html = f'<div class="scroll-track">\n{slots_html}\n</div>\n'
+
+    # Inline JS
+    inline_js = build_inline_js(sections)
+
+    # Assemble body
+    body = (
+        f'<body>\n'
+        f'{header}'
+        f'{minimap}'
+        f'{footer}'
+        f'{stage_html}'
+        f'{track_html}'
+        f'<script>\n{inline_js}\n</script>\n'
+        f'</body>\n'
+        f'</html>\n'
+    )
+
+    return head + body
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

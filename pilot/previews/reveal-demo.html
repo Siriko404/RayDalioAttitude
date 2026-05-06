@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AF-style Text Reveal · Times New Roman family</title>
+
+<!--
+  Air Force-style text-reveal pattern, tested across Times New Roman + close
+  serifs. Same animation pipeline; fonts swap so user can compare.
+-->
+
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:ital,wght@0,400;0,700;0,900;1,400;1,700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #0a0a0a;
+    color: #e8e6df;
+    font-family: 'Tinos', 'Times New Roman', serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 24px 48px;
+    border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #6a6a6a;
+    font-weight: 500;
+  }
+  header .actions { display: flex; gap: 12px; }
+  header button {
+    background: transparent;
+    border: 1px solid #6a6a6a;
+    color: #e8e6df;
+    padding: 8px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 160ms, color 160ms, border-color 160ms;
+  }
+  header button:hover { background: #e8e6df; color: #0a0a0a; }
+  header button.primary { border-color: #e8e6df; background: #e8e6df; color: #0a0a0a; }
+  header button.primary:hover { background: transparent; color: #e8e6df; }
+
+  main { padding: 64px 48px 48px; max-width: 1200px; margin: 0 auto; }
+
+  .demo {
+    margin-bottom: 88px;
+    padding-bottom: 56px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .demo:last-child { border-bottom: none; }
+  .demo .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #6a6a6a;
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .demo .label .replay {
+    background: transparent;
+    border: 1px solid #4a4a4a;
+    color: #8a8a8a;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: border-color 160ms, color 160ms;
+  }
+  .demo .label .replay:hover { border-color: #e8e6df; color: #e8e6df; }
+  .demo .stats { font-family: 'DM Mono', monospace; font-size: 10px; color: #4a4a4a; margin-top: 14px; letter-spacing: 1.5px; }
+
+  /* All hero text shares the same scale + weight; only font-family swaps */
+  .hero {
+    font-weight: 700;            /* TNR Bold (the only "broad" weight TNR ships) */
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.96;
+    letter-spacing: -1.8px;
+    color: #e8e6df;
+  }
+  .hero em {
+    font-style: italic;
+    font-weight: 400;            /* italic regular = thinner contrast */
+    color: #c9a14a;              /* warm gold accent — neutral, not the rejected emerald */
+  }
+
+  /* Per-demo font overrides */
+  .ff-tnr     { font-family: 'Times New Roman', 'Tinos', Times, serif; }
+  .ff-tinos   { font-family: 'Tinos', 'Times New Roman', Times, serif; }
+  .ff-source  { font-family: 'Source Serif 4', 'Times New Roman', serif; font-weight: 900; letter-spacing: -2px; }
+  .ff-ptserif { font-family: 'PT Serif', 'Times New Roman', serif; }
+
+  /* The reveal-char span class — applied dynamically */
+  .reveal-ch {
+    display: inline-block;
+    transition: background 0.18s ease-out, color 0.18s ease-out;
+  }
+
+  /* Animation pipeline note panel */
+  .pipeline {
+    margin-top: 64px;
+    padding: 24px 28px;
+    background: #0e0e0e;
+    border-left: 3px solid #c9a14a;
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    color: #8a8a8a;
+    line-height: 1.7;
+  }
+  .pipeline .h {
+    color: #c9a14a;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .pipeline code { color: #e8e6df; }
+
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid #1a1a1a;
+    color: #4a4a4a;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AF-STYLE TEXT REVEAL · TIMES NEW ROMAN FAMILY</h1>
+  <div class="actions">
+    <button class="primary" id="replay-all">▶ REPLAY ALL</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Demo 1: System Times New Roman (Tinos fallback) -->
+  <div class="demo">
+    <div class="label">
+      <span>1 / TIMES NEW ROMAN — SYSTEM STACK · BOLD 700</span>
+      <button class="replay" data-target="d1">↻ REPLAY</button>
+    </div>
+    <div class="hero ff-tnr" id="d1" data-text="How he sees the &lt;em&gt;economy&lt;/em&gt;."></div>
+    <div class="stats">FONT: 'Times New Roman', Tinos, serif · WEIGHT: 700 · STAGGER: 0.5–0.83s random per char (faithful AF timing)</div>
+  </div>
+
+  <!-- Demo 2: Tinos (Google's metric-compatible TNR clone) -->
+  <div class="demo">
+    <div class="label">
+      <span>2 / TINOS — GOOGLE TNR CLONE · BOLD 700</span>
+      <button class="replay" data-target="d2">↻ REPLAY</button>
+    </div>
+    <div class="hero ff-tinos" id="d2" data-text="How he sees the &lt;em&gt;economy&lt;/em&gt;."></div>
+    <div class="stats">FONT: 'Tinos', serif · WEIGHT: 700 · Reliably loaded across all platforms (no system-font lottery)</div>
+  </div>
+
+  <!-- Demo 3: Source Serif 4 — TNR-adjacent but with broad weight range -->
+  <div class="demo">
+    <div class="label">
+      <span>3 / SOURCE SERIF 4 — TNR-ADJACENT · WEIGHT 900 (BROAD-RANGE OPTION)</span>
+      <button class="replay" data-target="d3">↻ REPLAY</button>
+    </div>
+    <div class="hero ff-source" id="d3" data-text="How he sees the &lt;em&gt;economy&lt;/em&gt;."></div>
+    <div class="stats">FONT: 'Source Serif 4', serif · WEIGHT: 900 (full 200–900 range available) · Same transitional-serif lineage as TNR but more contrast in the bold</div>
+  </div>
+
+  <!-- Demo 4: PT Serif (humanist TNR-adjacent) -->
+  <div class="demo">
+    <div class="label">
+      <span>4 / PT SERIF — HUMANIST TNR-ADJACENT · BOLD 700</span>
+      <button class="replay" data-target="d4">↻ REPLAY</button>
+    </div>
+    <div class="hero ff-ptserif" id="d4" data-text="How he sees the &lt;em&gt;economy&lt;/em&gt;."></div>
+    <div class="stats">FONT: 'PT Serif', serif · WEIGHT: 700 · Slightly warmer + slightly heavier than TNR — more presence at large sizes</div>
+  </div>
+
+  <div class="pipeline">
+    <div class="h">ANIMATION PIPELINE (faithful to airforce.com)</div>
+    <div>1. each non-whitespace char → <code>&lt;span class="reveal-ch"&gt;</code></div>
+    <div>2. <code>t = 0</code>: set color transparent (char invisible)</div>
+    <div>3. <code>t = random(0.5, 0.83)s</code>: set background = original text color (block-fill)</div>
+    <div>4. <code>t = above + 0.18s</code>: clear background + clearProps color (letter resolves)</div>
+    <div style="margin-top: 12px; color: #4a4a4a;">↑ same gsap.timeline().set() pattern as airforce.com clientlib-site.min.js · CSS transitions on .reveal-ch smooth the visual blip</div>
+  </div>
+
+</main>
+
+<footer>
+  <p>SOURCE: airforce.com / clientlib-site.min.js · pattern faithfully replicated · GSAP timeline.set() with random per-char delay</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+'use strict';
+
+// ============================================================================
+// AIR FORCE-STYLE TEXT REVEAL
+// (faithful to airforce.com clientlib-site.min.js timeline-set pattern)
+// ============================================================================
+function airForceReveal(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.5;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.83;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.18;
+
+  // The original raw HTML (with <em> markers etc.) is stashed on data-text
+  // so we can replay multiple times.
+  var raw = el.dataset.text || el.innerHTML;
+  el.dataset.text = raw;
+
+  // Decode HTML entities the user typed in data-text (e.g. &lt;em&gt; → <em>)
+  var decoder = document.createElement('textarea');
+  decoder.innerHTML = raw;
+  var decoded = decoder.value;
+
+  // Parse the decoded HTML into a DOM tree we can walk character by character
+  var temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  var html = '';
+  function processNode(node, italic) {
+    if (node.nodeType === 3) {  // text node
+      var text = node.nodeValue;
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (c === ' ') {
+          html += '&nbsp;';
+        } else {
+          html += '<span class="reveal-ch"' + (italic ? ' style="font-style:italic"' : '') + '>' + c + '</span>';
+        }
+      }
+    } else if (node.nodeType === 1) {  // element node
+      var isEm = node.tagName === 'EM' || node.tagName === 'I';
+      var newItalic = italic || isEm;
+      // Wrap in original element so its CSS class / inherited color applies
+      var openTag = '<' + node.tagName.toLowerCase();
+      if (node.className) openTag += ' class="' + node.className + '"';
+      openTag += '>';
+      html += openTag;
+      Array.from(node.childNodes).forEach(function (n) { processNode(n, newItalic); });
+      html += '</' + node.tagName.toLowerCase() + '>';
+    }
+  }
+  Array.from(temp.childNodes).forEach(function (n) { processNode(n, false); });
+  el.innerHTML = html;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var charColor = getComputedStyle(span).color;
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { color: 'transparent' }, 0);
+    local.set(span, { background: charColor }, delay);
+    local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+function fireDemo(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  airForceReveal(el);
+}
+
+function fireAll() {
+  ['d1', 'd2', 'd3', 'd4'].forEach(function (id, i) {
+    setTimeout(function () { fireDemo(id); }, i * 1300);
+  });
+}
+
+document.querySelectorAll('.replay').forEach(function (btn) {
+  btn.addEventListener('click', function () { fireDemo(btn.dataset.target); });
+});
+document.getElementById('replay-all').addEventListener('click', fireAll);
+
+// Auto-fire on load, staggered
+window.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () { fireDemo('d1'); }, 400);
+  setTimeout(function () { fireDemo('d2'); }, 1700);
+  setTimeout(function () { fireDemo('d3'); }, 3000);
+  setTimeout(function () { fireDemo('d4'); }, 4300);
+});
+</script>
+</body>
+</html>

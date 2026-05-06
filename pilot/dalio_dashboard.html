@@ -1920,9 +1920,19 @@ function disarmSlide(slide) {
 // Content remains still; only bg + char animations move.
 // =====================================================================
 var currentSlide = 'hero';
+var pendingSwap = null;          // setTimeout id for the in-flight swap, if any
 
 function transitionTo(slideId) {
   if (slideId === currentSlide) return;
+
+  // Cancel any in-flight swap. Without this, fast scrollbar drags fire
+  // multiple transitionTo() calls inside the 230ms window and each one
+  // captures stale oldEl/newEl in its setTimeout closure → multiple
+  // slides end up with `.active` simultaneously and render overlapped.
+  if (pendingSwap !== null) {
+    clearTimeout(pendingSwap);
+    pendingSwap = null;
+  }
 
   var oldEl = document.querySelector('.slide.active');
   var newEl = document.querySelector('.slide[data-slide="' + slideId + '"]');
@@ -1938,9 +1948,13 @@ function transitionTo(slideId) {
   disarmSlide(oldEl);
 
   // PHASE 2 — only AFTER OUT is done: swap slides + roll bg + start IN
-  setTimeout(function () {
-    // Hide old (now fully invisible from AF out)
-    oldEl.classList.remove('active');
+  pendingSwap = setTimeout(function () {
+    pendingSwap = null;
+    // Defensive sweep — clear .active from EVERY slide except the target.
+    // Self-heals if state was corrupted by a previous race.
+    document.querySelectorAll('.slide.active').forEach(function (el) {
+      if (el !== newEl) el.classList.remove('active');
+    });
     // Show new — chars are already inline color:transparent so no flash
     newEl.classList.add('active');
     // Roll bg color (CSS 350ms transition)

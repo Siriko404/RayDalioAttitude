@@ -712,6 +712,71 @@ def build_html_head() -> str:
     return HTML_HEAD
 
 
+SECTION_IDS = ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7",
+               "2.1", "2.2", "2.3", "2.4", "2.5"]
+STAGES = ["A", "B", "C", "D"]
+
+
+def all_slide_ids() -> list[str]:
+    """Return all 51 slide IDs in scroll order. Format: hero/intro/1-N-A.../more."""
+    ids = ["hero", "intro"]
+    for section in SECTION_IDS:
+        section_dashed = section.replace(".", "-")  # "1.1" -> "1-1"
+        for stage in STAGES:
+            ids.append(f"{section_dashed}-{stage}")
+    ids.append("more")
+    assert len(ids) == 51, f"expected 51 slide IDs, got {len(ids)}"
+    return ids
+
+
+def build_header() -> str:
+    """Fixed-top header with mix-blend-mode brand mark + refresh-pill."""
+    return (
+        '<header class="brand-bar">\n'
+        '  <div>DALIO &nbsp;·&nbsp; ECONOMIC FRAMEWORK &nbsp;·&nbsp; v0.4</div>\n'
+        '  <div class="refresh-pill" id="refresh-pill"><span>live · refreshed 0s ago</span></div>\n'
+        '</header>\n'
+    )
+
+
+def build_minimap(slide_ids: list[str]) -> str:
+    """Fixed right-edge column of dots, mix-blend-mode auto-flip.
+
+    First dot has class="active". Each <a> has href="#slot-{id}", data-slide,
+    and a human-readable data-label (uppercase, with dots and slashes for sections).
+    """
+    def label_for(sid: str) -> str:
+        # "hero" -> "HERO"; "intro" -> "INTRO"; "more" -> "MORE"
+        # "1-4-A" -> "1.4 / A"; "2-5-D" -> "2.5 / D"
+        if sid in ("hero", "intro", "more"):
+            return sid.upper()
+        # Format: M-N-X -> M.N / X
+        parts = sid.split("-")
+        if len(parts) == 3:
+            return f"{parts[0]}.{parts[1]} / {parts[2]}"
+        return sid.upper()
+
+    dots = []
+    for i, sid in enumerate(slide_ids):
+        active_class = ' class="active"' if i == 0 else ''
+        dots.append(
+            f'  <a href="#slot-{sid}" data-label="{label_for(sid)}" '
+            f'data-slide="{sid}"{active_class}></a>'
+        )
+    dots_html = "\n".join(dots)
+    return f'<nav class="minimap" aria-label="page navigation">\n{dots_html}\n</nav>\n'
+
+
+def build_footer() -> str:
+    """Fixed bottom footer with brand + GitHub link + version stamp."""
+    return (
+        '<footer>\n'
+        '  <div>DALIO &nbsp;·&nbsp; <a href="#">/raydalioattitude</a></div>\n'
+        '  <div>v0.4 &nbsp;·&nbsp; 2026-05</div>\n'
+        '</footer>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

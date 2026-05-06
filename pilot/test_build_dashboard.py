@@ -56,5 +56,59 @@ class TestParseResearchFile(unittest.TestCase):
         self.assertTrue(len(data["section_7"]) > 100, "§7 should have substantial content")
 
 
+class TestChromeGenerators(unittest.TestCase):
+    def test_all_slide_ids_returns_51(self):
+        """all_slide_ids must return 51 IDs in scroll order: hero, intro, 12 sections × 4 stages, more."""
+        import build_dashboard
+        ids = build_dashboard.all_slide_ids()
+        self.assertEqual(len(ids), 51)
+        self.assertEqual(ids[0], "hero")
+        self.assertEqual(ids[1], "intro")
+        self.assertEqual(ids[2], "1-1-A")
+        self.assertEqual(ids[5], "1-1-D")
+        self.assertEqual(ids[6], "1-2-A")
+        self.assertEqual(ids[-1], "more")
+        self.assertEqual(ids[-2], "2-5-D")
+
+    def test_build_header(self):
+        """Header uses class='brand-bar' on <header> tag with brand mark."""
+        import build_dashboard
+        h = build_dashboard.build_header()
+        self.assertIn("DALIO", h)
+        self.assertIn("ECONOMIC FRAMEWORK", h)
+        self.assertIn('class="brand-bar"', h)
+        self.assertIn("<header", h)
+
+    def test_build_minimap_has_51_dots(self):
+        """Minimap has one <a> dot per slide_id with href, data-label, data-slide. First is active."""
+        import build_dashboard
+        slide_ids = build_dashboard.all_slide_ids()
+        m = build_dashboard.build_minimap(slide_ids)
+        # Count <a> tags inside <nav class="minimap">
+        # CSS selector pattern: nav.minimap a (no class on <a>)
+        self.assertEqual(m.count("<a "), 51)
+        # First should have class="active"
+        self.assertIn('class="active"', m)
+        # Each slide_id should appear in data-slide
+        for sid in slide_ids:
+            self.assertIn(f'data-slide="{sid}"', m)
+        # Each href should be #slot-{sid}
+        for sid in slide_ids:
+            self.assertIn(f'href="#slot-{sid}"', m)
+        # Sample data-label format
+        self.assertIn('data-label="HERO"', m)
+        self.assertIn('data-label="1.4 / C"', m)
+        self.assertIn('data-label="2.5 / D"', m)
+
+    def test_build_footer(self):
+        """Footer plain tag with brand + GitHub link + version."""
+        import build_dashboard
+        f = build_dashboard.build_footer()
+        self.assertIn("DALIO", f)
+        self.assertIn("<footer", f)
+        self.assertIn("</footer>", f)
+        self.assertIn("/raydalioattitude", f.lower())
+
+
 if __name__ == "__main__":
     unittest.main()

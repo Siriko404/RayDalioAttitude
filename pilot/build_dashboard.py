@@ -1457,8 +1457,11 @@ def assemble_html() -> str:
 
 
 def main() -> None:
-    """Build entry point. Will be filled in subsequent tasks."""
-    pass
+    """Generate pilot/dalio_dashboard.html from research/01-12 + dashboard_data.py."""
+    html = assemble_html()
+    OUTPUT_PATH.write_text(html, encoding="utf-8")
+    line_count = html.count("\n")
+    print(f"Wrote {OUTPUT_PATH} ({len(html):,} bytes, {line_count:,} lines)")
 
 
 if __name__ == "__main__":

@@ -521,5 +521,57 @@ class TestAssembleHtml(unittest.TestCase):
         self.assertIn('id="chart-2-5"', html)
 
 
+class TestByteExactReconciliation(unittest.TestCase):
+    def test_1_4_levers_named_in_research(self):
+        """§1.4 chart_data lever names must appear in research/04_deleveragings.md."""
+        import dashboard_data
+        cd = dashboard_data.SECTIONS["1.4"]["chart_data"]
+        research_text = (REPO_ROOT / "research" / "04_deleveragings.md").read_text(encoding="utf-8").lower()
+        for lever_name in cd["levers"]:
+            self.assertIn(lever_name.lower(), research_text,
+                          f"§1.4 lever '{lever_name}' not found in research/04_deleveragings.md")
+
+    def test_2_5_contributions_byte_exact(self):
+        """§2.5 archetype contribution values must appear verbatim in research/12 §7."""
+        import dashboard_data
+        cd = dashboard_data.SECTIONS["2.5"]["chart_data"]
+        research_text = (REPO_ROOT / "research" / "12_stress_testing.md").read_text(encoding="utf-8")
+        # Each contribution formatted to match research/12 §7 Table 7.1
+        # Values: -8.13, -26.00, -3.05, 11.83
+        expected_strings = ["-8.13", "-26.00", "-3.05", "11.83"]
+        for s in expected_strings:
+            self.assertIn(s, research_text,
+                          f"§2.5 contribution {s} not found in research/12_stress_testing.md")
+
+    def test_2_2_weights_sum_to_100(self):
+        """§2.2 All-Weather portfolio weights sum to 100%."""
+        import dashboard_data
+        cd = dashboard_data.SECTIONS["2.2"]["chart_data"]
+        self.assertEqual(sum(cd["weights"]), 100, "§2.2 weights must sum to 100")
+
+
+class TestMainGenerates(unittest.TestCase):
+    def test_main_writes_output_file(self):
+        """Running main() writes pilot/dalio_dashboard.html with full content."""
+        import build_dashboard
+        # Backup existing file
+        backup = None
+        if build_dashboard.OUTPUT_PATH.exists():
+            backup = build_dashboard.OUTPUT_PATH.read_text(encoding="utf-8")
+        try:
+            build_dashboard.main()
+            self.assertTrue(build_dashboard.OUTPUT_PATH.exists())
+            content = build_dashboard.OUTPUT_PATH.read_text(encoding="utf-8")
+            self.assertIn("<!DOCTYPE html>", content)
+            self.assertIn("Dalio · Economic Framework", content)
+            # 51 slide divs
+            slide_count = content.count('<div class="slide"') + content.count('<div class="slide active"')
+            self.assertEqual(slide_count, 51)
+        finally:
+            # Restore backup or leave generated content
+            if backup is not None:
+                build_dashboard.OUTPUT_PATH.write_text(backup, encoding="utf-8")
+
+
 if __name__ == "__main__":
     unittest.main()

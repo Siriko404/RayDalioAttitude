@@ -37,7 +37,7 @@
 
 html, body {
   font-family: 'Source Serif 4', 'Times New Roman', Times, serif;
-  font-weight: 200;       /* DEFAULT: very thin — 90% of fonts */
+  font-weight: 300;       /* DEFAULT: thin but readable. Was 200 — too faint for pro finance. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
@@ -82,7 +82,7 @@ body { overflow-x: hidden; }
   display: none;
   flex-direction: column;
   justify-content: center;
-  padding: 0 8vw;
+  padding: 76px 8vw 56px;        /* leave room for header (top) + footer */
   color: var(--paper);
   pointer-events: none;
   overflow: hidden;
@@ -98,6 +98,8 @@ body { overflow-x: hidden; }
   max-width: 1080px;
   margin: 0 auto;
   position: relative;
+  /* No max-height/overflow here — slide itself has overflow:hidden.
+     Letting slide-inner size naturally avoids clip-mid-content artifacts. */
 }
 
 /* =============================================================
@@ -127,12 +129,12 @@ body { overflow-x: hidden; }
   align-items: center;
   gap: 14px;
   font-family: 'DM Mono', ui-monospace, Menlo, monospace;
-  font-weight: 400;       /* mono naturally has more density; 400 is "thin" for it */
+  font-weight: 500;       /* readable density on dark + light bg */
   font-size: 11px;
   letter-spacing: 4px;
   text-transform: uppercase;
-  margin-bottom: 36px;
-  opacity: 0.75;
+  margin-bottom: 28px;
+  opacity: 0.85;
 }
 .eyebrow::before {
   content: '';
@@ -152,115 +154,115 @@ body { overflow-x: hidden; }
   flex-shrink: 0;
 }
 
-/* H1 — hero only · the ONE bold moment · weight 800 (vintage) */
+/* H1 — hero only · the ONE bold moment · weight 700 (less artistic, professional) */
 h1 {
   font-family: 'Source Serif 4', serif;
-  font-weight: 800;
-  font-size: clamp(72px, 11vw, 180px);
-  letter-spacing: -3.5px;
-  line-height: 0.92;
-  margin-bottom: 36px;
+  font-weight: 700;
+  font-size: clamp(56px, 9vw, 132px);
+  letter-spacing: -2.5px;
+  line-height: 0.96;
+  margin-bottom: 32px;
 }
 h1 em {
-  font-weight: 200;
+  font-weight: 300;
   font-style: italic;
-  letter-spacing: -2.5px;
+  letter-spacing: -1.6px;
 }
 
-/* H2 — section · MASSIVE italic THIN · vintage editorial */
+/* H2 — section · italic THIN, sized down for fit */
 h2 {
   font-family: 'Source Serif 4', serif;
-  font-weight: 200;
+  font-weight: 300;
   font-style: italic;
-  font-size: clamp(52px, 7.5vw, 104px);
-  letter-spacing: -1.6px;
-  line-height: 1.0;
-  margin-bottom: 32px;
+  font-size: clamp(40px, 5.6vw, 76px);
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+  margin-bottom: 28px;
   position: relative;
-  padding-top: 28px;
+  padding-top: 24px;
 }
 h2::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 80px;
+  width: 64px;
   height: 1px;
   background: currentColor;
 }
-h2 em { font-style: normal; font-weight: 700; }
+h2 em { font-style: normal; font-weight: 600; }
 
-/* H3 — stage heading · large italic THIN */
+/* H3 — stage heading · italic, mid-thin */
 h3 {
   font-family: 'Source Serif 4', serif;
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
-  font-size: clamp(28px, 3.4vw, 52px);
-  letter-spacing: -0.8px;
-  line-height: 1.12;
-  margin-bottom: 24px;
+  font-size: clamp(24px, 2.8vw, 38px);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin-bottom: 22px;
   position: relative;
-  padding-top: 22px;
-  max-width: 920px;
+  padding-top: 20px;
+  max-width: 880px;
 }
 h3::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 40px;
+  width: 36px;
   height: 1px;
   background: currentColor;
 }
 
-/* Display italic — questions, dramatic statements · THIN italic, large */
+/* Display italic — questions, dramatic statements · italic, sized for fit */
 .display-italic {
   font-family: 'Source Serif 4', serif;
   font-style: italic;
-  font-weight: 200;
-  font-size: clamp(40px, 6vw, 88px);
-  letter-spacing: -1.2px;
-  line-height: 1.1;
-  max-width: 980px;
+  font-weight: 300;
+  font-size: clamp(34px, 4.6vw, 64px);
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  max-width: 920px;
 }
 .display-italic em {
   font-weight: 600;
   font-style: italic;
 }
 
-/* Body — thin */
+/* Body — readable thin */
 .body-text {
-  font-size: clamp(17px, 1.4vw, 20px);
-  font-weight: 200;
-  line-height: 1.75;
-  max-width: 660px;
+  font-size: clamp(16px, 1.25vw, 18px);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 640px;
 }
-.body-text em { font-style: italic; font-weight: 400; }
-.body-text + .body-text { margin-top: 22px; }
+.body-text em { font-style: italic; font-weight: 500; }
+.body-text + .body-text { margin-top: 20px; }
 
-/* Subtitle — italic 200, bigger but still thin */
+/* Subtitle — italic, slightly heavier than body for hierarchy */
 .subtitle {
   font-family: 'Source Serif 4', serif;
   font-style: italic;
-  font-weight: 200;
-  font-size: clamp(20px, 1.8vw, 28px);
-  line-height: 1.5;
-  max-width: 760px;
-  opacity: 0.82;
+  font-weight: 300;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.55;
+  max-width: 720px;
+  opacity: 1;        /* full opacity for contrast — was 0.82 (too faint) */
 }
 
-/* Citation — italic 200, smaller, with rule */
+/* Citation — italic, readable */
 .citation {
   font-family: 'Source Serif 4', serif;
   font-style: italic;
-  font-weight: 200;
-  font-size: clamp(15px, 1.2vw, 17px);
+  font-weight: 300;
+  font-size: clamp(14px, 1.05vw, 16px);
   line-height: 1.6;
-  max-width: 600px;
-  margin-top: 36px;
-  padding-top: 18px;
+  max-width: 580px;
+  margin-top: 28px;
+  padding-top: 16px;
   position: relative;
-  opacity: 0.85;
+  opacity: 0.95;     /* was 0.85 */
 }
 .citation::before {
   content: '';
@@ -415,31 +417,33 @@ nav.minimap a.active {
 }
 
 /* =============================================================
-   §1.4 — section-tag + stage-counter
+   §1.4 — section-tag + stage-counter (sits between header + content)
    ============================================================= */
 .section-tag {
   position: absolute;
-  top: 56px;
+  top: 64px;
   left: 8vw;
   font-family: 'DM Mono', ui-monospace, monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 10px;
   letter-spacing: 4px;
   text-transform: uppercase;
-  opacity: 0.55;
+  opacity: 0.75;
+  z-index: 7;
 }
-.section-tag .num { font-weight: 500; opacity: 1; }
+.section-tag .num { font-weight: 600; opacity: 1; }
 
 .stage-counter {
   position: absolute;
-  top: 56px;
+  top: 64px;
   right: 8vw;
   font-family: 'DM Mono', ui-monospace, monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 10px;
   letter-spacing: 3px;
-  opacity: 0.45;
+  opacity: 0.65;
   text-transform: uppercase;
+  z-index: 7;
 }
 
 /* =============================================================
@@ -452,50 +456,50 @@ nav.minimap a.active {
 }
 .lever {
   display: grid;
-  grid-template-columns: 56px 1fr auto;
+  grid-template-columns: 50px 1fr auto;
   align-items: baseline;
-  gap: 28px;
-  padding: 22px 0;
+  gap: 24px;
+  padding: 18px 0;
   border-bottom: 1px solid currentColor;
-  opacity: 0.65;
-  transition: opacity 220ms;
+  opacity: 0.95;
+  transition: opacity 220ms, padding-left 220ms;
 }
 .lever:last-child { border-bottom: none; }
-.lever:hover { opacity: 1; }
+.lever:hover { opacity: 1; padding-left: 8px; }
 .lever .num {
   font-family: 'DM Mono', ui-monospace, monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 11px;
   letter-spacing: 2px;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 .lever .body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .lever .name {
   font-family: 'Source Serif 4', serif;
-  font-weight: 400;
+  font-weight: 500;
   font-style: italic;
-  font-size: 28px;
+  font-size: clamp(20px, 2vw, 26px);
   letter-spacing: -0.4px;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 .lever .desc {
   font-style: italic;
-  font-weight: 200;
-  font-size: 15px;
+  font-weight: 300;
+  font-size: 14px;
   line-height: 1.55;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 .lever .effect {
   font-family: 'DM Mono', ui-monospace, monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.85;
   white-space: nowrap;
 }
 
@@ -504,9 +508,9 @@ nav.minimap a.active {
    ============================================================= */
 .chart-shell {
   width: 100%;
-  height: clamp(380px, 56vh, 560px);
+  height: clamp(320px, 50vh, 480px);   /* tighter to ensure fit */
   position: relative;
-  margin-top: 24px;
+  margin-top: 18px;
 }
 .chart-shell .echart {
   position: absolute;
@@ -526,9 +530,9 @@ nav.minimap a.active {
    MATH + VERDICT
    ============================================================= */
 .math-line {
-  font-size: 18px;
-  margin: 14px 0;
-  padding-left: 28px;
+  font-size: 17px;
+  margin: 10px 0;
+  padding-left: 26px;
   position: relative;
 }
 .math-line::before {
@@ -544,32 +548,32 @@ nav.minimap a.active {
 }
 
 .verdict {
-  margin-top: 56px;
-  padding: 40px 0 32px;
+  margin-top: 36px;
+  padding: 28px 0 24px;
   border-top: 1px solid currentColor;
   border-bottom: 1px solid currentColor;
   text-align: center;
 }
 .verdict .verdict-label {
   font-family: 'DM Mono', ui-monospace, monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 10px;
   letter-spacing: 4px;
   text-transform: uppercase;
-  margin-bottom: 18px;
-  opacity: 0.55;
+  margin-bottom: 14px;
+  opacity: 0.7;
 }
 .verdict .verdict-text {
   font-family: 'Source Serif 4', serif;
-  font-weight: 200;
+  font-weight: 300;
   font-style: italic;
-  font-size: clamp(36px, 5vw, 72px);
-  letter-spacing: -1.2px;
-  line-height: 1.05;
+  font-size: clamp(28px, 3.6vw, 48px);
+  letter-spacing: -0.7px;
+  line-height: 1.15;
 }
 .verdict .verdict-text em {
   font-style: italic;
-  font-weight: 700;     /* the ONE heavy emphasis on this slide */
+  font-weight: 600;     /* heaviest emphasis, but not screaming */
 }
 
 /* =============================================================
@@ -579,37 +583,37 @@ nav.minimap a.active {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  margin-top: 48px;
+  margin-top: 36px;
   border-top: 1px solid currentColor;
 }
 .toc-item {
-  padding: 22px 18px 22px 0;
+  padding: 14px 14px 14px 0;
   border-bottom: 1px solid currentColor;
   border-right: 1px solid currentColor;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  opacity: 0.7;
+  gap: 4px;
+  opacity: 0.85;
   transition: opacity 220ms;
 }
 .toc-item:hover { opacity: 1; }
 .toc-item:nth-child(4n) { border-right: none; padding-right: 0; }
 .toc-item .num {
   font-family: 'DM Mono', ui-monospace, monospace;
-  font-weight: 400;
+  font-weight: 500;
   font-size: 10px;
   letter-spacing: 2px;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 .toc-item .ttl {
   font-family: 'Source Serif 4', serif;
-  font-weight: 300;
-  font-size: 17px;
+  font-weight: 400;
+  font-size: 15px;
   letter-spacing: -0.2px;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .toc-item .ttl em {
-  font-weight: 200;
+  font-weight: 300;
   font-style: italic;
 }
 
@@ -782,11 +786,11 @@ footer a {
     <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
     <div class="slide-inner">
       <h3 class="reveal-target" data-text="The beautiful gate: nominal growth must exceed nominal interest."></h3>
-      <div class="fade-target" style="margin-top: 8px;">
+      <div class="fade-target" style="margin-top: 4px;">
         <div class="math-line" data-step="">$$G_t \;=\; \mathrm{NGDP}_{yoy,t} \;-\; r_t$$</div>
-        <p class="body-text" style="margin-top: 28px;">If $G_t > 0$ and $\Delta D_t < 0$, the deleveraging is <em>beautiful</em>. If $G_t < 0$ and $\Delta D_t > 0$, it is <em>ugly deflationary</em>.</p>
-        <div style="margin-top: 40px;">
-          <div class="eyebrow" style="margin-bottom: 18px;">U.S. 1930–32 · WORKED</div>
+        <p class="body-text" style="margin-top: 14px;">If $G_t > 0$ and $\Delta D_t < 0$, the deleveraging is <em>beautiful</em>. If $G_t < 0$ and $\Delta D_t > 0$, it is <em>ugly deflationary</em>.</p>
+        <div style="margin-top: 22px;">
+          <div class="eyebrow" style="margin-bottom: 12px;">U.S. 1930–32 · WORKED</div>
           <div class="math-line" data-step="1">$G = -17.0\% - 3.4\% = -20.4\,\mathrm{pp}$</div>
           <div class="math-line" data-step="2">$\Delta D = +97\,\mathrm{pp}$ &nbsp; (DebtGDP $155\% \to 252\%$)</div>
           <div class="math-line" data-step="3">$\pi = 0.4\% + 0.4\% = 0.8\%$ — print intensity stayed low</div>
@@ -857,6 +861,10 @@ function airForceReveal(el, opts) {
   var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.83;
   var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.18;
 
+  // Capture parent text color BEFORE we mutate innerHTML.  Once spans are
+  // wrapped with inline color:transparent the computed style would be wrong.
+  var parentColor = getComputedStyle(el).color;
+
   var raw = el.dataset.text || el.innerHTML;
   el.dataset.text = raw;
 
@@ -876,7 +884,10 @@ function airForceReveal(el, opts) {
         if (c === ' ') {
           html += '&nbsp;';
         } else {
-          html += '<span class="reveal-ch"' + (italic ? ' style="font-style:italic"' : '') + '>' + escapeHtml(c) + '</span>';
+          // Pre-set inline color:transparent so chars are NEVER painted at
+          // their default color before GSAP runs (fixes flash bug 1).
+          var styleAttr = ' style="color:transparent' + (italic ? ';font-style:italic' : '') + '"';
+          html += '<span class="reveal-ch"' + styleAttr + '>' + escapeHtml(c) + '</span>';
         }
       }
     } else if (node.nodeType === 1) {
@@ -898,11 +909,11 @@ function airForceReveal(el, opts) {
   var spans = el.querySelectorAll('.reveal-ch');
   var tl = gsap.timeline();
   spans.forEach(function (span) {
-    var charColor = getComputedStyle(span).color;
     var local = gsap.timeline();
     var delay = Math.random() * (maxDelay - minDelay) + minDelay;
-    local.set(span, { color: 'transparent' }, 0);
-    local.set(span, { background: charColor }, delay);
+    // Block-fill phase: bg = captured parent color, briefly visible block
+    local.set(span, { background: parentColor }, delay);
+    // Resolve phase: bg transparent + clearProps lets parent color show
     local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
     tl.add(local, 0);
   });
@@ -921,12 +932,15 @@ function airForceRevealOut(el, opts) {
   var spans = el.querySelectorAll('.reveal-ch');
   if (!spans.length) return null;
 
+  // Capture color from element itself (parent of spans) — chars are currently
+  // visible at this color so use it for the block-fill out
+  var parentColor = getComputedStyle(el).color;
+
   var tl = gsap.timeline();
   spans.forEach(function (span) {
-    var charColor = getComputedStyle(span).color;
     var local = gsap.timeline();
     var delay = Math.random() * (maxDelay - minDelay) + minDelay;
-    local.set(span, { background: charColor, color: 'transparent' }, delay);
+    local.set(span, { background: parentColor, color: 'transparent' }, delay);
     local.set(span, { background: 'transparent' }, delay + holdDuration);
     tl.add(local, 0);
   });
@@ -983,22 +997,26 @@ function transitionTo(slideId) {
   var stage = document.getElementById('stage');
   var newBg = newEl.dataset.bg;
 
-  // BG color transition fires immediately (CSS handles 700ms cubic roll)
-  if (newBg === 'light') stage.classList.add('bg-light');
-  else stage.classList.remove('bg-light');
-
-  // AF reveal-out on outgoing slide (~440ms)
-  disarmSlide(oldEl);
-
-  // Update currentSlide synchronously so duplicate observer-fires no-op
+  // Mark synchronously so duplicate observer fires no-op
   currentSlide = slideId;
 
-  // After AF out completes: hide old, show new, AF reveal-in on new
+  // PHASE 1 — AF reveal-OUT fully runs to completion on outgoing chars
+  disarmSlide(oldEl);
+
+  // PHASE 2 — only AFTER OUT is done: swap slides + roll bg + start IN
   setTimeout(function () {
+    // Hide old (now fully invisible from AF out)
     oldEl.classList.remove('active');
+    // Show new — chars are already inline color:transparent so no flash
     newEl.classList.add('active');
-    armSlide(newEl);
-  }, 440);
+    // Roll bg color (CSS 700ms transition)
+    if (newBg === 'light') stage.classList.add('bg-light');
+    else stage.classList.remove('bg-light');
+    // Defer AF in by one frame so layout settles + bg roll has started
+    requestAnimationFrame(function () {
+      armSlide(newEl);
+    });
+  }, 460);  // 440 AF-out duration + 20ms safety
 }
 
 // =====================================================================
@@ -1064,11 +1082,43 @@ function initChart() {
       splitLine: { lineStyle: { color: GRID_2 } },
     },
     series: [
-      // Pure white-opacity differentiation. Printing (the active lever) is brightest.
-      { name: 'austerity',      type: 'bar', stack: 'levers', data: [35, 15, 30], itemStyle: { color: 'rgba(255,255,255,0.18)' } },
-      { name: 'defaults',       type: 'bar', stack: 'levers', data: [55, 40, 55], itemStyle: { color: 'rgba(255,255,255,0.45)' } },
-      { name: 'printing',       type: 'bar', stack: 'levers', data: [10, 40, 10], itemStyle: { color: 'rgba(255,255,255,1.0)' } },
-      { name: 'redistribution', type: 'bar', stack: 'levers', data: [ 0,  5,  5], itemStyle: { color: 'rgba(255,255,255,0.30)' } },
+      // PATTERN-DIFFERENTIATED (no color used). Each series gets a distinct
+      // chic minimal pattern — diagonal lines / vertical lines / solid / dots.
+      { name: 'austerity',      type: 'bar', stack: 'levers', data: [35, 15, 30],
+        itemStyle: {
+          color: 'rgba(255,255,255,0.06)',
+          decal: {
+            symbol: 'rect', color: 'rgba(255,255,255,0.55)',
+            rotation: -Math.PI / 4,
+            dashArrayX: [1, 7], dashArrayY: [4, 0],
+            symbolSize: 1
+          }
+        }
+      },
+      { name: 'defaults',       type: 'bar', stack: 'levers', data: [55, 40, 55],
+        itemStyle: {
+          color: 'rgba(255,255,255,0.08)',
+          decal: {
+            symbol: 'rect', color: 'rgba(255,255,255,0.78)',
+            rotation: 0,
+            dashArrayX: [1, 4], dashArrayY: [1, 0],
+            symbolSize: 1
+          }
+        }
+      },
+      { name: 'printing',       type: 'bar', stack: 'levers', data: [10, 40, 10],
+        itemStyle: { color: 'rgba(255,255,255,1.0)' }     // solid — the dominant lever
+      },
+      { name: 'redistribution', type: 'bar', stack: 'levers', data: [ 0,  5,  5],
+        itemStyle: {
+          color: 'rgba(255,255,255,0.08)',
+          decal: {
+            symbol: 'circle', color: 'rgba(255,255,255,0.7)',
+            dashArrayX: [4, 4], dashArrayY: [4, 4],
+            symbolSize: 0.45
+          }
+        }
+      },
     ],
     animationDuration: 1100,
     animationEasing: 'cubicOut',

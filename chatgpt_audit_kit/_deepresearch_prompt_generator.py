@@ -3,29 +3,32 @@ Generator: combines `_deepresearch_prompt_template.md` and
 `_deepresearch_prompt_registry.py` into per-topic prompt files at
 `chatgpt_audit_kit/_deepresearch_prompt_{seq}_{slug}.md`.
 
+CONTENT-FREE BY DESIGN. The generator only substitutes structural
+identifiers (id, title, seq, slug) and a SUBSECTION_MAP that lists
+all 12 subsections with the current one marked. It does NOT inject
+named framework components, expected historical cases, Tier-1 source
+allowlists, or any content that would bias the deep-research model.
+The model MUST discover Dalio's framework structure by primary reading.
+
 Run:
     python chatgpt_audit_kit/_deepresearch_prompt_generator.py [seq]
 
 If `seq` is omitted, generates all 12. If given (e.g., `04`), generates
 that topic only.
 
-Slot syntax in the template (chosen as `<<<NAME>>>` to avoid collision
-with the curly-brace `{NAME}` mentions in instruction prose):
-    <<<ID>>>, <<<TITLE>>>, <<<SEQ>>>, <<<slug>>>,
-    <<<SCOPE_IN>>>, <<<SCOPE_OUT>>>,
-    <<<NAMED_COMPONENTS_BLOCK>>>,
-    <<<EXPECTED_CASES_BLOCK>>>, <<<EXPECTED_CASES_MIN>>>,
-    <<<TIER1_SOURCES_BLOCK>>>, <<<TIER1_SOURCES_MIN>>>.
+Slot syntax (chosen as `<<<NAME>>>` to avoid collision with the curly-
+brace `{NAME}` mentions in instruction prose):
+    <<<ID>>>             — registry entry `id` (e.g., `1.4`)
+    <<<TITLE>>>          — registry entry `title`
+    <<<SEQ>>>            — registry entry `seq` (e.g., `04`)
+    <<<slug>>>           — registry entry `slug`
+    <<<SUBSECTION_MAP>>> — bulleted list of all 12 subsections; the
+                           current subsection is marked with `← THIS
+                           SUBSECTION`.
 
-The `<<<...BLOCK>>>` slots are formatted as Markdown bulleted lists by
-this generator from the registry's structured fields. All other slots
-are plain string substitutions.
-
-The template's `## Slot reference (for the generator)` section
-documents these slots with literal `<<<NAME>>>` tokens; this section is
-STRIPPED before substitution so its documentation tokens are not
-clobbered (and not copied into generated files, which would be
-overwritten on regenerate anyway).
+The template's `## Slot reference (for the generator)` section is
+STRIPPED before substitution (its literal `<<<NAME>>>` tokens document
+the slots and would otherwise be clobbered by str.replace).
 """
 
 from __future__ import annotations
@@ -39,39 +42,52 @@ from _deepresearch_prompt_registry import REGISTRY, all_seqs  # noqa: E402
 ROOT = Path(__file__).parent
 TEMPLATE_PATH = ROOT / "_deepresearch_prompt_template.md"
 
+SLOT_REFERENCE_MARKER = "## Slot reference (for the generator)"
 
-def _format_named_components(components: list[dict]) -> str:
-    """Render named_components as a Markdown bullet list. The template's
-    slot line has no leading whitespace (the block self-indents). First
-    line starts at column 2 to match the surrounding section text; sub-
-    lines align under the bullet text."""
-    if not components:
-        return "  (no distinct framework components named for this topic)"
+
+def _strip_slot_reference_section(template_text: str) -> str:
+    """Strip the `## Slot reference (for the generator)` section from
+    the template before substitution. The section uses literal
+    `<<<NAME>>>` tokens to document the slots and would otherwise be
+    clobbered by str.replace. Generated files do not need it (they are
+    auto-overwritten on regenerate)."""
+    if SLOT_REFERENCE_MARKER not in template_text:
+        return template_text
+    head = template_text.split(SLOT_REFERENCE_MARKER, 1)[0]
+    head = head.rstrip()
+    if head.endswith("---"):
+        head = head[:-3].rstrip()
+    return head + "\n"
+
+
+def _build_subsection_map(current_seq: str) -> str:
+    """Render the 12-subsection map as an indented Markdown list with
+    the current subsection marked. Module 1 (seq 01-07) and Module 2
+    (seq 08-12) are separated by sub-headers. Indented 2 spaces to fit
+    under the SUBSECTION block of the prompt."""
     lines = []
-    for i, c in enumerate(components, start=1):
-        items_str = "; ".join(c["items"])
-        lines.append(f"  {i}. **{c['name']}** — items: {items_str}")
-        lines.append(f"     Dalio anchor: {c['dalio_anchor']}")
-        lines.append(f"     Operationalization required: {c['operationalization']}")
+    lines.append("  Module 1 — Economic & Market Principles:")
+    for seq in all_seqs():
+        e = REGISTRY[seq]
+        if e["seq"] >= "08":
+            continue
+        marker = "  ← THIS SUBSECTION" if seq == current_seq else ""
+        lines.append(f"    {e['id']}  {e['title']}{marker}")
+    lines.append("  Module 2 — Investment Principles:")
+    for seq in all_seqs():
+        e = REGISTRY[seq]
+        if e["seq"] < "08":
+            continue
+        marker = "  ← THIS SUBSECTION" if seq == current_seq else ""
+        lines.append(f"    {e['id']}  {e['title']}{marker}")
     return "\n".join(lines)
-
-
-def _format_cases(allowlist: list[str]) -> str:
-    """Render expected_cases.allowlist as a Markdown bullet list with
-    4-space leading indentation (one level deeper than section text)."""
-    return "\n".join(f"    - {c}" for c in allowlist)
-
-
-def _format_sources(allowlist: list[str]) -> str:
-    """Render tier1_sources.allowlist as a Markdown bullet list with
-    4-space leading indentation."""
-    return "\n".join(f"    - {s}" for s in allowlist)
 
 
 def _build_pilot_context_block(entry: dict) -> str:
     """Build the human-readable pilot-context block at the top of the
     generated file (above the PROMPT block). Replaces the placeholder
-    block in the template."""
+    block in the template. Project-wide failure modes only — no
+    per-topic content."""
     return (
         f"## Pilot context (for the human user, NOT included in the prompt)\n\n"
         f"- **Topic:** {entry['id']} {entry['title']}.\n"
@@ -79,78 +95,49 @@ def _build_pilot_context_block(entry: dict) -> str:
         f"into 3 operational artifacts (`README.md`, `dalio_dashboard.html`, "
         f"`dalio_model.xlsx`) for portfolio managers. The 12 research files "
         f"are the source material the artifacts are built from.\n"
-        f"- **Failure modes the prompt must prevent:** depth shortfall, "
-        f"hard-rule violation, framing/scope drift, hallucinated or weakly-"
-        f"sourced citations, surviving open questions in the output, "
-        f"abandoned framework components, paraphrase disguised as verbatim, "
-        f"manufactured words inside Dalio quote blocks.\n"
+        f"- **Content-free prompt:** The prompt does NOT name Dalio's "
+        f"framework components, list historical cases, or enumerate Tier-1 "
+        f"sources. The deep-research model MUST discover all of these by "
+        f"EXHAUSTIVE primary reading. Pre-filling content would bias the "
+        f"model toward a pre-existing summary instead of forcing real "
+        f"research.\n"
+        f"- **Failure modes the prompt must prevent (project-wide):** depth "
+        f"shortfall, hard-rule violation, framing/scope drift, hallucinated "
+        f"or weakly-sourced citations, surviving open questions in the "
+        f"output, abandoned framework components, paraphrase disguised as "
+        f"verbatim, manufactured words inside Dalio quote blocks.\n"
         f"- **Outcome standard:** COMPLETE + CONCLUSIVE. Every threshold, "
-        f"formula, decision rule, and worked-example number cited at point of "
-        f"use, with zero unresolved gaps in the output. Every named framework "
-        f"component operationalized per R17.\n"
-        f"- **Source priority (HARD):** Dalio's own public corpus is presumed "
-        f"gap-free at the framework level. The prompt forces exhaustive Dalio-"
-        f"corpus search BEFORE any non-Dalio source may be introduced. Non-"
-        f"Dalio sources are restricted to a TOP-quality allowlist and may only "
-        f"close real gaps after Dalio exhaustion is documented in §11.\n"
-        f"- **Quote audit:** Every `> **Dalio**` block in the output must have "
-        f"a byte-equal entry in the `_quote_audit.md` appendix per R21.\n"
+        f"formula, decision rule, and worked-example number cited at point "
+        f"of use, with zero unresolved gaps in the output. Every framework "
+        f"component the model DISCOVERS by primary reading must be "
+        f"operationalized per R17.\n"
+        f"- **Source priority (HARD):** Dalio's own public corpus is "
+        f"presumed gap-free at the framework level. The prompt forces "
+        f"exhaustive Dalio-corpus search BEFORE any non-Dalio source may be "
+        f"introduced. Every Tier-1 source MUST be searched and recorded in "
+        f"§11 search-trace per R20, even sources silent on the subsection.\n"
+        f"- **Quote audit:** Every `> **Dalio**` block in the output must "
+        f"have a byte-equal entry in the `_quote_audit.md` appendix per "
+        f"R21.\n"
     )
 
 
-SLOT_REFERENCE_MARKER = "## Slot reference (for the generator)"
-
-
-def _strip_slot_reference_section(template_text: str) -> str:
-    """Strip the trailing `## Slot reference (for the generator)`
-    section before slot substitution. The slot-reference section
-    documents the slots themselves using LITERAL `<<<NAME>>>` tokens
-    (e.g., a Markdown table cell `` `<<<ID>>>` ``); a global
-    str.replace would clobber those documentation tokens.
-
-    The slot-reference section is for template-editors only; generated
-    files do not need it (they are auto-overwritten on regenerate).
-    Removing it from the substitution input also keeps generated files
-    cleaner."""
-    if SLOT_REFERENCE_MARKER not in template_text:
-        return template_text
-    head = template_text.split(SLOT_REFERENCE_MARKER, 1)[0]
-    head = head.rstrip()
-    # Trim a single trailing horizontal rule that would have separated
-    # the slot-reference section from the rest of the document.
-    if head.endswith("---"):
-        head = head[:-3].rstrip()
-    return head + "\n"
-
-
 def _substitute_slots(template_text: str, entry: dict) -> str:
-    """Apply all slot substitutions for a single topic. Slot syntax is
-    `<<<NAME>>>` (chosen to avoid collision with example uses of `{ID}`
-    and similar inside instruction prose).
-
-    The template's `## Slot reference (for the generator)` section is
-    stripped FIRST so that the literal `<<<NAME>>>` tokens it uses to
-    document the slot syntax are not themselves substituted (which
-    would corrupt the table). Generated files do not retain the slot
-    reference (it is template-editor documentation only)."""
+    """Apply slot substitutions for a single topic. The template's
+    `## Slot reference (for the generator)` section is stripped FIRST
+    so that the literal `<<<NAME>>>` tokens it uses to document the
+    slot syntax are not themselves substituted (which would corrupt
+    the table). Generated files do not retain the slot reference (it
+    is template-editor documentation only)."""
     template_text = _strip_slot_reference_section(template_text)
-
-    named_block = _format_named_components(entry["named_components"])
-    cases_block = _format_cases(entry["expected_cases"]["allowlist"])
-    sources_block = _format_sources(entry["tier1_sources"]["allowlist"])
+    subsection_map = _build_subsection_map(entry["seq"])
 
     text = template_text
     text = text.replace("<<<ID>>>", entry["id"])
     text = text.replace("<<<TITLE>>>", entry["title"])
     text = text.replace("<<<SEQ>>>", entry["seq"])
     text = text.replace("<<<slug>>>", entry["slug"])
-    text = text.replace("<<<SCOPE_IN>>>", entry["scope_in"])
-    text = text.replace("<<<SCOPE_OUT>>>", entry["scope_out"])
-    text = text.replace("<<<NAMED_COMPONENTS_BLOCK>>>", named_block)
-    text = text.replace("<<<EXPECTED_CASES_BLOCK>>>", cases_block)
-    text = text.replace("<<<EXPECTED_CASES_MIN>>>", str(entry["expected_cases"]["min"]))
-    text = text.replace("<<<TIER1_SOURCES_BLOCK>>>", sources_block)
-    text = text.replace("<<<TIER1_SOURCES_MIN>>>", str(entry["tier1_sources"]["min"]))
+    text = text.replace("<<<SUBSECTION_MAP>>>", subsection_map)
 
     # Replace the pilot-context placeholder paragraph with the topic-
     # specific block.

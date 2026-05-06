@@ -1,0 +1,86 @@
+phase4(content-free pivot): strip all per-topic content from prompt system
+
+User principle: "you must not give any content to the research agent! content
+means anything that can bias the research towards what you know from memory.
+the deep research must have deep research principles and find and organize
+and report the workflow on its own!" Reaffirms original session directive
+("it must not give any content in the prompt").
+
+This pivot supersedes the v2 redteam audit's commit-2 fixes (registry tier-1
+restructure, chronic-case re-tagging, etc.) — the entire registry-content
+approach was operating within the WRONG framework. The v1 redteam audit
+operated within that wrong framework and so did the recent v2 redteam audit;
+both improved registry quality without questioning whether the registry
+should pre-fill content at all. User correction: it should not.
+
+Architecture pivot:
+
+REGISTRY (full rewrite to scope-free):
+  - DROPPED fields: named_components, expected_cases, topic_priority_sources,
+    scope_in, scope_out (all per-topic content)
+  - KEPT fields: seq, id, slug, title (4 structural identifiers per topic)
+  - Topic boundaries now enforced via SUBSECTION_MAP slot the generator
+    builds from all 12 (id, title) pairs
+
+GENERATOR (full rewrite, simpler):
+  - DROPPED format functions: _format_named_components, _format_cases,
+    _format_sources
+  - DROPPED slots: SCOPE_IN, SCOPE_OUT, NAMED_COMPONENTS_BLOCK,
+    EXPECTED_CASES_BLOCK, EXPECTED_CASES_MIN, TIER1_SOURCES_BLOCK,
+    TIER1_SOURCES_MIN
+  - KEPT slots: ID, TITLE, SEQ, slug
+  - ADDED slot: SUBSECTION_MAP (12-subsection map with current marked,
+    Module 1 / Module 2 split)
+  - Pilot-context block emphasizes content-free principle + project-wide
+    failure modes only
+
+TEMPLATE (surgical edits):
+  - Top intro: added "Content-free by design" paragraph
+  - SUBSECTION block: replaced IN-SCOPE/OUT-OF-SCOPE with a methodological
+    statement + SUBSECTION MAP + boundary rule + DISCOVERY DIRECTIVE
+  - DROPPED: NAMED FRAMEWORK COMPONENTS (TOPIC-BOUND) section
+  - DROPPED: EXPECTED HISTORICAL CASE SET (TOPIC-BOUND) section
+  - DROPPED: EXPECTED DALIO TIER-1 SOURCE COVERAGE (TOPIC-BOUND) section
+  - Cascade Tier 1: emphasized "ALL 7 works MUST be searched and recorded
+    in §11 search-trace" — no per-topic subset
+  - R17 reframed: "FRAMEWORK-COMPONENT DISCOVERY + COVERAGE" — model MUST
+    discover components by primary reading; naming a component from prior
+    knowledge without a verbatim citation = rejection
+  - R20 reframed: "DALIO CORPUS EXHAUSTIVE SEARCH + SEARCH TRACE" — every
+    Tier-1 work must appear as its own §11 search-trace row; no per-topic
+    Tier-1 subset
+  - R23 reframed: "CASE DISCOVERY + WORKED-EXAMPLE COVERAGE" — model MUST
+    discover cases by reading Dalio case panels; no expected-case allowlist;
+    §7 covers ALL discovered cases; §11 includes a CASE COMPLETENESS row
+  - Schema §7 line: "must cover ALL cases the model discovers"
+  - REJECTION TRIGGERS: dropped slot references; added "naming X from prior
+    knowledge without verbatim cite = rejection" for R17/R20/R23
+  - Slot reference table: simplified to 5 slots (ID, TITLE, SEQ, slug,
+    SUBSECTION_MAP)
+
+Regenerated all 12 prompt files. Verification:
+  - 0 `<<<` slot leakage in any generated file
+  - 0 content tokens (UDEF/BDEL/UINF/four levers/specific cases/etc.) in
+    any generated file
+  - SUBSECTION MAP renders cleanly with module split + current-marker
+  - Cascade Tier 1 source list retained (those are infrastructure: WHERE
+    to search, not WHAT to find)
+  - R25 book-attribution sanity-check title list retained (disambiguates
+    commonly-conflated Dalio works)
+
+Audit findings re-evaluation:
+  - C1, M4, C3, M5, m2, M3 — addressed in commit 545899e (still valid)
+  - C2, M1, M6, M7, m1, m4, m5 — irrelevant under content-free architecture
+    (no per-topic allowlists exist to be contaminated)
+  - M2 — irrelevant (per-topic pilot context was per-topic content; now
+    project-wide only)
+  - C4 — still applies; verification scripts still missing for R17-R25.
+    Will address in commit 3.
+
+Files changed:
+  - chatgpt_audit_kit/_deepresearch_prompt_registry.py   (760 → 86 lines)
+  - chatgpt_audit_kit/_deepresearch_prompt_generator.py  (172 → 173 lines)
+  - chatgpt_audit_kit/_deepresearch_prompt_template.md   (~520 → 589 lines)
+  - chatgpt_audit_kit/_deepresearch_prompt_*.md (× 12)   (regenerated)
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

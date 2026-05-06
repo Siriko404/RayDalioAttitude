@@ -2,7 +2,9 @@
 
 > **Purpose (for the human user, NOT for the prompt itself).**
 >
-> This file is the engineered prompt for ChatGPT Pro Deep Research producing `research_v2/10_alpha_portable_alpha.md`. It is generated from `_deepresearch_prompt_template.md` + per-topic context in `_deepresearch_prompt_registry.py` via the generator script. Edit the template or registry, not this file (changes here are overwritten on regenerate).
+> This file is the engineered prompt for ChatGPT Pro Deep Research producing `research_v2/10_alpha_portable_alpha.md`. It is generated from `_deepresearch_prompt_template.md` + per-topic identifiers in `_deepresearch_prompt_registry.py` via the generator script. Edit the template or registry, not this file (changes here are overwritten on regenerate).
+>
+> **Content-free by design.** This prompt does NOT pre-fill Dalio's framework components, list historical cases, name expected Tier-1 sources, or summarize what Dalio writes about the subsection. It is METHOD-directive only — the deep-research model MUST discover Dalio's framework structure (named components, typologies, historical cases, source coverage) by EXHAUSTIVE primary reading. Pre-filling content would bias the model toward an existing summary instead of forcing real research.
 >
 > **Hard requirement (do not violate).** This is a deep-research instruction document. The prompt block below states what must be researched and how the output must be structured. The prompt MUST NOT contain pre-filled content, sample answers, illustrative quotes from Dalio, or any text the deep-research model could copy as-if its own analysis. The prompt instructs; it does not author.
 
@@ -12,9 +14,10 @@
 
 - **Topic:** 2.3 Alpha Generation & Portable Alpha.
 - **Project:** consolidates Ray Dalio's investment + macro frameworks into 3 operational artifacts (`README.md`, `dalio_dashboard.html`, `dalio_model.xlsx`) for portfolio managers. The 12 research files are the source material the artifacts are built from.
-- **Failure modes the prompt must prevent:** depth shortfall, hard-rule violation, framing/scope drift, hallucinated or weakly-sourced citations, surviving open questions in the output, abandoned framework components, paraphrase disguised as verbatim, manufactured words inside Dalio quote blocks.
-- **Outcome standard:** COMPLETE + CONCLUSIVE. Every threshold, formula, decision rule, and worked-example number cited at point of use, with zero unresolved gaps in the output. Every named framework component operationalized per R17.
-- **Source priority (HARD):** Dalio's own public corpus is presumed gap-free at the framework level. The prompt forces exhaustive Dalio-corpus search BEFORE any non-Dalio source may be introduced. Non-Dalio sources are restricted to a TOP-quality allowlist and may only close real gaps after Dalio exhaustion is documented in §11.
+- **Content-free prompt:** The prompt does NOT name Dalio's framework components, list historical cases, or enumerate Tier-1 sources. The deep-research model MUST discover all of these by EXHAUSTIVE primary reading. Pre-filling content would bias the model toward a pre-existing summary instead of forcing real research.
+- **Failure modes the prompt must prevent (project-wide):** depth shortfall, hard-rule violation, framing/scope drift, hallucinated or weakly-sourced citations, surviving open questions in the output, abandoned framework components, paraphrase disguised as verbatim, manufactured words inside Dalio quote blocks.
+- **Outcome standard:** COMPLETE + CONCLUSIVE. Every threshold, formula, decision rule, and worked-example number cited at point of use, with zero unresolved gaps in the output. Every framework component the model DISCOVERS by primary reading must be operationalized per R17.
+- **Source priority (HARD):** Dalio's own public corpus is presumed gap-free at the framework level. The prompt forces exhaustive Dalio-corpus search BEFORE any non-Dalio source may be introduced. Every Tier-1 source MUST be searched and recorded in §11 search-trace per R20, even sources silent on the subsection.
 - **Quote audit:** Every `> **Dalio**` block in the output must have a byte-equal entry in the `_quote_audit.md` appendix per R21.
 
 ---
@@ -32,55 +35,59 @@ ROLE
   open questions may survive in the output.
 
 SUBSECTION
-  ID:                2.3
-  TITLE:             Alpha Generation & Portable Alpha
-  IN-SCOPE:          Alpha / beta separation; information ratio; bet sizing; pure alpha vs traditional alpha; portable alpha construction (transport alpha from one beta to another); alpha decay; alpha-stream breadth and concentration limits.
-  OUT-OF-SCOPE:      Beta construction — covered by 2.2; leverage sizing — covered by 2.4.
+  ID:    2.3
+  TITLE: Alpha Generation & Portable Alpha
 
-NAMED FRAMEWORK COMPONENTS (TOPIC-BOUND, R17 ENFORCEMENT)
-  Dalio's framework for this subsection names the following distinct
-  components. Every named component listed below MUST be operationalized
-  per R17 (one §5 transform, one §6 emission or output variable, one §7
-  worked-example column, and one §11 self-audit row per component).
-  Failure to operationalize any named component below = rejection.
+  This prompt is METHOD-directive and DOES NOT tell you what Dalio's
+  framework for this subsection contains. You MUST discover the
+  framework structure (named components, typologies, historical cases,
+  source coverage) by EXHAUSTIVE primary reading of his corpus. The
+  absence of a pre-filled summary is intentional — pre-filled content
+  would bias your research toward an existing summary instead of
+  forcing real discovery.
 
-  1. **alpha-beta separation framework** — items: beta sleeve; alpha overlay; tracking error budget
-     Dalio anchor: Engineering Targeted Returns and Risks, 2011, p. 11 + p. 9
-     Operationalization required: §5 must define separation transforms; §6 must emit alpha-decomposition vector; §7 must show worked examples.
-  2. **information ratio formula** — items: IC; breadth; IR
-     Dalio anchor: Engineering 2011 (cross-references Grinold-Kahn breadth identity, NON-DALIO)
-     Operationalization required: §5 must define IR formula with NON-DALIO Grinold-Kahn anchor; §6 must emit IR per stream output.
+SUBSECTION MAP (bounds your scope; do NOT duplicate neighbor subsections)
+  Module 1 — Economic & Market Principles:
+    1.1  Economic Machine Template
+    1.2  Short-Term Debt Cycle
+    1.3  Long-Term Debt Cycle
+    1.4  Deleveragings
+    1.5  Paradigm Shifts
+    1.6  Changing World Order / Big Cycle
+    1.7  Inflation & Currency Debasement
+  Module 2 — Investment Principles:
+    2.1  Template for Investing
+    2.2  All-Weather (Beta) Portfolio
+    2.3  Alpha Generation & Portable Alpha  ← THIS SUBSECTION
+    2.4  Risk Parity & Leverage
+    2.5  Stress-Testing & Scenario Analysis
 
-EXPECTED HISTORICAL CASE SET (TOPIC-BOUND, R23 ENFORCEMENT)
-  Dalio writes about the following historical cases for this subsection.
-  §7 worked example MUST cover at least 3 of the cases
-  in the allowlist below. Cases not in the allowlist may not be substituted
-  unless §11 includes a row justifying the substitution with a Dalio cite
-  pointing to the substituted case in his corpus.
+  Boundary rule: cover ONLY the analytical framework Dalio articulates
+  for THIS subsection (the one marked above). Where his discussion
+  crosses into a neighboring subsection's title, point to the neighbor
+  in §9 (Integration Points) and stop. Duplicating a neighbor's
+  content = rejection.
 
-  Case allowlist:
-    - Bridgewater Pure Alpha worked example
-    - Tracking-error 3% / 6% client examples (Engineering 2011 L466-467)
-    - 60/40 portable-alpha overlay illustration
-
-  Minimum cases required in §7: 3
-
-EXPECTED DALIO TIER-1 SOURCE COVERAGE (TOPIC-BOUND, R20 ENFORCEMENT)
-  The following Dalio public works are the Tier-1 sources for this
-  subsection. R20 requires:
-   - Minimum 3 sources from the list below must be
-     searched and quoted from in §2 or §5.
-   - Each searched source must yield ≥3 verbatim quotes in the output OR
-     §11 must include a row with a verbatim Dalio passage from that source
-     proving silence on the specific gap claimed.
-  Sources NOT on the list below may be used only as Tier 2-5 supplements
-  per the SOURCE PRIORITY cascade below.
-
-  Tier-1 source allowlist for this subsection:
-    - Engineering Targeted Returns and Risks, 2011
-    - Principles 2017 (commercial; R9 fair-use only)
-    - Bridgewater Daily Observations on alpha (free citations)
-    - LinkedIn essays on alpha generation
+DISCOVERY DIRECTIVE (BLOCKING — orientation for the research)
+  You discover, you do not assume. The prompt does not name framework
+  components, cases, or sources for this subsection. Your job is to:
+    - Discover every named framework component Dalio defines for this
+      subsection (R17). A "named component" is any multi-part construct
+      Dalio organizes the subsection around — typologies, regime
+      taxonomies, lever sets, phase enumerations, measure sets,
+      step-by-step procedures.
+    - Discover every historical case Dalio analyzes for this subsection
+      (R23) by reading his case panels (BDC Part 2 + Part 3 case
+      compendium, In-Depth Look case section, HCGB-1 case studies, plus
+      cases discussed in HEMW / CWO / LinkedIn essays germane to this
+      subsection).
+    - Discover which of his primary works contain material on this
+      subsection (R20) by exhaustive search of the cascade Tier-1
+      corpus. EVERY Tier-1 source MUST be searched, and the search
+      trace MUST be reported in §11, even sources that turn out silent.
+  Naming a framework component, case, or source from prior knowledge
+  of Dalio without grounding it in a verbatim citation retrieved
+  during this research session = rejection.
 
 SOURCE PRIORITY (BLOCKING — failure to follow = rejection)
 
@@ -90,9 +97,9 @@ SOURCE PRIORITY (BLOCKING — failure to follow = rejection)
   preceded in §11 (Completeness Self-Audit) by an evidence row proving
   Dalio does not address the specific gap.
 
-  Tier 1 — Ray Dalio primary writings (search EXHAUSTIVELY before moving
-    on; see TOPIC-BOUND allowlist above for the subset relevant to this
-    subsection):
+  Tier 1 — Ray Dalio primary writings (ALL 7 of these works MUST be
+    searched and recorded in §11 search-trace per R20, even sources
+    that turn out silent on this subsection):
     - "Big Debt Crises" (BDC), 2018 — full PDF on economicprinciples.org;
       includes Part 1 archetypal template, Part 2 detailed case studies,
       Part 3 compendium of 48 cases.
@@ -107,7 +114,9 @@ SOURCE PRIORITY (BLOCKING — failure to follow = rejection)
     - "An In-Depth Look at Deleveragings" (In-Depth Look), 2012 — free PDF
       mirrors.
     - "Paradigm Shifts" (LinkedIn essay), July 2019.
-    - LinkedIn long-form posts and articles 2015-present.
+    - LinkedIn long-form posts and articles 2015-present (treat as one
+      composite Tier-1 source for §11 search-trace; record which posts
+      were searched).
 
   Tier 2 — Bridgewater public research (free on bridgewater.com):
     - "Engineering Targeted Returns and Risks" (Engineering 2011).
@@ -295,20 +304,33 @@ HARD RULES (every rule binding; one violation = rejection)
        certification" stating: "All ambiguities listed above are closed
        in the body per R5. The output contains zero open questions."
        Absent or qualified certification = rejection.
-  R17. FRAMEWORK-COMPONENT COVERAGE (BLOCKING). For every distinct
-       framework component listed in NAMED FRAMEWORK COMPONENTS above,
-       the output MUST contain:
+  R17. FRAMEWORK-COMPONENT DISCOVERY + COVERAGE (BLOCKING). You MUST
+       identify every distinct framework component Dalio names for
+       this subsection by EXHAUSTIVE primary reading of his corpus.
+       A "framework component" is any named multi-part construct
+       Dalio uses to organize the subsection — typologies, regime
+       taxonomies, lever sets, phase enumerations, measure sets,
+       step-by-step procedures, scoring schemes, archetype catalogs.
+       Discovery procedure: search his primary works for typology-
+       introducing language ("the four X", "there are N Y", "I think
+       of A in terms of B and C", numbered enumerations in his prose,
+       multi-row tables in his case panels, multi-column charts).
+       For EVERY component you discover, the output MUST contain:
          (a) one transform or operational definition in §5 that
              measures or computes the component;
          (b) one output variable, regime-tag dimension, or emitted
              value in §6 that reflects the component;
          (c) one column or row in the §7 worked-example table that
              reports the component for each case;
-         (d) one row in §11 that names the component, the Dalio source
-             where it is defined (with page reference), and the body
-             location of its operationalization.
-       Naming a component in §2 quotes but failing to operationalize it
-       per (a)-(d) = rejection.
+         (d) one row in §11 that names the component, the Dalio
+             source where it is defined (with page reference), the
+             verbatim Dalio sentence(s) that introduce it, and the
+             body location of its operationalization.
+       Discovering a component but failing to operationalize it per
+       (a)-(d) = rejection. Naming a component in §2 quotes but
+       failing to operationalize it = rejection. Naming a component
+       from prior knowledge of Dalio without a verbatim citation
+       retrieved this session = rejection.
   R18. DECISION-RULE TRUTH-TABLE CLOSURE (BLOCKING). §6 decision rules
        must be exhaustive over the variable signs they depend on.
        Enumerate every sign-combination explicitly in a Markdown truth
@@ -328,29 +350,32 @@ HARD RULES (every rule binding; one violation = rejection)
        does not satisfy R19. Inline provenance must appear within the
        same paragraph or table row as the value. Each value also
        requires a §11 row.
-  R20. DALIO CORPUS BREADTH + SEARCH TRACE (BLOCKING). Minimum
-       3 sources from the TOPIC-BOUND Tier-1
-       allowlist must be searched. Each searched source must yield
-       EITHER:
-         (a) ≥ 3 verbatim quotes in §2 or §5 (substantive coverage); OR
-         (b) a §11 search-trace row containing ALL FOUR fields below:
-             (i)   `Source:` <title> + page-range searched (or whole
-                   document if unpaginated);
-             (ii)  `Keywords tried:` an explicit list of the exact
-                   keywords / phrases / regexes tried with the
-                   source's text-search facility (≥ 3 distinct
-                   queries per source);
-             (iii) `Hit counts:` the result count from each query
-                   (e.g., "0 / 0 / 2 — see §5 line 47 for the 2 hits");
-             (iv)  `Silence claim:` for searches yielding 0 hits, the
-                   row asserts the source is silent on the gap and
-                   names which other Tier-1 source closed it.
-       Generic "I searched X, found nothing" without ALL FOUR
-       search-trace fields = rejection. A verbatim passage is
-       NOT REQUIRED for silence rows — proving absence with a
-       single verbatim quote is incoherent and is no longer accepted
-       (corrected in this revision; previous "verbatim Dalio passage
-       proving silence" wording was unsatisfiable).
+  R20. DALIO CORPUS EXHAUSTIVE SEARCH + SEARCH TRACE (BLOCKING).
+       You MUST EXHAUSTIVELY search Dalio's primary corpus (cascade
+       Tier 1 — all 7 works listed above) for material on this
+       subsection. The prompt does NOT name a per-topic Tier-1
+       subset; you do not get to skip works because you assume they
+       are silent. Every Tier-1 work MUST appear as its own row in
+       §11's search-trace table.
+       Each §11 search-trace row MUST contain ALL FOUR fields:
+         (i)   `Source:` <title> + page-range searched (or whole
+               document if unpaginated);
+         (ii)  `Keywords tried:` an explicit list of the exact
+               keywords / phrases / regexes tried with the source's
+               text-search facility (≥ 3 distinct queries per
+               source);
+         (iii) `Hit counts:` the result count from each query
+               (e.g., "0 / 0 / 2 — see §5 line 47 for the 2 hits");
+         (iv)  `Outcome:` if hits found → name the §-locations of
+               the body cites in this output; if zero hits across
+               all queries → assert the source is silent on this
+               subsection (no verbatim passage required — proving
+               absence with a single quote is incoherent).
+       Skipping any Tier-1 work in the §11 search-trace = rejection.
+       Generic "I searched X, found nothing" without ALL FOUR fields
+       = rejection. Source-priority cascade is binding: Tier-1
+       MUST be exhausted before any Tier 2-5 supplement is
+       introduced.
   R21. VERBATIM QUOTE AUDIT APPENDIX (BLOCKING). In addition to the
        main deliverable, produce a separate file
        `research_v2/10_alpha_portable_alpha_quote_audit.md` with this exact
@@ -391,17 +416,31 @@ HARD RULES (every rule binding; one violation = rejection)
        Query), and §10 (sources list). Three different URL forms for
        one series ID = rejection. Non-formula chart-bar names that
        are not defined variables = rejection.
-  R23. WORKED-EXAMPLE CASE COVERAGE (BLOCKING). §7 must include
-       worked rows for at least 3 cases drawn from
-       the EXPECTED HISTORICAL CASE SET above. Each case row MUST
-       compute every Boolean flag and every output variable from
-       numeric inputs visible in the row itself. Asserting a tag from
-       narrative ("Dalio calls this an X") rather than deriving it
-       from the §6 rule applied to the row's numbers = rejection.
-       For cases where data is genuinely absent (e.g., hyperinflation
-       making real-growth ill-defined), label the row's missing inputs
-       explicitly and add a §11 row noting which §6 conditions cannot
-       be evaluated for that case.
+  R23. CASE DISCOVERY + WORKED-EXAMPLE COVERAGE (BLOCKING). You MUST
+       identify every historical case Dalio analyzes for this
+       subsection across his primary corpus by EXHAUSTIVE reading of
+       his case panels (BDC Part 2 detailed case studies + Part 3
+       48-case compendium, In-Depth Look case section, HCGB-1 case
+       studies, plus cases discussed in HEMW / CWO / LinkedIn essays
+       germane to this subsection). The prompt does NOT name an
+       expected case set; you discover it.
+       §7 MUST include worked rows for ALL discovered cases. Each
+       case row MUST compute every Boolean flag and every output
+       variable from numeric inputs visible in the row itself.
+       Asserting a tag from narrative ("Dalio calls this an X")
+       rather than deriving it from the §6 rule applied to the
+       row's numbers = rejection. For cases where data is genuinely
+       absent (e.g., hyperinflation making real-growth ill-defined),
+       label the row's missing inputs explicitly and add a §11 row
+       noting which §6 conditions cannot be evaluated for that
+       case.
+       §11 MUST include a CASE COMPLETENESS row certifying:
+         "Cases discovered in Dalio corpus: <count>; §7 rows:
+         <count>; rationale for any case dropped: <text or `n/a`>."
+       Naming a case from prior knowledge without a verbatim
+       Dalio cite retrieved this session = rejection. Fewer §7
+       rows than discovered cases (without a stated rationale) =
+       rejection.
   R24. AUTOFORMAT CONTAMINATION REJECTION (BLOCKING). The body of
        every `> **Dalio**` quote block MUST be byte-equal to the
        verbatim source bytes per R12. R24 prohibits AUTOFORMAT
@@ -449,9 +488,10 @@ REQUIRED OUTPUT SCHEMA (exact section titles, exact order; 11 sections)
   ## § 5  Computation / Transformations
   ## § 6  Output Variables & Decision Rules  (must include explicit
                                               truth table per R18)
-  ## § 7  Worked Numeric Example             (must cover ≥
-                                              3 cases
-                                              per R23; arithmetic self-
+  ## § 7  Worked Numeric Example             (must cover ALL cases
+                                              the model discovers for
+                                              this subsection per
+                                              R23; arithmetic self-
                                               check per R14)
   ## § 8  Implementation Specs
               ### 8a. JS — function signature, fetch URLs, pseudo-code
@@ -503,25 +543,33 @@ REJECTION TRIGGERS (any one = rejected; re-run not retry)
     present in §§5-7 (R16, R17).
   - Any Closure certification absent or qualified.
   - Any hex outside the 12-token palette in §8c.
-  - Any out-of-scope content from the OUT-OF-SCOPE list above.
-  - Any named framework component listed in NAMED FRAMEWORK COMPONENTS
-    that is not operationalized per R17 (a)-(d).
-  - Any §6 truth-table sign-combination not assigned to a regime tag
-    (R18).
+  - Any out-of-scope content overlapping a neighbor subsection's
+    title (per the SUBSECTION MAP).
+  - Any framework component the model discovers but fails to
+    operationalize per R17 (a)-(d).
+  - Naming a framework component, case, or source from prior
+    knowledge of Dalio without a verbatim citation retrieved this
+    session (R17, R20, R23).
+  - Any §6 truth-table sign-combination not assigned to a regime
+    tag (R18).
   - Any numeric value in §5/§6/§7 without inline provenance (R19).
-  - Fewer than 3 Tier-1 Dalio sources searched, or
-    any searched Tier-1 source with fewer than 3 verbatim quotes AND
-    no silence-proof row in §11 (R20).
+  - Skipping any of the 7 cascade Tier-1 Dalio sources from the
+    §11 search-trace (R20).
+  - Any searched Tier-1 source without a four-field search-trace
+    row in §11 (R20).
   - Missing or non-byte-equal `_quote_audit.md` appendix (R21).
   - Variable referenced in §6/§7/§8 without §4/§5 definition (R22).
-  - Three different URL forms for the same series ID across §4/§8/§10
-    (R22).
-  - Fewer than 3 cases in §7 from the case
-    allowlist (R23).
+  - Three different URL forms for the same series ID across
+    §4/§8/§10 (R22).
+  - Fewer §7 rows than the cases the model discovers in Dalio's
+    corpus (without a stated rationale in §11) (R23).
   - §7 case where a Boolean flag or output tag is asserted from
     narrative rather than derived from row-visible numbers (R23).
-  - Smart quotes / emoji / em-dash variants inside any `> **Dalio**`
-    block (R24).
+  - Missing CASE COMPLETENESS row in §11 (R23).
+  - Smart quotes / emoji / em-dash variants introduced by autoformat
+    inside any `> **Dalio**` block where the source has plain ASCII;
+    OR silent normalization stripping typographic characters present
+    in the source (R24).
   - Any cite confusing two different Dalio works in the Tier-1
     taxonomy (R25).
 ```

@@ -887,6 +887,35 @@ def build_section_b_slide(section_id: str, data: dict) -> str:
     )
 
 
+def build_section_c_slide(section_id: str, data: dict) -> str:
+    """Section C slide — History/Data. data-bg=dark.
+
+    Contains h3 + history_text body paragraph. If chart_data present, adds ECharts container.
+    """
+    sid_dashed = section_id.replace(".", "-")
+    chart_html = ""
+    if data.get("chart_data"):
+        chart_id = f"chart-{sid_dashed}"
+        source = data["chart_data"].get("source", "")
+        chart_html = (
+            f'    <div class="chart-shell fade-target">\n'
+            f'      <div id="{chart_id}" class="echart"></div>\n'
+            f'    </div>\n'
+            f'    <div class="chart-caption fade-target">{source}</div>\n'
+        )
+    return (
+        f'<div class="slide" data-slide="{sid_dashed}-C" data-bg="dark">\n'
+        f'  <div class="section-tag fade-target"><span class="num">§ {section_id}</span> &nbsp; {data["title"].upper()}</div>\n'
+        f'  <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORY</div>\n'
+        f'  <div class="slide-inner">\n'
+        f'    <h3 class="reveal-target" data-text="{html_escape(data["history_h3"])}"></h3>\n'
+        f'    <p class="body-text fade-target">{data["history_text"]}</p>\n'
+        f'{chart_html}'
+        f'  </div>\n'
+        f'</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

@@ -278,5 +278,41 @@ class TestSectionBSlide(unittest.TestCase):
         self.assertEqual(s.count('class="lever"'), len(data["mechanism_items"]))
 
 
+class TestSectionCSlide(unittest.TestCase):
+    def test_section_c_with_chart_data(self):
+        """§1.4 has chart_data → C slide must include chart container."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["1.4"]
+        s = build_dashboard.build_section_c_slide("1.4", data)
+        self.assertIn('data-slide="1-4-C"', s)
+        self.assertIn('data-bg="dark"', s)
+        self.assertIn('id="chart-1-4"', s)
+        self.assertIn('class="chart-shell', s)
+        self.assertIn('class="chart-caption', s)
+        # h3 with reveal-target
+        self.assertIn('class="reveal-target"', s)
+
+    def test_section_c_without_chart_data(self):
+        """§1.1 has chart_data=None → C slide should NOT have chart container."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["1.1"]
+        self.assertIsNone(data["chart_data"])
+        s = build_dashboard.build_section_c_slide("1.1", data)
+        self.assertNotIn("chart-shell", s)
+        self.assertNotIn("chart-caption", s)
+        # Still has body-text history paragraph
+        self.assertIn('class="body-text', s)
+
+    def test_section_c_for_2_5_has_chart(self):
+        """§2.5 has chart_data → must include chart-2-5 container."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["2.5"]
+        s = build_dashboard.build_section_c_slide("2.5", data)
+        self.assertIn('id="chart-2-5"', s)
+
+
 if __name__ == "__main__":
     unittest.main()

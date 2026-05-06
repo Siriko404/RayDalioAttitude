@@ -824,6 +824,37 @@ def build_intro_slide() -> str:
     )
 
 
+def html_escape(s: str) -> str:
+    """Escape for use inside data-text=\"...\" HTML attribute (only & and \" need escaping for attrs).
+
+    Order matters: escape & first, then " — so that pre-existing &quot; sequences
+    don't get double-encoded to &amp;quot;.
+    """
+    return s.replace("&", "&amp;").replace('"', "&quot;")
+
+
+def build_section_a_slide(section_id: str, data: dict) -> str:
+    """Section A slide — Question + Dalio anchor quote. data-bg=dark.
+
+    section_id: dotted format e.g. "1.4" (will be converted to "1-4" for data-slide attr)
+    data: dict with keys: title, question, dalio_quote, dalio_quote_cite
+    """
+    sid_dashed = section_id.replace(".", "-")
+    return (
+        f'<div class="slide" data-slide="{sid_dashed}-A" data-bg="dark">\n'
+        f'  <div class="section-tag fade-target"><span class="num">§ {section_id}</span> &nbsp; {data["title"].upper()}</div>\n'
+        f'  <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>\n'
+        f'  <div class="slide-inner">\n'
+        f'    <p class="display-italic reveal-target" data-text="{html_escape(data["question"])}"></p>\n'
+        f'    <div class="citation fade-target">\n'
+        f'      "{data["dalio_quote"]}"\n'
+        f'      <span class="citation-source">{data["dalio_quote_cite"]}</span>\n'
+        f'    </div>\n'
+        f'  </div>\n'
+        f'</div>\n'
+    )
+
+
 def main() -> None:
     """Build entry point. Will be filled in subsequent tasks."""
     pass

@@ -197,5 +197,52 @@ class TestSectionDataModule(unittest.TestCase):
             self.assertLessEqual(word_count, 18, f"§{sid} dalio_quote {word_count} words (>18)")
 
 
+class TestSectionASlide(unittest.TestCase):
+    def test_section_a_uses_data_dict(self):
+        """Section A renders Question + Dalio quote from dashboard_data.SECTIONS[id]."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["1.4"]
+        s = build_dashboard.build_section_a_slide("1.4", data)
+        # Slide attributes
+        self.assertIn('data-slide="1-4-A"', s)
+        self.assertIn('data-bg="dark"', s)
+        # Eyebrow / section tag
+        self.assertIn("§ 1.4", s)
+        self.assertIn(data["title"].upper(), s)
+        # Display-italic question
+        self.assertIn('class="display-italic reveal-target"', s)
+        # Dalio citation
+        self.assertIn(data["dalio_quote"], s)
+        self.assertIn(data["dalio_quote_cite"], s)
+        self.assertIn('class="citation-source"', s)
+        self.assertIn("STAGE&nbsp;01 / 04", s)
+
+    def test_section_a_for_2_5(self):
+        """Section A works for §2.5 too (different title, different quote)."""
+        import build_dashboard
+        import dashboard_data
+        data = dashboard_data.SECTIONS["2.5"]
+        s = build_dashboard.build_section_a_slide("2.5", data)
+        self.assertIn('data-slide="2-5-A"', s)
+        self.assertIn(data["title"].upper(), s)
+
+
+class TestHtmlEscape(unittest.TestCase):
+    def test_escapes_quote(self):
+        import build_dashboard
+        self.assertEqual(build_dashboard.html_escape('foo "bar"'), 'foo &quot;bar&quot;')
+
+    def test_escapes_ampersand(self):
+        import build_dashboard
+        self.assertEqual(build_dashboard.html_escape("a & b"), "a &amp; b")
+
+    def test_ampersand_first_then_quote(self):
+        import build_dashboard
+        # "&quot;" in input must not become "&amp;quot;"
+        # Order matters: & first, then "
+        self.assertEqual(build_dashboard.html_escape('"&"'), '&quot;&amp;&quot;')
+
+
 if __name__ == "__main__":
     unittest.main()

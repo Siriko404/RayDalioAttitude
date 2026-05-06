@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<title>Dalio · Economic Framework</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000000'/><text x='16' y='23' font-family='Georgia,serif' font-weight='200' font-style='italic' font-size='24' fill='%23ffffff' text-anchor='middle'>D</text></svg>">
+
+<!-- Fonts: Source Serif 4 variable (200..900 + italic) + DM Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+<!-- ECharts + GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<style>
+/* =============================================================
+   PALETTE — pure B&W, no glow, no accents. Vintage minimal.
+   Hierarchy lives in: weight (mostly 200, sparingly 700+),
+   italic, size, hairline rules.
+   ============================================================= */
+:root {
+  --ink:   #000;
+  --paper: #fff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Source Serif 4', 'Times New Roman', Times, serif;
+  font-weight: 200;       /* DEFAULT: very thin — 90% of fonts */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  background: var(--ink);
+}
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+body { overflow-x: hidden; }
+
+/* =============================================================
+   SCROLLBAR — monochrome, minimal
+   ============================================================= */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); transition: background 220ms; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.45); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+::selection { background: currentColor; color: var(--ink); }
+
+/* =============================================================
+   STAGE — fixed-position slideshow viewport
+   Content stays still during scroll. Only bg "rolls" + AF reveals
+   handle the transitions. (User note 3: material remains still.)
+   ============================================================= */
+.stage {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  transition: background 700ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  z-index: 5;
+  overflow: hidden;
+}
+.stage.bg-light { background: var(--paper); }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8vw;
+  color: var(--paper);
+  pointer-events: none;
+  overflow: hidden;
+}
+.slide[data-bg="light"] { color: var(--ink); }
+.slide.active {
+  display: flex;
+  pointer-events: auto;
+}
+
+.slide-inner {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* =============================================================
+   SCROLL-TRACK — invisible scroll slots, drive snap + intersection.
+   They live below the fixed stage in z-order so they're never seen.
+   ============================================================= */
+.scroll-track {
+  position: relative;
+  z-index: 1;
+}
+.slot {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* =============================================================
+   TYPOGRAPHY — 90% thin (weight 200), play with size + italic.
+   Heavy weights only on hero h1 (the dramatic moment) + lever
+   names (mid weight) + key emphasis words.
+   ============================================================= */
+
+/* Eyebrow — DM Mono with thin rule before */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'DM Mono', ui-monospace, Menlo, monospace;
+  font-weight: 400;       /* mono naturally has more density; 400 is "thin" for it */
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+  opacity: 0.75;
+}
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+.eyebrow.eyebrow--center { justify-content: center; }
+.eyebrow.eyebrow--center::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+/* H1 — hero only · the ONE bold moment · weight 800 (vintage) */
+h1 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 800;
+  font-size: clamp(72px, 11vw, 180px);
+  letter-spacing: -3.5px;
+  line-height: 0.92;
+  margin-bottom: 36px;
+}
+h1 em {
+  font-weight: 200;
+  font-style: italic;
+  letter-spacing: -2.5px;
+}
+
+/* H2 — section · MASSIVE italic THIN · vintage editorial */
+h2 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 200;
+  font-style: italic;
+  font-size: clamp(52px, 7.5vw, 104px);
+  letter-spacing: -1.6px;
+  line-height: 1.0;
+  margin-bottom: 32px;
+  position: relative;
+  padding-top: 28px;
+}
+h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 1px;
+  background: currentColor;
+}
+h2 em { font-style: normal; font-weight: 700; }
+
+/* H3 — stage heading · large italic THIN */
+h3 {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(28px, 3.4vw, 52px);
+  letter-spacing: -0.8px;
+  line-height: 1.12;
+  margin-bottom: 24px;
+  position: relative;
+  padding-top: 22px;
+  max-width: 920px;
+}
+h3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Display italic — questions, dramatic statements · THIN italic, large */
+.display-italic {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: clamp(40px, 6vw, 88px);
+  letter-spacing: -1.2px;
+  line-height: 1.1;
+  max-width: 980px;
+}
+.display-italic em {
+  font-weight: 600;
+  font-style: italic;
+}
+
+/* Body — thin */
+.body-text {
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 200;
+  line-height: 1.75;
+  max-width: 660px;
+}
+.body-text em { font-style: italic; font-weight: 400; }
+.body-text + .body-text { margin-top: 22px; }
+
+/* Subtitle — italic 200, bigger but still thin */
+.subtitle {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: clamp(20px, 1.8vw, 28px);
+  line-height: 1.5;
+  max-width: 760px;
+  opacity: 0.82;
+}
+
+/* Citation — italic 200, smaller, with rule */
+.citation {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.6;
+  max-width: 600px;
+  margin-top: 36px;
+  padding-top: 18px;
+  position: relative;
+  opacity: 0.85;
+}
+.citation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 1px;
+  background: currentColor;
+}
+.citation-source {
+  display: block;
+  font-style: normal;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  margin-top: 14px;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* =============================================================
+   AF TEXT REVEAL — char block-fill IN / OUT
+   ============================================================= */
+.reveal-ch {
+  display: inline-block;
+  transition: background 0.18s ease-out, color 0.18s ease-out;
+}
+.reveal-target { visibility: hidden; }
+.reveal-target.reveal-armed { visibility: visible; }
+
+.fade-target {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.85s cubic-bezier(0.2,0.8,0.2,1) 0.15s,
+              transform 0.85s cubic-bezier(0.2,0.8,0.2,1) 0.15s;
+}
+.fade-target.fade-armed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-target.fade-disarmed {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+/* =============================================================
+   HEADER + MINIMAP — mix-blend-mode: difference auto-flips
+   ============================================================= */
+header.brand-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 22px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--paper);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+header.brand-bar .refresh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+header.brand-bar .refresh-pill::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+nav.minimap {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  mix-blend-mode: difference;
+  color: var(--paper);
+}
+nav.minimap a {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  position: relative;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 220ms, transform 220ms, background 220ms;
+}
+nav.minimap a::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 220ms;
+  pointer-events: none;
+}
+nav.minimap a:hover { opacity: 1; transform: scale(1.6); }
+nav.minimap a:hover::after { opacity: 1; }
+nav.minimap a.active {
+  opacity: 1;
+  background: currentColor;
+}
+
+/* =============================================================
+   HERO meta strip
+   ============================================================= */
+.hero-meta {
+  position: absolute;
+  bottom: 56px;
+  left: 8vw; right: 8vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.hero-meta .scroll-cue::after {
+  content: '  ↓';
+  margin-left: 6px;
+}
+
+/* =============================================================
+   §1.4 — section-tag + stage-counter
+   ============================================================= */
+.section-tag {
+  position: absolute;
+  top: 56px;
+  left: 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.section-tag .num { font-weight: 500; opacity: 1; }
+
+.stage-counter {
+  position: absolute;
+  top: 56px;
+  right: 8vw;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 3px;
+  opacity: 0.45;
+  text-transform: uppercase;
+}
+
+/* =============================================================
+   LEVERS — typographic list, no boxes
+   ============================================================= */
+.levers {
+  margin-top: 36px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+.lever {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: baseline;
+  gap: 28px;
+  padding: 22px 0;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.65;
+  transition: opacity 220ms;
+}
+.lever:last-child { border-bottom: none; }
+.lever:hover { opacity: 1; }
+.lever .num {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.5;
+}
+.lever .body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lever .name {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 28px;
+  letter-spacing: -0.4px;
+  line-height: 1.05;
+}
+.lever .desc {
+  font-style: italic;
+  font-weight: 200;
+  font-size: 15px;
+  line-height: 1.55;
+  opacity: 0.8;
+}
+.lever .effect {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* =============================================================
+   CHART panel (§1.4-C)
+   ============================================================= */
+.chart-shell {
+  width: 100%;
+  height: clamp(380px, 56vh, 560px);
+  position: relative;
+  margin-top: 24px;
+}
+.chart-shell .echart {
+  position: absolute;
+  inset: 0;
+}
+.chart-caption {
+  margin-top: 18px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* =============================================================
+   MATH + VERDICT
+   ============================================================= */
+.math-line {
+  font-size: 18px;
+  margin: 14px 0;
+  padding-left: 28px;
+  position: relative;
+}
+.math-line::before {
+  content: attr(data-step);
+  position: absolute;
+  left: 0;
+  top: 4px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  opacity: 0.5;
+}
+
+.verdict {
+  margin-top: 56px;
+  padding: 40px 0 32px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  text-align: center;
+}
+.verdict .verdict-label {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  opacity: 0.55;
+}
+.verdict .verdict-text {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 200;
+  font-style: italic;
+  font-size: clamp(36px, 5vw, 72px);
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+}
+.verdict .verdict-text em {
+  font-style: italic;
+  font-weight: 700;     /* the ONE heavy emphasis on this slide */
+}
+
+/* =============================================================
+   MORE — TOC grid
+   ============================================================= */
+.toc {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 48px;
+  border-top: 1px solid currentColor;
+}
+.toc-item {
+  padding: 22px 18px 22px 0;
+  border-bottom: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0.7;
+  transition: opacity 220ms;
+}
+.toc-item:hover { opacity: 1; }
+.toc-item:nth-child(4n) { border-right: none; padding-right: 0; }
+.toc-item .num {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}
+.toc-item .ttl {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 300;
+  font-size: 17px;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+.toc-item .ttl em {
+  font-weight: 200;
+  font-style: italic;
+}
+
+footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 6;
+  padding: 18px 36px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  color: var(--paper);
+  mix-blend-mode: difference;
+  opacity: 0.5;
+}
+footer a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  pointer-events: auto;
+}
+
+/* =============================================================
+   RESPONSIVE
+   ============================================================= */
+@media (max-width: 900px) {
+  nav.minimap { display: none; }
+  .lever { grid-template-columns: 36px 1fr; gap: 16px; }
+  .lever .effect { grid-column: 2; padding-top: 6px; }
+  .toc { grid-template-columns: repeat(2, 1fr); }
+  .toc-item:nth-child(4n) { border-right: 1px solid currentColor; }
+  .toc-item:nth-child(2n) { border-right: none; }
+  h1 { font-size: clamp(56px, 14vw, 96px); }
+  h2 { font-size: clamp(40px, 11vw, 72px); }
+  .display-italic { font-size: clamp(32px, 9vw, 64px); }
+  footer { padding: 14px 20px; flex-direction: column; gap: 6px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER  (mix-blend-mode: difference reads on both bgs)
+     ============================================================ -->
+<header class="brand-bar">
+  <div>DALIO &nbsp;·&nbsp; ECONOMIC FRAMEWORK &nbsp;·&nbsp; v0.4</div>
+  <div class="refresh-pill" id="refresh-pill"><span>live · refreshed 0s ago</span></div>
+</header>
+
+<!-- ============================================================
+     MINIMAP
+     ============================================================ -->
+<nav class="minimap" aria-label="page navigation">
+  <a href="#slot-hero"      data-label="HERO"               data-slide="hero"      class="active"></a>
+  <a href="#slot-intro"     data-label="INTRO"              data-slide="intro"></a>
+  <a href="#slot-1-4-a"     data-label="1.4 / A · QUESTION" data-slide="sec-1-4-a"></a>
+  <a href="#slot-1-4-b"     data-label="1.4 / B · LEVERS"   data-slide="sec-1-4-b"></a>
+  <a href="#slot-1-4-c"     data-label="1.4 / C · HISTORY"  data-slide="sec-1-4-c"></a>
+  <a href="#slot-1-4-d"     data-label="1.4 / D · FORMULA"  data-slide="sec-1-4-d"></a>
+  <a href="#slot-more"      data-label="MORE"               data-slide="more"></a>
+</nav>
+
+<!-- ============================================================
+     STAGE — fixed-position. Holds all 7 slides; only .active visible.
+     Background color "rolls" via CSS transition when .bg-light toggles.
+     ============================================================ -->
+<div class="stage" id="stage">
+
+  <!-- SLIDE 1 / HERO  (dark) -->
+  <div class="slide active" data-slide="hero" data-bg="dark">
+    <div class="slide-inner">
+      <div class="eyebrow fade-target">RAY DALIO &nbsp;·&nbsp; THE TEMPLATE &nbsp;·&nbsp; 12 FRAMEWORKS, ONE PAGE</div>
+      <h1 class="reveal-target" data-text="How he sees&lt;br&gt;&lt;em&gt;the economy.&lt;/em&gt;"></h1>
+      <p class="subtitle fade-target">Twelve interlocking models — debt cycles, deleveragings, all-weather, stress tests — assembled from primary Bridgewater sources, parameterised, and rendered live.</p>
+    </div>
+    <div class="hero-meta fade-target">
+      <div>NOWANDFUTURES &nbsp;·&nbsp; LINKEDIN &nbsp;·&nbsp; PRINCIPLES (CWO)</div>
+      <div class="scroll-cue">SCROLL</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 / INTRO  (light) -->
+  <div class="slide" data-slide="intro" data-bg="light">
+    <div class="slide-inner">
+      <div class="eyebrow fade-target">§ 1.4 &nbsp;·&nbsp; IN CONTEXT</div>
+      <h2 class="reveal-target" data-text="Twelve frameworks, three regimes, four levers."></h2>
+      <p class="body-text fade-target">Dalio's economic engine produces three classical outcomes when a long-term debt cycle tops: <em>ugly deflationary</em>, <em>beautiful</em>, or <em>ugly inflationary</em>. The path that obtains depends on how policymakers mix four levers — <em>debt reduction</em>, <em>austerity</em>, <em>wealth transfer</em>, <em>debt monetisation</em>.</p>
+      <p class="body-text fade-target">This page renders all twelve frameworks. We start with the deleveragings sub-model — the moment where the regime branches.</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 / §1.4-A  (dark) -->
+  <div class="slide" data-slide="sec-1-4-a" data-bg="dark">
+    <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+    <div class="stage-counter fade-target">STAGE&nbsp;01 / 04 &nbsp;·&nbsp; THE QUESTION</div>
+    <div class="slide-inner">
+      <p class="display-italic reveal-target" data-text="When debt tops out, who bears the &lt;em&gt;loss&lt;/em&gt;?"></p>
+      <div class="citation fade-target">
+        "The differences between deleveragings depend on the amounts and paces of (1) debt reduction, (2) austerity, (3) transferring wealth from the haves to the have-nots, and (4) debt monetisation."
+        <span class="citation-source">Ray Dalio · An In-Depth Look at Deleveragings · 2012</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 / §1.4-B  (light) -->
+  <div class="slide" data-slide="sec-1-4-b" data-bg="light">
+    <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+    <div class="stage-counter fade-target">STAGE&nbsp;02 / 04 &nbsp;·&nbsp; THE FOUR LEVERS</div>
+    <div class="slide-inner">
+      <h3 class="reveal-target" data-text="Each lever shrinks debt-to-income — but with different side effects."></h3>
+      <div class="levers fade-target">
+        <div class="lever">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">Debt reduction</span>
+            <span class="desc">Defaults, restructurings, write-downs. Investors absorb the loss.</span>
+          </div>
+          <span class="effect">Deflationary · Depressing</span>
+        </div>
+        <div class="lever">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">Austerity</span>
+            <span class="desc">Cut spending. Households and governments reduce consumption.</span>
+          </div>
+          <span class="effect">Deflationary · Depressing</span>
+        </div>
+        <div class="lever">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">Wealth transfer</span>
+            <span class="desc">Tax the haves; redistribute to the have-nots. Dalio: rare in scale.</span>
+          </div>
+          <span class="effect">Neutral · Political</span>
+        </div>
+        <div class="lever">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">Debt monetisation</span>
+            <span class="desc">Central bank prints money, buys debt. Currency dilutes.</span>
+          </div>
+          <span class="effect">Inflationary · Stimulative</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 / §1.4-C  (dark) -->
+  <div class="slide" data-slide="sec-1-4-c" data-bg="dark">
+    <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+    <div class="stage-counter fade-target">STAGE&nbsp;03 / 04 &nbsp;·&nbsp; HISTORICAL DECOMPOSITION</div>
+    <div class="slide-inner">
+      <h3 class="reveal-target" data-text="Same four levers — radically different mixes."></h3>
+      <div class="chart-shell fade-target">
+        <div id="chart-mix" class="echart"></div>
+      </div>
+      <div class="chart-caption fade-target">Four-lever mix · 1930–32 vs 1933–37 vs Japan 1990+ &nbsp;—&nbsp; byte-exact, research/04 §7</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 / §1.4-D  (light) -->
+  <div class="slide" data-slide="sec-1-4-d" data-bg="light">
+    <div class="section-tag fade-target"><span class="num">§ 1.4</span> &nbsp; DELEVERAGINGS</div>
+    <div class="stage-counter fade-target">STAGE&nbsp;04 / 04 &nbsp;·&nbsp; THE FORMULA</div>
+    <div class="slide-inner">
+      <h3 class="reveal-target" data-text="The beautiful gate: nominal growth must exceed nominal interest."></h3>
+      <div class="fade-target" style="margin-top: 8px;">
+        <div class="math-line" data-step="">$$G_t \;=\; \mathrm{NGDP}_{yoy,t} \;-\; r_t$$</div>
+        <p class="body-text" style="margin-top: 28px;">If $G_t > 0$ and $\Delta D_t < 0$, the deleveraging is <em>beautiful</em>. If $G_t < 0$ and $\Delta D_t > 0$, it is <em>ugly deflationary</em>.</p>
+        <div style="margin-top: 40px;">
+          <div class="eyebrow" style="margin-bottom: 18px;">U.S. 1930–32 · WORKED</div>
+          <div class="math-line" data-step="1">$G = -17.0\% - 3.4\% = -20.4\,\mathrm{pp}$</div>
+          <div class="math-line" data-step="2">$\Delta D = +97\,\mathrm{pp}$ &nbsp; (DebtGDP $155\% \to 252\%$)</div>
+          <div class="math-line" data-step="3">$\pi = 0.4\% + 0.4\% = 0.8\%$ — print intensity stayed low</div>
+        </div>
+      </div>
+      <div class="verdict fade-target">
+        <div class="verdict-label">Regime</div>
+        <div class="verdict-text">G &lt; 0 &nbsp;and&nbsp; ΔD &gt; 0 &nbsp;⇒&nbsp; <em>ugly deflationary.</em></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 / MORE  (dark) -->
+  <div class="slide" data-slide="more" data-bg="dark">
+    <div class="slide-inner">
+      <div class="eyebrow eyebrow--center fade-target">CONTINUATION</div>
+      <h2 class="reveal-target" data-text="Eleven more frameworks &lt;em&gt;follow this pattern&lt;/em&gt;." style="text-align: center;"></h2>
+      <div class="toc fade-target">
+        <div class="toc-item"><span class="num">§ 1.1</span><span class="ttl">Economic Machine</span></div>
+        <div class="toc-item"><span class="num">§ 1.2</span><span class="ttl">Short-Term Debt Cycle</span></div>
+        <div class="toc-item"><span class="num">§ 1.3</span><span class="ttl">Long-Term Debt Cycle</span></div>
+        <div class="toc-item"><span class="num">§ 1.4</span><span class="ttl"><em>Deleveragings · shown above</em></span></div>
+        <div class="toc-item"><span class="num">§ 1.5</span><span class="ttl">Paradigm Shifts</span></div>
+        <div class="toc-item"><span class="num">§ 1.6</span><span class="ttl">Changing World Order</span></div>
+        <div class="toc-item"><span class="num">§ 1.7</span><span class="ttl">Inflation &amp; Currency</span></div>
+        <div class="toc-item"><span class="num">§ 2.1</span><span class="ttl">Template for Investing</span></div>
+        <div class="toc-item"><span class="num">§ 2.2</span><span class="ttl">All-Weather</span></div>
+        <div class="toc-item"><span class="num">§ 2.3</span><span class="ttl">Alpha / Portable Alpha</span></div>
+        <div class="toc-item"><span class="num">§ 2.4</span><span class="ttl">Risk Parity Leverage</span></div>
+        <div class="toc-item"><span class="num">§ 2.5</span><span class="ttl">Stress Testing</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     SCROLL-TRACK — invisible slots that hold scroll length + drive
+     IntersectionObserver. Slide swap is keyed off these.
+     ============================================================ -->
+<div class="scroll-track" aria-hidden="true">
+  <div class="slot" id="slot-hero"   data-slide="hero"      data-bg="dark"></div>
+  <div class="slot" id="slot-intro"  data-slide="intro"     data-bg="light"></div>
+  <div class="slot" id="slot-1-4-a"  data-slide="sec-1-4-a" data-bg="dark"></div>
+  <div class="slot" id="slot-1-4-b"  data-slide="sec-1-4-b" data-bg="light"></div>
+  <div class="slot" id="slot-1-4-c"  data-slide="sec-1-4-c" data-bg="dark"></div>
+  <div class="slot" id="slot-1-4-d"  data-slide="sec-1-4-d" data-bg="light"></div>
+  <div class="slot" id="slot-more"   data-slide="more"      data-bg="dark"></div>
+</div>
+
+<!-- ============================================================
+     FOOTER — fixed bottom, mix-blend-mode difference
+     ============================================================ -->
+<footer>
+  <div>DALIO &nbsp;·&nbsp; <a href="#">/raydalioattitude</a></div>
+  <div>v0.4 &nbsp;·&nbsp; 2026-05</div>
+</footer>
+
+<script>
+'use strict';
+
+// =====================================================================
+// AF TEXT REVEAL — IN (block-fill char appears)
+// =====================================================================
+function airForceReveal(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.5;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.83;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.18;
+
+  var raw = el.dataset.text || el.innerHTML;
+  el.dataset.text = raw;
+
+  var decoder = document.createElement('textarea');
+  decoder.innerHTML = raw;
+  var decoded = decoder.value;
+
+  var temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  var html = '';
+  function processNode(node, italic) {
+    if (node.nodeType === 3) {
+      var text = node.nodeValue;
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (c === ' ') {
+          html += '&nbsp;';
+        } else {
+          html += '<span class="reveal-ch"' + (italic ? ' style="font-style:italic"' : '') + '>' + escapeHtml(c) + '</span>';
+        }
+      }
+    } else if (node.nodeType === 1) {
+      var tag = node.tagName.toLowerCase();
+      if (tag === 'br') { html += '<br>'; return; }
+      var isEm = tag === 'em' || tag === 'i';
+      var newItalic = italic || isEm;
+      var openTag = '<' + tag;
+      if (node.className) openTag += ' class="' + node.className + '"';
+      openTag += '>';
+      html += openTag;
+      Array.from(node.childNodes).forEach(function (n) { processNode(n, newItalic); });
+      html += '</' + tag + '>';
+    }
+  }
+  Array.from(temp.childNodes).forEach(function (n) { processNode(n, false); });
+  el.innerHTML = html;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var charColor = getComputedStyle(span).color;
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { color: 'transparent' }, 0);
+    local.set(span, { background: charColor }, delay);
+    local.set(span, { background: 'transparent', clearProps: 'color,background' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+// =====================================================================
+// AF TEXT REVEAL — OUT (block-fill char disappears) · faster
+// =====================================================================
+function airForceRevealOut(el, opts) {
+  opts = opts || {};
+  var minDelay = opts.minDelay !== undefined ? opts.minDelay : 0.0;
+  var maxDelay = opts.maxDelay !== undefined ? opts.maxDelay : 0.28;
+  var holdDuration = opts.holdDuration !== undefined ? opts.holdDuration : 0.14;
+
+  var spans = el.querySelectorAll('.reveal-ch');
+  if (!spans.length) return null;
+
+  var tl = gsap.timeline();
+  spans.forEach(function (span) {
+    var charColor = getComputedStyle(span).color;
+    var local = gsap.timeline();
+    var delay = Math.random() * (maxDelay - minDelay) + minDelay;
+    local.set(span, { background: charColor, color: 'transparent' }, delay);
+    local.set(span, { background: 'transparent' }, delay + holdDuration);
+    tl.add(local, 0);
+  });
+  return tl;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// =====================================================================
+// SLIDE ARM / DISARM
+// =====================================================================
+function armSlide(slide) {
+  slide.querySelectorAll('.reveal-target').forEach(function (el) {
+    el.classList.add('reveal-armed');
+    airForceReveal(el);
+  });
+  slide.querySelectorAll('.fade-target').forEach(function (el, idx) {
+    el.classList.remove('fade-disarmed');
+    var delay = Math.min(idx * 80, 480);
+    setTimeout(function () { el.classList.add('fade-armed'); }, delay);
+  });
+  // Lazy-init the §1.4-C chart on first activation
+  if (slide.dataset.slide === 'sec-1-4-c' && !window._chartInited) {
+    window._chartInited = true;
+    initChart();
+  }
+}
+
+function disarmSlide(slide) {
+  slide.querySelectorAll('.reveal-target').forEach(function (el) {
+    airForceRevealOut(el);
+  });
+  slide.querySelectorAll('.fade-target').forEach(function (el) {
+    el.classList.remove('fade-armed');
+    el.classList.add('fade-disarmed');
+  });
+}
+
+// =====================================================================
+// SLIDE TRANSITION — coordinates AF out → bg roll → AF in
+// Content remains still; only bg + char animations move.
+// =====================================================================
+var currentSlide = 'hero';
+
+function transitionTo(slideId) {
+  if (slideId === currentSlide) return;
+
+  var oldEl = document.querySelector('.slide.active');
+  var newEl = document.querySelector('.slide[data-slide="' + slideId + '"]');
+  if (!oldEl || !newEl) return;
+
+  var stage = document.getElementById('stage');
+  var newBg = newEl.dataset.bg;
+
+  // BG color transition fires immediately (CSS handles 700ms cubic roll)
+  if (newBg === 'light') stage.classList.add('bg-light');
+  else stage.classList.remove('bg-light');
+
+  // AF reveal-out on outgoing slide (~440ms)
+  disarmSlide(oldEl);
+
+  // Update currentSlide synchronously so duplicate observer-fires no-op
+  currentSlide = slideId;
+
+  // After AF out completes: hide old, show new, AF reveal-in on new
+  setTimeout(function () {
+    oldEl.classList.remove('active');
+    newEl.classList.add('active');
+    armSlide(newEl);
+  }, 440);
+}
+
+// =====================================================================
+// INTERSECTION OBSERVERS — slot detection + minimap
+// =====================================================================
+function initObserver() {
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var slideId = entry.target.dataset.slide;
+        transitionTo(slideId);
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.slot').forEach(function (s) { observer.observe(s); });
+}
+
+function initMinimap() {
+  var dots = document.querySelectorAll('nav.minimap a');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.intersectionRatio > 0.5) {
+        var slideId = entry.target.dataset.slide;
+        dots.forEach(function (a) {
+          a.classList.toggle('active', a.dataset.slide === slideId);
+        });
+      }
+    });
+  }, { threshold: [0.5] });
+  document.querySelectorAll('.slot').forEach(function (s) { observer.observe(s); });
+}
+
+// =====================================================================
+// CHART (§1.4-C, dark bg) — pure white-opacity scale, no color
+// =====================================================================
+function initChart() {
+  var el = document.getElementById('chart-mix');
+  if (!el) return;
+  var c = echarts.init(el, null, { renderer: 'canvas' });
+  var TEXT = '#fff';
+  var GRID = 'rgba(255,255,255,0.18)';
+  var GRID_2 = 'rgba(255,255,255,0.06)';
+  c.setOption({
+    backgroundColor: 'transparent',
+    textStyle: { color: TEXT, fontFamily: 'inherit' },
+    legend: {
+      textStyle: { color: TEXT, fontFamily: 'DM Mono, monospace', fontSize: 10 },
+      top: 0, itemWidth: 14, itemHeight: 8,
+      data: ['austerity', 'defaults', 'printing', 'redistribution'],
+    },
+    grid: { left: 70, right: 30, top: 56, bottom: 36 },
+    xAxis: {
+      type: 'category',
+      data: ['US 1930–32', 'US 1933–37', 'JAPAN 90+'],
+      axisLine: { lineStyle: { color: GRID } },
+      axisLabel: { color: TEXT, fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 400 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value', max: 100,
+      axisLine: { lineStyle: { color: GRID } },
+      axisLabel: { color: TEXT, fontFamily: 'DM Mono, monospace', fontSize: 9, formatter: '{value}%', opacity: 0.6 },
+      splitLine: { lineStyle: { color: GRID_2 } },
+    },
+    series: [
+      // Pure white-opacity differentiation. Printing (the active lever) is brightest.
+      { name: 'austerity',      type: 'bar', stack: 'levers', data: [35, 15, 30], itemStyle: { color: 'rgba(255,255,255,0.18)' } },
+      { name: 'defaults',       type: 'bar', stack: 'levers', data: [55, 40, 55], itemStyle: { color: 'rgba(255,255,255,0.45)' } },
+      { name: 'printing',       type: 'bar', stack: 'levers', data: [10, 40, 10], itemStyle: { color: 'rgba(255,255,255,1.0)' } },
+      { name: 'redistribution', type: 'bar', stack: 'levers', data: [ 0,  5,  5], itemStyle: { color: 'rgba(255,255,255,0.30)' } },
+    ],
+    animationDuration: 1100,
+    animationEasing: 'cubicOut',
+    animationDelay: function (idx) { return idx * 60; },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#000',
+      borderColor: GRID,
+      textStyle: { color: TEXT },
+      valueFormatter: function (v) { return v + '%'; },
+    },
+  });
+  window.addEventListener('resize', function () { c.resize(); });
+}
+
+// =====================================================================
+// REFRESH PILL — count-up timer
+// =====================================================================
+function initRefresh() {
+  var pill = document.getElementById('refresh-pill');
+  if (!pill) return;
+  var lastTs = Date.now();
+  function update() {
+    var sec = Math.floor((Date.now() - lastTs) / 1000);
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    var txt = (m > 0 ? m + 'm ' : '') + s + 's';
+    pill.querySelector('span').textContent = 'live · refreshed ' + txt + ' ago';
+  }
+  setInterval(update, 1000);
+  update();
+  setInterval(function () { lastTs = Date.now(); update(); }, 30000);
+}
+
+// =====================================================================
+// KATEX
+// =====================================================================
+function initKatex() {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+}
+
+// =====================================================================
+// BOOT
+// =====================================================================
+window.addEventListener('DOMContentLoaded', function () {
+  initRefresh();
+  // Render KaTeX BEFORE arming hero (so math is ready when §1.4-D activates later)
+  setTimeout(function () {
+    initKatex();
+  }, 200);
+  // Arm hero (initial active slide)
+  setTimeout(function () {
+    var hero = document.querySelector('.slide[data-slide="hero"]');
+    if (hero) armSlide(hero);
+  }, 400);
+  // Observers wired after fonts settle
+  setTimeout(function () {
+    initObserver();
+    initMinimap();
+  }, 600);
+});
+</script>
+
+</body>
+</html>

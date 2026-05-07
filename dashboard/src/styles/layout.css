@@ -1,0 +1,66 @@
+/* Layout shell — Spec §4.2 / §4.6 / §4.7 */
+
+#app {
+  position: relative;
+  min-height: 100vh;
+}
+
+.chip-strip {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  color: var(--fg);
+  padding: var(--gap-md) var(--gap-page);
+  border-bottom: 1px solid currentColor;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  mix-blend-mode: difference;  /* auto-flips on dark theme transitions */
+}
+
+.nav-bar {
+  position: fixed;
+  left: var(--gap-page);
+  right: var(--gap-page);
+  bottom: 24px;
+  height: 36px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  gap: 10px;
+  pointer-events: auto;
+  mix-blend-mode: difference;
+}
+
+.slide {
+  min-height: 100vh;
+  padding: var(--gap-page) var(--gap-page) calc(var(--gap-page) + 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.slide[data-theme="dark"] { background: var(--ink); --fg: var(--paper); --bg: var(--ink); }
+.slide[data-theme="light"] { background: var(--paper); --fg: var(--ink); --bg: var(--paper); }
+
+.slide-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.disclaimer-footer {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+  text-align: center;
+  padding: var(--gap-lg);
+}

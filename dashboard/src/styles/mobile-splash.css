@@ -1,0 +1,38 @@
+/* Mobile splash CSS — Spec §4.10 + design tokens */
+.mobile-splash {
+  min-height: 100vh;
+  padding: 32px;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.mobile-splash h1 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(40px, 9vw, 72px);
+  letter-spacing: var(--tracking-tighter);
+  line-height: 1.04;
+  margin: 24px 0;
+}
+.mobile-splash p {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.55;
+  font-style: italic;
+  font-weight: 300;
+}
+.email-link {
+  margin-top: 32px;
+  display: inline-block;
+  padding: 16px 24px;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}

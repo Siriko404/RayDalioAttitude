@@ -7,6 +7,9 @@ import './styles/wizard.css';
 
 import './nav/nav-bar.css';
 import './chips/chip-strip.css';
+import './styles/mobile-splash.css';
+
+import { isMobileBlocked, renderMobileSplash } from './ui/mobile-splash.js';
 
 // Slide modules — imports register them via side-effect (registerSlide in module body)
 import './slides/slide-1-1-economic-machine.js';
@@ -56,6 +59,10 @@ const NAV_GROUPS = [
 
 async function bootstrap() {
   const app = document.getElementById('app');
+  if (isMobileBlocked()) {
+    renderMobileSplash(app);
+    return;
+  }
   const saved = loadWizard();
   if (saved) {
     setWizard(saved);

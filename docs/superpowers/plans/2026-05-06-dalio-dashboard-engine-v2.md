@@ -233,10 +233,12 @@ Expected: FAIL with "main.js not found" or "vitest not installed"
   },
   "dependencies": {
     "fflate": "0.8.2",
-    "xlsx": "0.20.3"
+    "xlsx": "0.18.5"
   }
 }
 ```
+
+> **Note (T1 build deviation, 2026-05-06):** `xlsx@0.20.3` does not exist on the public npm registry. SheetJS Community releases on npm topped out at `0.18.5`; `0.20.x` is Pro-CDN only. T1 implementer substituted `0.18.5` and the deviation was accepted. If backend XLSX parsing tasks (T13-T16) need features beyond `0.18.5`, evaluate `exceljs` or SheetJS Pro CDN.
 
 - [ ] **Step 6: Append to root .gitignore**
 

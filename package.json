@@ -1,0 +1,11 @@
+{
+  "name": "dalio-dashboard-monorepo",
+  "private": true,
+  "workspaces": ["dashboard", "backend"],
+  "scripts": {
+    "dev": "npm --workspace dashboard run dev",
+    "build": "npm --workspace dashboard run build",
+    "test": "npm --workspace dashboard run test && npm --workspace backend run test",
+    "deploy:backend": "npm --workspace backend run deploy"
+  }
+}

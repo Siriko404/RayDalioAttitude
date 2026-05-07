@@ -4694,6 +4694,11 @@ export function computeDeleveragings(input, gateOpen) {
  *   Fires when R^{D/M} > 17 instantaneous (narrow-money basis)
  *   OR  debt_money_regime=HIGH AND gap_regime=BELOW_TREND sustained ≥2 consecutive quarters.
  *
+ * v1 KNOWN COMPROMISE: under single-fetch-on-load (Set 3.5 D3), there is no
+ * cross-session regime history → `history` array is always empty in v1. Only
+ * the `R_dm > 17` instantaneous path actually fires in v1.0. Sustained-2Q
+ * hysteresis path requires server-side regime journal (deferred to v1.1).
+ *
  * @param {{R_dm: number, history: Array<{debt_money_regime: string, gap_regime: string}>}} params
  */
 export function isGateOpen({ R_dm, history }) {
@@ -7982,16 +7987,142 @@ git commit -m "feat(slide-11): Final Recommendation — recipe block + tail pane
 
 ---
 
-### Task 56: Wire all slides + chip-strip emit binding into bootstrap
+### Task 56: Compute pipeline + slide imports + chip emit binding
 
 **Files:**
+- Create: `dashboard/src/core/compute-pipeline.js`
+- Create: `dashboard/tests/unit/compute-pipeline.test.js`
 - Modify: `dashboard/src/main.js`
-- Modify: `dashboard/src/core/render.js` (only if needed for emit-flow)
 - Create: `dashboard/tests/e2e/full-flow.spec.js`
 
 Spec ref: §3 DAG order + §4.7 chip strip emit binding (1.6 → Empire; 1.3 → Debt; 1.5 → Paradigm; 1.7 → Inflation).
 
-- [ ] **Step 1: Write the failing E2E test**
+**Critical contract:** the pipeline runs ALL 13 compute modules in DAG order ONCE after `setPayload()`, attaching each result to `payload.computedXxx`. Slides read from the attached results (drop the `?? computeXxx(...)` fallback once pipeline is wired). Chips read from the same attached results — without the pipeline, chip emit-fns get `{}` and FR-7.5 silently fails.
+
+- [ ] **Step 1: Write the failing unit test for compute pipeline**
+
+Create `dashboard/tests/unit/compute-pipeline.test.js`:
+
+```js
+import { describe, it, expect } from 'vitest';
+
+describe('compute pipeline', () => {
+  it('runs all 13 modules in DAG order + attaches each to payload.computedXxx', async () => {
+    const { runComputePipeline } = await import('../../src/core/compute-pipeline.js');
+    const payload = { sources: { fred: {}, bis: {}, cofer: {}, wb_wdi: {}, damodaran: { histretSP: [] }, shiller: { ie_data: [] }, yardeni: null, nber: { recession_dates: [] }, nyfed: { recession_prob_12m: 0.18 } } };
+    runComputePipeline(payload, { sigma_target: 0.10 });
+    expect(payload.computedEconMachine).toBeDefined();
+    expect(payload.computedShortCycle).toBeDefined();
+    expect(payload.computedLongDebt).toBeDefined();
+    expect(payload.computedDelev).toBeDefined();
+    expect(payload.computedInflation).toBeDefined();
+    expect(payload.computedParadigms).toBeDefined();
+    expect(payload.computedWorldOrder).toBeDefined();
+    expect(payload.computedAW).toBeDefined();
+    expect(payload.computedStress).toBeDefined();
+    expect(payload.computedRiskParity).toBeDefined();
+    expect(payload.computedHolyGrail).toBeDefined();
+    expect(payload.computedAlpha).toBeDefined();
+    expect(payload.computedTilt).toBeDefined();
+  });
+
+  it('downstream modules see upstream outputs (e.g. tilt arbiter sees inflation regime)', async () => {
+    const { runComputePipeline } = await import('../../src/core/compute-pipeline.js');
+    const payload = { sources: { fred: {} } };
+    runComputePipeline(payload, { sigma_target: 0.10 });
+    // Tilt arbiter consumed inflation + delev + paradigms emits
+    expect(payload.computedTilt.binding_rule).toBeDefined();
+  });
+});
+```
+
+- [ ] **Step 2: Create compute-pipeline.js**
+
+```js
+/* Compute pipeline orchestrator — runs all 13 framework compute modules in DAG
+ * order ONCE per page load. Attaches each result to payload.computedXxx so
+ * slides + chips read from a single source of truth.
+ *
+ * DAG order per Spec §3 (Set 3.5 D1):
+ *   1.1 → 1.2 → 1.3 → 1.4(cond) → 1.7 → 1.5 → 1.6 → 2.1 → 2.2 → 2.5 → 2.4 → 2.3
+ *   → tilt arbiter (consumes 1.4 + 1.5 + 1.7)
+ */
+import { computeEconMachine }   from '../compute/econ-machine.js';
+import { computeShortCycle }    from '../compute/short-cycle.js';
+import { computeLongDebt }      from '../compute/long-debt.js';
+import { computeDeleveragings, isGateOpen } from '../compute/deleveragings.js';
+import { computeInflation }     from '../compute/inflation.js';
+import { computeParadigms }     from '../compute/paradigms.js';
+import { computeWorldOrder }    from '../compute/world-order.js';
+import { computeHolyGrail }     from '../compute/holy-grail.js';
+import { computeAllWeather, applyTilts } from '../compute/all-weather.js';
+import { computeStress }        from '../compute/stress.js';
+import { computeRiskParity }    from '../compute/risk-parity.js';
+import { computeAlpha }         from '../compute/alpha.js';
+import { arbitrateTilts }       from '../compute/tilt-arbiter.js';
+
+export function runComputePipeline(payload, wizard = {}) {
+  // Tier 1 — economic foundation
+  payload.computedEconMachine = computeEconMachine(payload);
+  payload.computedShortCycle  = computeShortCycle(payload);
+  payload.computedLongDebt    = computeLongDebt(payload);
+
+  // Tier 2 — conditional + inflation + paradigms
+  const gateOpen = isGateOpen({
+    R_dm: payload.computedEconMachine?.R_dm_narrow ?? 0,
+    history: payload.regimeHistory ?? []
+  });
+  payload.computedDelev       = computeDeleveragings(buildDelevInput(payload), gateOpen);
+  payload.computedInflation   = computeInflation(buildInflationInput(payload));
+  payload.computedParadigms   = computeParadigms(buildParadigmsInput(payload));
+
+  // Tier 3 — empire + portfolio analytics
+  payload.computedWorldOrder  = computeWorldOrder(buildWorldOrderInput(payload));
+  payload.computedHolyGrail   = computeHolyGrail({ N: 8, ρ_avg: 0.22 });   // illustrative; AW canonical
+  payload.computedAW          = computeAllWeather({ vols: deriveVols(payload) });
+
+  // Tier 4 — tilt arbiter consumes inflation + delev + paradigms
+  payload.computedTilt = arbitrateTilts({
+    inflation:    payload.computedInflation,
+    deleveragings: payload.computedDelev,
+    paradigms:    payload.computedParadigms
+  });
+
+  // Tier 5 — stress + leverage consume final tilted weights
+  const tiltedWeights = applyTilts(payload.computedTilt.tilts);
+  payload.computedStress     = computeStress({ weights: tiltedWeights });
+  payload.computedRiskParity = computeRiskParity({
+    vols: deriveVols(payload, ['equities', 'treasury10', 'gold', 'commodities']),
+    σ_target: wizard.sigma_target ?? 0.10,
+    r_p: 0.07415, r_f: 0.04, funding_spread_bp: 0
+  });
+  payload.computedAlpha      = computeAlpha({
+    N: wizard.t3_n ?? 1, ρ_avg: wizard.t3_rho ?? 0,
+    IC: wizard.t3_ic ?? 0, n_dec: 49
+  });
+}
+
+// Input adapters — map raw sources to compute-module input shape.
+// Implementer iterates each adapter against canonical fixtures from research/.
+function buildDelevInput(payload)      { /* derive NGDP_yoy, LT_Rate, DebtGDP series, etc. */ return {}; }
+function buildInflationInput(payload)  { /* derive pi_hdln, r_mkt, ΔFX_12m, ΔGold_12m */ return {}; }
+function buildParadigmsInput(payload)  { /* derive decadeReturns, RealRate10y, BuybackYield, etc. */ return { decadeReturns: { SPX:{d2000s:0,d2010s:0}, UST10:{d2000s:0,d2010s:0}, Tbill:{d2000s:0,d2010s:0}, Gold:{d2000s:0,d2010s:0}, Cmdty:{d2000s:0,d2010s:0} } }; }
+function buildWorldOrderInput(payload) { /* derive 8-measure z-scores, COFER resDelta */ return { panel: { USA: {}, CHN: {} }, anchors: { max: 1.9, min: -1.5 } }; }
+function deriveVols(payload, keys = ['equities', 'int_treasury', 'long_treasury', 'gold', 'commodities']) {
+  // 252-day rolling vol from FRED daily returns; default to Apr-2026 illustrative if missing.
+  const defaults = { equities: 0.16, int_treasury: 0.06, treasury10: 0.06, long_treasury: 0.13, gold: 0.15, commodities: 0.18 };
+  const out = {};
+  for (const k of keys) out[k] = defaults[k];
+  return out;
+}
+```
+
+- [ ] **Step 3: Run unit test, verify pass**
+
+Run: `cd dashboard && npm test -- compute-pipeline`
+Expected: PASS — all 13 attached + downstream tilt visible.
+
+- [ ] **Step 4: Write the failing E2E test**
 
 ```js
 import { test, expect } from '@playwright/test';
@@ -8020,12 +8151,12 @@ test('full flow: bootstrap → wizard skip → all 13 slides render → final re
 });
 ```
 
-- [ ] **Step 2: Run, verify fail**
+- [ ] **Step 5: Run E2E, verify fail**
 
 Run: `cd dashboard && npm run test:e2e -- full-flow`
 Expected: FAIL — slides not yet imported.
 
-- [ ] **Step 3: Add slide imports + chip-strip wiring to `main.js`**
+- [ ] **Step 6: Add slide imports + pipeline call + chip-strip wiring to `main.js`**
 
 Append imports to `dashboard/src/main.js`:
 
@@ -8046,6 +8177,17 @@ import './slides/sidebar-2-1-holy-grail.js';
 import './slides/sidebar-2-3-alpha.js';
 
 import { observeEmittingSlides } from './chips/observer.js';
+import { runComputePipeline } from './core/compute-pipeline.js';
+import { getWizard } from './core/state.js';
+```
+
+In `runDashboard()` between `setPayload(data)` and `renderAll(...)`, INSERT:
+
+```js
+// CRITICAL: run the compute pipeline ONCE here, before render.
+// Slides + chips both read from payload.computedXxx — without this call,
+// chip emit-fns get {} and FR-7.5 silently fails.
+runComputePipeline(data, getWizard());
 ```
 
 In `runDashboard()` after `renderAll(...)`, append before nav-bar wiring:
@@ -8081,16 +8223,16 @@ function bandFromStage(s) { return s === 'PEAK' || s === 'DELEVERAGING' ? 'amber
 function bandFromInflation(r) { return r === 'INFLATIONARY' ? 'red' : (r === 'STAGFLATION' ? 'amber' : 'green'); }
 ```
 
-- [ ] **Step 4: Run test, verify pass**
+- [ ] **Step 7: Run E2E, verify pass**
 
 Run: `cd dashboard && npm run test:e2e -- full-flow`
-Expected: PASS — 13 slides render + final recipe visible after scroll.
+Expected: PASS — 13 slides render + final recipe visible after scroll + chip strip fills as user scrolls past emitting slides.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add dashboard/src/main.js dashboard/tests/e2e/full-flow.spec.js
-git commit -m "feat(core): wire 13 slide modules + chip-strip emit binding (1.3/1.5/1.6/1.7)"
+git add dashboard/src/core/compute-pipeline.js dashboard/src/main.js dashboard/tests/unit/compute-pipeline.test.js dashboard/tests/e2e/full-flow.spec.js
+git commit -m "feat(core): compute pipeline orchestrator + 13 slide imports + chip emit binding"
 ```
 
 ---

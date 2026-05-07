@@ -37,6 +37,7 @@ import { renderTier23 } from './wizard/tier-2-3.js';
 import { saveWizard, loadWizard } from './wizard/persistence.js';
 import { renderChipStrip } from './chips/chip-strip.js';
 import { observeEmittingSlides } from './chips/observer.js';
+import { renderSettingsLink } from './wizard/settings.js';
 import { renderNavBar } from './nav/nav-bar.js';
 import { bindProximity } from './nav/proximity.js';
 import { bindScrollspy } from './nav/scrollspy.js';
@@ -94,6 +95,7 @@ async function runDashboard() {
   `;
   const header = document.getElementById('chip-strip');
   renderChipStrip(header);
+  renderSettingsLink(header, () => window.location.reload());
   const loader = document.createElement('span');
   loader.id = 'loading-text';
   loader.className = 'eyebrow';

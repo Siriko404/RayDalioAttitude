@@ -12,12 +12,14 @@
   background: var(--bg);
   color: var(--fg);
   padding: var(--gap-md) var(--gap-page);
-  border-bottom: 1px solid currentColor;
-  border-bottom-color: rgba(0, 0, 0, 0.08);
+  /* hairline separator — currentColor preserves theme inversion */
+  border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
   display: flex;
   align-items: center;
   gap: var(--gap-md);
-  mix-blend-mode: difference;  /* auto-flips on dark theme transitions */
+  /* mix-blend-mode: difference auto-flips chip color on dark/light slide
+     transitions. Requires global pure-BW constraint per spec §0. */
+  mix-blend-mode: difference;
 }
 
 .nav-bar {
@@ -29,7 +31,8 @@
   z-index: 60;
   display: flex;
   align-items: center;
-  justify-content: stretch;
+  /* nav segments fill bar evenly via flex:1 on each .nav-cell child (T26).
+     justify-content irrelevant once children stretch; left default fine. */
   gap: 10px;
   pointer-events: auto;
   mix-blend-mode: difference;
@@ -37,6 +40,7 @@
 
 .slide {
   min-height: 100vh;
+  /* bottom = gap-page + nav clearance: 36px nav-bar height + 24px bottom + 20px breathing */
   padding: var(--gap-page) var(--gap-page) calc(var(--gap-page) + 80px);
   display: flex;
   flex-direction: column;

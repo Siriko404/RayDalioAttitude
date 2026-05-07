@@ -1,0 +1,47 @@
+/* Chip strip — Spec §4.7 + §4.8.
+ * Status encoding: weight + inverted-block + symbol — no color.
+ */
+
+.chip-strip-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin-right: var(--gap-md);
+}
+
+.chip {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--paper-soft);
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.chip em { font-style: italic; }
+
+/* Filled — base GREEN state */
+.chip[data-filled="true"] {
+  color: var(--fg);
+  border-color: currentColor;
+  font-weight: 500;
+}
+
+/* AMBER — bold + thick rule + ◆ symbol injected by fillChip */
+.chip[data-filled="true"][data-status="amber"] {
+  font-weight: 700;
+  border-bottom-width: 2px;
+}
+
+/* RED — inverted block: white text on black bg */
+.chip[data-filled="true"][data-status="red"] {
+  font-weight: 700;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}

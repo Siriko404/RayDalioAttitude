@@ -7,7 +7,8 @@ export async function fetchShiller(env) {
   if (env.__TEST) {
     return { ie_data: [{ date: '2024.12', sp500: 5800, cape: 36.2, longRate: 4.5 }] };
   }
-  const url = 'http://www.econ.yale.edu/~shiller/data/ie_data.xls';
+  // CF Workers reject plain http; Yale's server serves over https
+  const url = 'https://www.econ.yale.edu/~shiller/data/ie_data.xls';
   const r = await fetch(url);
   if (!r.ok) throw new Error(`Shiller HTTP ${r.status}`);
   const buf = await r.arrayBuffer();

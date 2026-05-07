@@ -63,10 +63,13 @@ const FRED_SERIES = [
   'DFF',                    // Fed funds effective D
   'VIXCLS',                 // VIX D
 
+  // 2.2 All-Weather (research/09 §4 L37)
+  'DGS20',                  // 20Y Treasury yield D (long-Treasury return proxy ret_tlt)
+
   // 2.3 Alpha (research/10 §4 L32-43)
   'DGS3MO'                  // Cash rate proxy D (alias for DTB3)
 ];
-// Total: 47 distinct FRED series across all 12 frameworks. DGS3MO and DTB3 are
+// Total: 46 distinct FRED series across all 12 frameworks. DGS3MO and DTB3 are
 // both 3-month T-bill rates — kept both for citation traceability per
 // research/10 §4 L34 (alpha) vs research/08 §4 L37 (holy grail).
 

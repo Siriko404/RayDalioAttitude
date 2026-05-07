@@ -1,0 +1,24 @@
+.tab-group { margin-top: var(--gap-lg); }
+.tab-bar {
+  display: flex;
+  gap: var(--gap-md);
+  border-bottom: 1px solid currentColor;
+  border-bottom-color: rgba(0,0,0,0.15);
+  margin-bottom: var(--gap-md);
+}
+.tab {
+  background: transparent;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--fg);
+  padding: 12px 0;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.tab[aria-selected="true"] { opacity: 1; border-bottom: 1px solid currentColor; }
+.tab-pane { display: none; }
+.tab-pane[data-open="true"] { display: block; }

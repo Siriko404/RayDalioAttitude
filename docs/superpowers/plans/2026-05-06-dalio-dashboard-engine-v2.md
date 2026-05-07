@@ -1802,7 +1802,7 @@ Expected: FAIL — stub throws
 ```js
 /* FRED normalizer — Spec §2.4
  * Series IDs from research/01-12 §4 input tables (verified verbatim against
- * .superpowers/research-extract-for-plan-v2.md).
+ * docs/superpowers/research-extracts/2026-05-06-research-extract.md).
  */
 const FRED_SERIES = [
   // 1.1 Economic Machine (research/01 §4 L29-41)
@@ -4050,7 +4050,7 @@ git commit -m "feat(nav): click-to-scroll + full nav wiring into bootstrap"
 
 ## Phase 9 — Per-Framework Compute Modules
 
-Each module is a pure function: `(payload, wizard) → { regime/states, formula outputs, integration emits }`. Formulas + thresholds verbatim from `.superpowers/research-extract-for-plan-v2.md` (which is the read-only canonical extract from research/01-12).
+Each module is a pure function: `(payload, wizard) → { regime/states, formula outputs, integration emits }`. Formulas + thresholds verbatim from `docs/superpowers/research-extracts/2026-05-06-research-extract.md` (which is the read-only canonical extract from research/01-12).
 
 ### Task 30: 1.1 Economic Machine compute
 

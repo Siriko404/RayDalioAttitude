@@ -38,6 +38,7 @@ import { saveWizard, loadWizard } from './wizard/persistence.js';
 import { renderChipStrip } from './chips/chip-strip.js';
 import { observeEmittingSlides } from './chips/observer.js';
 import { renderSettingsLink } from './wizard/settings.js';
+import { bindSlideReveals } from './animations/slide-reveals.js';
 import { renderNavBar } from './nav/nav-bar.js';
 import { bindProximity } from './nav/proximity.js';
 import { bindScrollspy } from './nav/scrollspy.js';
@@ -121,6 +122,9 @@ async function runDashboard() {
     bindProximity(navBar);
     bindScrollspy(navBar, document.getElementById('slides'));
     bindClickScroll(navBar);
+
+    // AF reveals on slide entry/exit (Spec §4.9 FR-9.4)
+    bindSlideReveals(document.getElementById('slides'));
 
     // Chip-strip emit binding per Spec §4.7 FR-7.5:
     //   1.6 emits Empire   (StageTag.USA)

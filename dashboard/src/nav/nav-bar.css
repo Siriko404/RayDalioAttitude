@@ -1,0 +1,140 @@
+/* Nav bar — Spec §4.6 FR-6.1–6.10.
+ * Idle: hairline; hover: dots; current: filled.
+ */
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.nav-group {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-group-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-nav);
+  text-transform: uppercase;
+  color: var(--fg);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+  white-space: nowrap;
+  position: absolute;
+  bottom: calc(100% + 12px);
+}
+
+.nav-group[data-current="true"] .nav-group-label { opacity: 1; font-weight: 500; }
+.nav-bar:hover .nav-group-label { opacity: 0.7; }
+.nav-bar:hover .nav-group[data-current="true"] .nav-group-label { opacity: 1; }
+
+.nav-group[data-kind="edu"] .nav-group-label { font-style: italic; opacity: 0.4; }
+.nav-bar:hover .nav-group[data-kind="edu"] .nav-group-label { opacity: 0.55; }
+
+.nav-segment {
+  position: relative;
+  width: 100%;
+  height: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+}
+
+/* Default state: hairline */
+.nav-segment::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.42;
+}
+
+.nav-group[data-kind="edu"] .nav-segment::before {
+  background: transparent;
+  border-top: 1px dashed currentColor;
+  height: 0;
+  top: calc(50% - 1px);
+}
+
+.nav-cell {
+  flex: 1;
+  height: 36px;  /* full lane click target */
+  background: transparent;
+  border: 0;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-cell-dot {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 1px;
+  height: 1px;
+  background: currentColor;
+  border-radius: 0;
+  transform: translate(-50%, -50%);
+  transition: width var(--dur-morph) var(--ease-snap),
+              height var(--dur-morph) var(--ease-snap),
+              border-radius var(--dur-morph) var(--ease-snap),
+              background var(--dur-morph) var(--ease-snap),
+              box-shadow 200ms ease;
+  opacity: 0.42;
+}
+
+.nav-cell-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-nav);
+  text-transform: uppercase;
+  color: var(--fg);
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+/* Group hover/current: line → hollow dots */
+.nav-group:hover .nav-cell-dot,
+.nav-group[data-current="true"] .nav-cell-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px currentColor;
+  opacity: 1;
+}
+
+/* Hide hairline when group expanded */
+.nav-group:hover .nav-segment::before,
+.nav-group[data-current="true"] .nav-segment::before {
+  opacity: 0;
+}
+
+/* Current cell filled */
+.nav-cell[data-current="true"] .nav-cell-dot {
+  background: currentColor;
+  box-shadow: none;
+}
+.nav-cell[data-current="true"] .nav-cell-label { opacity: 1; }
+
+/* Proximity-near cell brightens + reveals label */
+.nav-cell[data-near="true"] .nav-cell-dot {
+  box-shadow: inset 0 0 0 1.5px currentColor, 0 0 0 1px currentColor;
+}
+.nav-cell[data-near="true"] .nav-cell-label { opacity: 1; }

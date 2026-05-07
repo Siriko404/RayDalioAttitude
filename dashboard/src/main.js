@@ -8,15 +8,32 @@ import './styles/wizard.css';
 import './nav/nav-bar.css';
 import './chips/chip-strip.css';
 
+// Slide modules — imports register them via side-effect (registerSlide in module body)
+import './slides/slide-1-1-economic-machine.js';
+import './slides/slide-1-2-short-term-cycle.js';
+import './slides/slide-1-3-long-term-debt.js';
+import './slides/slide-1-4-deleveragings.js';
+import './slides/slide-1-7-inflation.js';
+import './slides/slide-1-5-paradigms.js';
+import './slides/slide-1-6-world-order.js';
+import './slides/slide-2-2-all-weather.js';
+import './slides/slide-2-5-stress.js';
+import './slides/slide-2-4-risk-parity.js';
+import './slides/slide-final-recommendation.js';
+import './slides/sidebar-2-1-holy-grail.js';
+import './slides/sidebar-2-3-alpha.js';
+
 import { fetchAll } from './core/fetch.js';
-import { setPayload, setWizard } from './core/state.js';
+import { setPayload, setWizard, getWizard } from './core/state.js';
 import { renderAll } from './core/render.js';
+import { runComputePipeline } from './core/compute-pipeline.js';
 import { startLoadingLoop, stopLoadingLoop } from './animations/loading-loop.js';
 import { renderWelcome } from './wizard/welcome.js';
 import { renderTier1 } from './wizard/tier-1.js';
 import { renderTier23 } from './wizard/tier-2-3.js';
 import { saveWizard, loadWizard } from './wizard/persistence.js';
 import { renderChipStrip } from './chips/chip-strip.js';
+import { observeEmittingSlides } from './chips/observer.js';
 import { renderNavBar } from './nav/nav-bar.js';
 import { bindProximity } from './nav/proximity.js';
 import { bindScrollspy } from './nav/scrollspy.js';
@@ -80,6 +97,12 @@ async function runDashboard() {
   try {
     const data = await fetchAll();
     setPayload(data);
+
+    // CRITICAL: run compute pipeline ONCE here, before render. Slides + chips
+    // both read from payload.computedXxx — without this, chip emit-fns get {}
+    // and FR-7.5 silently fails.
+    runComputePipeline(data, getWizard());
+
     stopLoadingLoop(loader);
     loader.textContent = `DATA · ${formatTs(data.fetched_at_utc)}`;
     renderAll(document.getElementById('slides'));
@@ -89,11 +112,40 @@ async function runDashboard() {
     bindProximity(navBar);
     bindScrollspy(navBar, document.getElementById('slides'));
     bindClickScroll(navBar);
+
+    // Chip-strip emit binding per Spec §4.7 FR-7.5:
+    //   1.6 emits Empire   (StageTag.USA)
+    //   1.3 emits Debt     (stage)
+    //   1.5 emits Paradigm (paradigm_stage)
+    //   1.7 emits Inflation (regime)
+    observeEmittingSlides({
+      '1.6': () => {
+        const w = data?.computedWorldOrder ?? {};
+        return { kind: 'empire', label: titleCase(w.StageTag?.USA || 'unknown'), status: bandFromHegemony(w.HegemonyRisk) };
+      },
+      '1.3': () => {
+        const d = data?.computedLongDebt ?? {};
+        return { kind: 'debt', label: titleCase(d.stage || 'unknown'), status: bandFromStage(d.stage) };
+      },
+      '1.5': () => {
+        const p = data?.computedParadigms ?? {};
+        return { kind: 'paradigm', label: titleCase(p.paradigm_stage || 'unknown'), status: p.paradigm_stage === 'LATE' ? 'amber' : 'green' };
+      },
+      '1.7': () => {
+        const i = data?.computedInflation ?? {};
+        return { kind: 'inflation', label: titleCase(i.regime || 'beautiful'), status: bandFromInflation(i.regime) };
+      }
+    });
   } catch (err) {
     stopLoadingLoop(loader);
     loader.textContent = `ERROR · ${err.message}`;
   }
 }
+
+function titleCase(s) { return s ? s[0] + s.slice(1).toLowerCase() : ''; }
+function bandFromHegemony(h) { return h === 'HIGH' ? 'red' : h === 'ELEVATED' ? 'amber' : 'green'; }
+function bandFromStage(s) { return s === 'PEAK' || s === 'DELEVERAGING' ? 'amber' : 'green'; }
+function bandFromInflation(r) { return r === 'INFLATIONARY' ? 'red' : (r === 'STAGFLATION' ? 'amber' : 'green'); }
 
 function formatTs(iso) {
   try {

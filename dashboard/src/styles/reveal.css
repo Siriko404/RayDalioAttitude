@@ -1,0 +1,16 @@
+/* Reveal styles — Spec §4.9 */
+
+.reveal-ch {
+  display: inline-block;
+  position: relative;
+}
+
+.reveal-target {
+  /* Marker class for scroll-triggered reveal binding */
+  will-change: contents;
+}
+
+/* When .armed is added by armSlide(), elements are about to reveal */
+.reveal-target.armed .reveal-ch {
+  /* No special styling needed; airForceReveal manages via inline styles */
+}

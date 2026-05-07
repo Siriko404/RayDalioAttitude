@@ -43,6 +43,7 @@ export function computeWorldOrder(input) {
 
   return {
     CPI, StageTag, HegemonyRisk, cntNeg, cofer_resDelta10pp,
+    zScores: panel,    // exposed for radar visualization (slide-1-6)
     emits: ['CountryPowerIndex', 'StageTag', 'HegemonyRisk']
   };
 }

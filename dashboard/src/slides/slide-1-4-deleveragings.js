@@ -14,10 +14,11 @@ registerSlide({
   id: '1.4',
   title: 'Deleveragings',
   render(section, { payload }) {
-    const econ = payload?.computedRegimes ?? computeEconMachine(payload);
-    // History for hysteresis would come from a derived rolling window in a future
-    // version; v1 treats current-quarter snapshot as the sole input.
-    const gateOpen = isGateOpen({ R_dm: econ.R_dm_narrow ?? 0, history: payload?.regimeHistory ?? [] });
+    const econ = payload?.computedEconMachine ?? computeEconMachine(payload);
+    // Pipeline already ran; prefer its computed result. v1: cross-session regime
+    // history journal deferred → only R_dm > 17 path can fire.
+    const piped = payload?.computedDelev;
+    const gateOpen = piped ? piped.gateOpen : isGateOpen({ R_dm: econ.R_dm_narrow ?? 0, history: payload?.regimeHistory ?? [] });
 
     if (!gateOpen) {
       renderSlideShell(section, {
@@ -32,8 +33,8 @@ registerSlide({
       return;
     }
 
-    // Gate OPEN — render lever-mix chart
-    const out = computeDeleveragings(buildDeleveragingsInput(payload, econ), true);
+    // Gate OPEN — render lever-mix chart from pipeline result
+    const out = piped ?? computeDeleveragings(buildDeleveragingsInput(payload, econ), true);
     const onePoint = phraseRegime(out);
     const caption = `Growth − rate gap <em>G = ${out.G.toFixed(1)} pp</em>; print rate <em>π = ${(out.pi * 100).toFixed(1)}%</em>; lever mix print/austerity/default/redist.`;
 

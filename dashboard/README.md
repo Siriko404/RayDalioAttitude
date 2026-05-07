@@ -4,6 +4,7 @@ Live analytical workflow tool implementing Ray Dalio's 12 frameworks as a sequen
 
 **Spec:** `docs/superpowers/specs/2026-05-06-dashboard-design.md`
 **Plan:** `docs/superpowers/plans/2026-05-06-dalio-dashboard-engine-v2.md`
+**UI/UX handoff:** `dashboard/HANDOFF.md` (design-consumer guide — payload contract, slide registry, animation API, mock fixture)
 
 ## Tech stack
 
@@ -13,10 +14,16 @@ Vanilla JS · Vite 5 · Vitest 2 + happy-dom + Playwright · ECharts 5 · GSAP 3
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173
+npm run dev:design   # http://localhost:5173 — uses MOCK_PAYLOAD (no backend, no API key)
+npm run dev          # http://localhost:5173 — uses live /api/fetch-all (Worker required)
 npm run test         # unit tests (vitest)
 npm run test:e2e     # Playwright
 ```
+
+**Design mode:** sets `VITE_DESIGN_MODE=1` so `fetchAll()` returns the static
+`src/fixtures/mock-payload.js` snapshot instead of hitting the network. Every
+slide renders fully populated for offline UI/UX iteration. Or use
+`?mock=1` URL param for ad-hoc previews under live mode.
 
 ## Deploy
 
@@ -53,3 +60,10 @@ Compute order: 1.1 → 1.2 → 1.3 → 1.4(cond) → 1.7 → 1.5 → 1.6 → 2.1
 - FR-11 Excel-parallel xlsx export (Q5.2 lock)
 - Server-side regime journal for sustained-2Q gate hysteresis (research/04 §6.2)
 - Multi-pair sustained-quarter Set 3.5 D3 history
+- 1.6 multi-country live z-score panel (currently hardcoded from research/06 §7) —
+  needs WB/BIS/COFER multi-country fan-out beyond the single-USA-indicator MVP fetch
+- 1.5 BuybackYield from S&P SP500BUYBACK series (currently 0.025 default)
+- 1.5 ProfitShareMean+σ rolling 1947-now from BEA (currently 0.106 hardcode)
+- 1.5 StatTaxRate flags from OECD TABLE_II1 (currently both `true` hardcoded)
+- 1.4 force-gate-open URL override for design preview of triggered-state path
+- Backend Cloudflare Worker deployment + FRED_API_KEY secret rotation

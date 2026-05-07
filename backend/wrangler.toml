@@ -1,0 +1,8 @@
+name = "dalio-dashboard-backend"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+# FRED_API_KEY set via: wrangler secret put FRED_API_KEY
